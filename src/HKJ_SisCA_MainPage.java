@@ -12,6 +12,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.ArrayList;
 
 import javax.swing.AbstractListModel;
 import javax.swing.BoxLayout;
@@ -46,6 +49,8 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
+import databases.DBManager;
+
 import net.miginfocom.swing.MigLayout;
 
 
@@ -56,6 +61,11 @@ public class HKJ_SisCA_MainPage {
 	static JPanel leftPanel;
 	static JPanel mainPanel;
 	static JPanel windowPanel;
+	private DBManager dbman;
+	private ArrayList<Object> availableSAD;
+	private ArrayList<Object> availableAtzType;
+	private String[] availableSadList;
+	private String[] availableAtzTypeList;
 
 
 	// HKJ_SisCA_MainPage Constructor
@@ -67,12 +77,12 @@ public class HKJ_SisCA_MainPage {
 		frame= new JFrame();
 
 		// Image Icons
-		ImageIcon img1=  new ImageIcon("/Users/JuanPablo/Documents/HKJ_SisCA/GUI/Icons/i1.png");
-		ImageIcon img2=  new ImageIcon("/Users/JuanPablo/Documents/HKJ_SisCA/GUI/Icons/i2.png");
-		ImageIcon img3=  new ImageIcon("/Users/JuanPablo/Documents/HKJ_SisCA/GUI/Icons/i3.png");
-		ImageIcon img4=  new ImageIcon("/Users/JuanPablo/Documents/HKJ_SisCA/GUI/Icons/i4.png");
-		ImageIcon img5=  new ImageIcon("/Users/JuanPablo/Documents/HKJ_SisCA/GUI/Icons/i5.png");
-		ImageIcon img6=  new ImageIcon("/Users/JuanPablo/Documents/HKJ_SisCA/GUI/Icons/i6.png");
+		ImageIcon img1=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i1.png");
+		ImageIcon img2=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i2.png");
+		ImageIcon img3=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i3.png");
+		ImageIcon img4=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i4.png");
+		ImageIcon img5=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i5.png");
+		ImageIcon img6=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i6.png");
 
 
 		/////////////////////////////////////////////////////////
@@ -1539,20 +1549,49 @@ public class HKJ_SisCA_MainPage {
 
 		JScrollPane scrollPaneSADs = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneSADs, "cell 0 1,grow");
-
-		JList SADList = new JList();
+////////////
+		try {
+			dbman = new DBManager();
+			availableSAD = dbman.getFromDB("select * from sisca_sad where sisca_sad_active='false'");
+			availableSAD = dbman.getAvailableSAD(availableSAD);
+			availableAtzType = dbman.getFromDB("select * from sisca_authorization");
+			availableAtzType = dbman.getAvailableAuthorizationTypes(availableAtzType);
+			availableSadList = new String[availableSAD.size()];
+			for(int i=0; i<availableSAD.size(); i++){
+				String myString = (String) availableSAD.get(i);
+				availableSadList[i]=myString.toUpperCase();
+				System.out.println(myString);
+			}
+			availableAtzTypeList = new String[availableAtzType.size()];
+			for(int i=0; i<availableAtzType.size(); i++){
+				String myString = (String) availableAtzType.get(i);
+				availableAtzTypeList[i]=myString.toUpperCase();
+				System.out.println(myString);
+			}
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+////////////
+		JList<String> SADList = new JList<String>(availableSadList);
 		scrollPaneSADs.setViewportView(SADList);
 
 		JScrollPane scrollPaneCurrentSADs = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneCurrentSADs, "cell 1 1,grow");
 
-		JList currentSADList = new JList();
+		JList<String> currentSADList = new JList<String>();
 		scrollPaneCurrentSADs.setViewportView(currentSADList);
 
 		JScrollPane scrollPaneATypes = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneATypes, "cell 3 1,grow");
 
-		JList ATypesList = new JList();
+		JList<String> ATypesList = new JList<String>(availableAtzTypeList);
 		scrollPaneATypes.setViewportView(ATypesList);
 
 		JScrollPane scrollPaneCurrentATypes = new JScrollPane();
