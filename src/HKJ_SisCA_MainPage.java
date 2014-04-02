@@ -1,5 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -8,6 +9,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.List;
+import java.awt.ScrollPane;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -46,6 +48,7 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
@@ -64,20 +67,42 @@ public class HKJ_SisCA_MainPage {
 	static JPanel mainPanel;
 	static JPanel windowPanel;
 	private DBManager dbman;
+
 	private ArrayList<Object> availableSAD;
 	private ArrayList<Object> availableAtzType;
-
+	private ArrayList<Object> fillParkingInformation;
 	private ArrayList<Object> registerParkings;
+	private ArrayList<Object> parkingInformation;
+	private ArrayList<Object> fillParkingInformationSads;
+	private ArrayList<Object> fillParkingInformationOperationsDays;
+	private ArrayList<Object> fillParkingInformationAuthorizations;
 	
 	private String[] availableSadList;
 	private String[] availableAtzTypeList;
-	
+	private String[] parkingInfoSadList;
+
 	private DefaultListModel registerParkingsList;
 	private DefaultListModel availableSADModelList;
 	private DefaultListModel availableAtzTypesModelList;
 	private DefaultListModel chosenSADModelList;
 	private DefaultListModel chosenAtzTypesModelList;
+	private DefaultListModel parkingInformationList;
+	private DefaultListModel parkingInfoSADListView;
+
+	private String mouseSelectParkingViewList;
+	private String parkingInfoName;
+	private String parkingInfoCapacity;
+	private String parkingInfoStartHour;
+	private String parkingInfoEndHour;
+	private String parkingInfoSadName;
+	private String parkingInfoID;
+	private String parkingInfoOperationsDay;
+	private DefaultListModel parkingInfoOperDayListView;
+	private String parkingInfoAuthorizations;
+	private DefaultListModel parkingInfoAuthorizationsListView;
 	
+
+
 
 
 
@@ -969,23 +994,126 @@ public class HKJ_SisCA_MainPage {
 		mainPanelParkingInformation.add(centerPanel, BorderLayout.CENTER);
 		centerPanel.setLayout(new MigLayout("", "[849.00px]", "[50px][][12px][19px][12px][19px][12px][19px][12px][19px][12px][19px][12px][65px]"));
 
-		JLabel parkingName = new JLabel("Parking Name");
+		//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+		String[] parkingSelectedFromParkingViewList = mouseSelectParkingViewList.split(" >>");
+		parkingInfoSADListView = new DefaultListModel();
+		parkingInfoOperDayListView = new DefaultListModel();
+		parkingInfoAuthorizationsListView = new DefaultListModel();
+		
+		final String strParkingName = parkingSelectedFromParkingViewList[0];
+		try {
+			DBManager dbman4 = new DBManager();
+			fillParkingInformation = dbman4.getFromDB("select * from sisca_parking where sisca_parking_name ilike '%"+ strParkingName +"'");
+			fillParkingInformationSads = dbman4.getFromDB("select sisca_sad_name from sisca_sad_parking_list where sisca_parking_name ilike '%" + strParkingName + "'");
+			fillParkingInformationOperationsDays = dbman4.getFromDB("select sisca_operations_day from sisca_parking_operation_days_list where sisca_parking_name ilike '%" + strParkingName + "'");
+			fillParkingInformationAuthorizations = dbman4.getFromDB("select sisca_authorization_name from sisca_authorization_parking_list where sisca_parking_name ilike '%" + strParkingName + "'");
+			String[] keyValue;
+			for(int i=0; i<fillParkingInformation.size(); i++){
+				//obtener el elemento i del elemento 1 (el array del array) 
+				for(int k=0 ; k<(((java.util.List<Object>) fillParkingInformation.get(i)).size()); k++){
+					//result = 1:A
+					Object result = ((java.util.List<Object>) fillParkingInformation.get(i)).get(k);
+					//keyValue -> {1,A}
+					keyValue = result.toString().split("/");
+					if(keyValue[0].equals("sisca_parking_id")){
+						parkingInfoID = (String) keyValue[1]; //EL ID DE JUAMPY
+					}
+					if(keyValue[0].equals("sisca_parking_name")){
+						parkingInfoName = (String) keyValue[1];
+					}
+					if(keyValue[0].equals("sisca_parking_capacity")){
+						parkingInfoCapacity = (String) keyValue[1];
+					}
+					if(keyValue[0].equals("sisca_parking_starthour")){
+						parkingInfoStartHour = (String) keyValue[1];
+					}
+					if(keyValue[0].equals("sisca_parking_endhour")){
+						parkingInfoEndHour = (String) keyValue[1];
+					}
+
+				}
+
+			}
+			for(int i=0; i<fillParkingInformationSads.size(); i++){
+				//obtener el elemento i del elemento 1 (el array del array) 
+				for(int k=0 ; k<(((java.util.List<Object>) fillParkingInformationSads.get(i)).size()); k++){
+					//result = 1:A
+					Object result = ((java.util.List<Object>) fillParkingInformationSads.get(i)).get(k);
+					//keyValue -> {1,A}
+					keyValue = result.toString().split("/");
+					if(keyValue[0].equals("sisca_sad_name")){
+						parkingInfoSadName = (String) keyValue[1];
+					}					
+				}
+				parkingInfoSADListView.addElement(parkingInfoSadName);
+				//System.out.println("Parking Sad List: " + parkingInfoSadName);
+			}
+			for(int i=0; i<fillParkingInformationOperationsDays.size(); i++){
+				//obtener el elemento i del elemento 1 (el array del array) 
+				for(int k=0 ; k<(((java.util.List<Object>) fillParkingInformationOperationsDays.get(i)).size()); k++){
+					//result = 1:A
+					Object result = ((java.util.List<Object>) fillParkingInformationOperationsDays.get(i)).get(k);
+					//keyValue -> {1,A}
+					keyValue = result.toString().split("/");
+					if(keyValue[0].equals("sisca_operations_day")){
+						parkingInfoOperationsDay = (String) keyValue[1];
+					}					
+				}
+				parkingInfoOperDayListView.addElement(parkingInfoOperationsDay);
+				//System.out.println("Parking Sad List: " + parkingInfoSadName);
+			}
+			for(int i=0; i<fillParkingInformationAuthorizations.size(); i++){
+				//obtener el elemento i del elemento 1 (el array del array) 
+				for(int k=0 ; k<(((java.util.List<Object>) fillParkingInformationAuthorizations.get(i)).size()); k++){
+					//result = 1:A
+					Object result = ((java.util.List<Object>) fillParkingInformationAuthorizations.get(i)).get(k);
+					//keyValue -> {1,A}
+					keyValue = result.toString().split("/");
+					if(keyValue[0].equals("sisca_authorization_name")){
+						parkingInfoAuthorizations= (String) keyValue[1];
+					}					
+				}
+				parkingInfoAuthorizationsListView.addElement(parkingInfoAuthorizations);
+				//System.out.println("Parking Sad List: " + parkingInfoSadName);
+			}
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>		
+		JLabel parkingName = new JLabel(parkingInfoName); //HEADER PARKING NAME
 		parkingName.setPreferredSize(new Dimension(100, 50));
 		parkingName.setHorizontalAlignment(SwingConstants.CENTER);
 		parkingName.setForeground(java.awt.Color.BLACK);
-		parkingName.setFont(new Font("Lucida Grande", Font.BOLD, 16));
+		parkingName.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 		centerPanel.add(parkingName, "cell 0 0,alignx center,aligny top");
 
-		JLabel capacity = new JLabel("Capacity: ");
-		capacity.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
+		//JLabel capacityNumber = new JLabel(parkingInfoCapacity);
+		//capacityNumber.setFont(new Font("", Font.BOLD, 15));
+		JLabel capacity = new JLabel("Capacity: " + parkingInfoCapacity);
+		capacity.setFont(new Font("Lucida Grande", Font.BOLD, 15));
 		centerPanel.add(capacity, "cell 0 1");
 
-		JLabel lblAvailableCapacity = new JLabel("Available Capacity: ");
+		JLabel lblAvailableCapacity = new JLabel("Available Capacity: " + parkingInfoID);
 		lblAvailableCapacity.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		centerPanel.add(lblAvailableCapacity, "cell 0 3,alignx left,aligny top");
 
-		JLabel authorizations = new JLabel("Authorization Type(s): ");
-		authorizations.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+				String parkingAuthorizations = "";
+				for(int i=0; i<parkingInfoAuthorizationsListView.size(); i++){
+					parkingAuthorizations = parkingAuthorizations + "   " +  parkingInfoAuthorizationsListView.get(i);
+				}
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>		
+				
+		
+		JLabel authorizations = new JLabel("Authorization Type(s): " + parkingAuthorizations);
+		authorizations.setFont(new Font("Lucida Grande", Font.BOLD, 15));
 		centerPanel.add(authorizations, "cell 0 5,alignx left,aligny top");
 
 		JSeparator separator_12 = new JSeparator();
@@ -993,23 +1121,36 @@ public class HKJ_SisCA_MainPage {
 
 		JSeparator separator_13 = new JSeparator();
 		centerPanel.add(separator_13, "cell 0 6,growx,aligny top");
-
-		JLabel days = new JLabel("Operation Days: ");
-		days.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
+		
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+		String operationsDays = "";
+		for(int i=0; i<parkingInfoOperDayListView.size(); i++){
+			operationsDays = operationsDays + "   " +  parkingInfoOperDayListView.get(i);
+		}
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>		
+		
+		JLabel days = new JLabel("Operation Days: " + operationsDays.toUpperCase());
+		days.setFont(new Font("Lucida Grande", Font.BOLD, 15));
 		centerPanel.add(days, "cell 0 7,growx,aligny top");
 
 		JSeparator separator_14 = new JSeparator();
 		centerPanel.add(separator_14, "cell 0 8,growx,aligny top");
 
-		JLabel hours = new JLabel("Operation Hours: ");
-		hours.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
+		JLabel hours = new JLabel("Operation Hours: " + parkingInfoStartHour + " - " + parkingInfoEndHour);
+		hours.setFont(new Font("Lucida Grande", Font.BOLD, 15));
 		centerPanel.add(hours, "cell 0 9,growx,aligny top");
 
 		JSeparator separator_15 = new JSeparator();
 		centerPanel.add(separator_15, "cell 0 10,growx,aligny top");
+		//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+		String activeSads = "";
+		for(int i=0; i<parkingInfoSADListView.size(); i++){
+			activeSads = activeSads + "   " +  parkingInfoSADListView.get(i);
+		}
+		//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>		
+		JLabel sads = new JLabel("SAD's: " + activeSads);
 
-		JLabel sads = new JLabel("SAD's:");
-		sads.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
+		sads.setFont(new Font("Lucida Grande", Font.BOLD, 15));
 		centerPanel.add(sads, "cell 0 11,growx,aligny top");
 
 		JSeparator separator_16 = new JSeparator();
@@ -1026,7 +1167,8 @@ public class HKJ_SisCA_MainPage {
 		JButton editButton = new JButton("Edit");
 		editButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				frame.setContentPane(editParkingView());
+				
+				frame.setContentPane(editParkingView(strParkingName, Integer.valueOf((String) parkingInfoID)));
 				frame.pack(); 
 				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
@@ -1473,7 +1615,7 @@ public class HKJ_SisCA_MainPage {
 
 		final JTextField textFieldCapacity = new JTextField();
 		capacityPanel.add( textFieldCapacity, "cell 1 0,alignx right,aligny top");
-		 textFieldCapacity.setColumns(10);
+		textFieldCapacity.setColumns(10);
 
 		JPanel daysPanel = new JPanel();
 		daysPanel.setBackground((java.awt.Color) null);
@@ -1538,10 +1680,10 @@ public class HKJ_SisCA_MainPage {
 		JScrollPane scrollPaneSADs = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneSADs, "cell 0 1,grow");
 
-		
+
 		availableSADModelList= new DefaultListModel();
 		availableAtzTypesModelList= new DefaultListModel();
-		
+
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Query for showing list of Available SADs and Authorization Types in Add New Parking Page
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1552,18 +1694,18 @@ public class HKJ_SisCA_MainPage {
 			availableSAD = dbman.getAvailableSAD(availableSAD);
 			availableAtzType = dbman.getFromDB("select * from sisca_authorization");
 			availableAtzType = dbman.getAvailableAuthorizationTypes(availableAtzType);
-		
-			
-			
+
+
+
 			for(int i=0; i<availableAtzType.size(); i++){
 				availableAtzTypesModelList.addElement(((String) availableAtzType.get(i)).toUpperCase());
 			}
-			
+
 			for(int i=0; i<availableSAD.size(); i++){
 				availableSADModelList.addElement(((String) availableSAD.get(i)).toUpperCase());
 			}
 
-			
+
 		} catch (ClassNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -1576,8 +1718,8 @@ public class HKJ_SisCA_MainPage {
 		}
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		
-		
+
+
 		final JList SADList = new JList(availableSADModelList);
 
 		scrollPaneSADs.setViewportView(SADList);
@@ -1585,7 +1727,7 @@ public class HKJ_SisCA_MainPage {
 		JScrollPane scrollPaneCurrentSADs = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneCurrentSADs, "cell 1 1,grow");
 
-		
+
 		final JList currentSADList = new JList();
 		scrollPaneCurrentSADs.setViewportView(currentSADList);
 
@@ -1593,7 +1735,7 @@ public class HKJ_SisCA_MainPage {
 		sadsAndATypesPanel.add(scrollPaneATypes, "cell 3 1,grow");
 
 
-		
+
 
 		final JList ATypesList = new JList(availableAtzTypesModelList);
 		scrollPaneATypes.setViewportView(ATypesList);
@@ -1613,10 +1755,10 @@ public class HKJ_SisCA_MainPage {
 		authorizations.setHorizontalAlignment(SwingConstants.CENTER);
 		authorizations.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		sadsAndATypesPanel.add(authorizations, "cell 3 0 2 1,growx,aligny bottom");
-		
+
 		chosenSADModelList= new DefaultListModel();
 		chosenAtzTypesModelList = new DefaultListModel();
-		
+
 		// SAD And ATypes JList Button
 		JButton addSADBtn = new JButton("Add");
 		addSADBtn.addActionListener(new ActionListener() {
@@ -1625,7 +1767,7 @@ public class HKJ_SisCA_MainPage {
 				// TODO 
 				chosenSADModelList.addElement(SADList.getSelectedValue().toString());
 				availableSADModelList.removeElement(SADList.getSelectedValue().toString());
-				
+
 				SADList.setModel(availableSADModelList);
 				currentSADList.setModel(chosenSADModelList);
 
@@ -1639,7 +1781,7 @@ public class HKJ_SisCA_MainPage {
 			public void actionPerformed(ActionEvent arg0) {
 				availableSADModelList.addElement(currentSADList.getSelectedValue().toString());
 				chosenSADModelList.removeElement(currentSADList.getSelectedValue().toString());
-				
+
 				SADList.setModel(availableSADModelList);
 				currentSADList.setModel(chosenSADModelList);
 
@@ -1651,10 +1793,10 @@ public class HKJ_SisCA_MainPage {
 		JButton addATypeBtn = new JButton("Add");
 		addATypeBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
+
 				chosenAtzTypesModelList.addElement(ATypesList.getSelectedValue().toString());
 				availableAtzTypesModelList.removeElement(ATypesList.getSelectedValue().toString());
-				
+
 				ATypesList.setModel(availableAtzTypesModelList);
 				currentATypesList.setModel(chosenAtzTypesModelList);
 
@@ -1667,22 +1809,22 @@ public class HKJ_SisCA_MainPage {
 			public void actionPerformed(ActionEvent arg0) {
 				availableAtzTypesModelList.addElement(currentATypesList.getSelectedValue().toString());
 				chosenAtzTypesModelList.removeElement(currentATypesList.getSelectedValue().toString());
-				
+
 				ATypesList.setModel(availableAtzTypesModelList);
 				currentATypesList.setModel(chosenAtzTypesModelList); 
 			}
 		});
 		sadsAndATypesPanel.add(removeATypeBtn, "cell 4 2,growx,aligny top");
-		
-		
+
+
 		////////////////////////
 		// Query for add parking to the DB
 		/////////////////////////////////
-		
+
 		JButton addParkingBtn = new JButton("Add Parking");
 		addParkingBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
+
 				// TODO Este add me lleva a ver la iformaci—n del parking recien a–adido
 				chosenSADModelList.clear();
 
@@ -1690,47 +1832,45 @@ public class HKJ_SisCA_MainPage {
 				String pCapacity= "'"+textFieldCapacity.getText()+"'";
 				String pSHours= "'"+textFieldStart.getText()+"'";
 				String pEHours= "'"+textFieldEnd.getText()+"'";
-			
+
 				String stm1 = "INSERT INTO sisca_parking (sisca_parking_name,sisca_parking_capacity,"
 						+ "sisca_parking_starthour, sisca_parking_endhour) "
 						+ "VALUES("+ pName+","+ pCapacity+","+ pSHours+","+ pEHours+")";
-				
+
 				String stm2 = "select sisca_parking_id from sisca_parking where sisca_parking_name="+pName;
-				
-					
 				System.out.println(stm2);
-				
-	         try {
-					
-					dbman.insertDB(stm1);
-					
+
+				try {
+
+					int index = (int) dbman.insertDB(stm1);
+					System.out.println("Index" + index);
 					//int index =(Integer) availableSAD.get(0);
 					//System.out.println("Parking New Index:"+index);
-					
+
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
-				try {
-					try {
-						ArrayList<Object> index = dbman.getFromDB(stm2);
-						index = dbman.getID(index);
-						System.out.println(index);
-						int indexID = (Integer) index.get(0);
-						System.out.println(indexID);
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				
-				
-				
+
+				//				try {
+				//					try {
+				//						ArrayList<Object> index = dbman.getFromDB(stm2);
+				//						index = dbman.getID(index);
+				//						System.out.println(index);
+				//						int indexID = (Integer) index.get(0);
+				//						System.out.println(indexID);
+				//					} catch (ParseException e) {
+				//						// TODO Auto-generated catch block
+				//						e.printStackTrace();
+				//					}
+				//				} catch (SQLException e) {
+				//					// TODO Auto-generated catch block
+				//					e.printStackTrace();
+				//				}
+
+
+
+
 
 				frame.setContentPane(parkingInformationView());
 				frame.pack(); 
@@ -1772,7 +1912,7 @@ public class HKJ_SisCA_MainPage {
 	//   Edit Parking View								         	//
 	//////////////////////////////////////////////////////////////////
 
-	private JPanel editParkingView(){
+	private JPanel editParkingView(String parkingName, int parkingID){
 
 
 		/////////////////////////////////////////////////////////
@@ -2482,25 +2622,65 @@ public class HKJ_SisCA_MainPage {
 		searchAndAddPanel.add(searchLabel, "cell 0 0,alignx left,aligny center");
 		searchLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
 
+		final JList parkingViewList = new JList();
+
 		final JTextField textFieldSearch = new JTextField();
 		textFieldSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				frame.setContentPane(parkingView());
-				frame.pack(); 
-				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
+				String myString = textFieldSearch.getText();
+				System.out.println("Hola >> " + myString);
+				registerParkingsList = new DefaultListModel();
+				registerParkings = new ArrayList<Object>();
+
+				try {
+					DBManager dbman2 = new DBManager();
+					registerParkings = dbman2 .getFromDB("select sisca_parking_name, sisca_parking_starthour, sisca_parking_endhour from sisca_parking where sisca_parking_name ilike '"+ myString + "%'");
+					registerParkings = dbman2.getRegisterParkings(registerParkings);
+					for(int i=0; i<registerParkings.size(); i++){
+						System.out.println(((String) registerParkings.get(i)).toUpperCase());
+						registerParkingsList.addElement(((String) registerParkings.get(i)).toUpperCase());
+					}
+				} catch (SQLException | ParseException | ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				parkingViewList.setModel(registerParkingsList);
+
+				//				frame.setContentPane(parkingView());
+				//				frame.pack(); 
+				//				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
 			}
 		});
+
+
+
 		searchAndAddPanel.add(textFieldSearch, "cell 1 0,growx,aligny top");
 		textFieldSearch.setColumns(10);
 		JButton goButton = new JButton("Go");
 		goButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				String myString = textFieldSearch.getSelectedText();
+				String myString = textFieldSearch.getText();
 				System.out.println("Hola >> " + myString);
-				frame.setContentPane(parkingView());
+				registerParkingsList = new DefaultListModel();
+				registerParkings = new ArrayList<Object>();
+
+				try {
+					DBManager dbman2 = new DBManager();
+					registerParkings = dbman2 .getFromDB("select sisca_parking_name, sisca_parking_starthour, sisca_parking_endhour from sisca_parking where sisca_parking_name ilike '"+ myString + "%'");
+					registerParkings = dbman2.getRegisterParkings(registerParkings);
+					for(int i=0; i<registerParkings.size(); i++){
+						System.out.println(((String) registerParkings.get(i)).toUpperCase());
+						registerParkingsList.addElement(((String) registerParkings.get(i)).toUpperCase());
+					}
+				} catch (SQLException | ParseException | ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				parkingViewList.setModel(registerParkingsList);
+				/*frame.setContentPane(parkingView());
 				frame.pack(); 
-				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
+				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	*/
 			}
 		});
 		goButton.setPreferredSize(new Dimension(10, 29));
@@ -2508,7 +2688,7 @@ public class HKJ_SisCA_MainPage {
 
 		JButton addNewParkingBtn = new JButton("Add New Parking");
 		addNewParkingBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent arg0) {				
 				frame.setContentPane(addParkingView());
 				frame.pack(); 
 				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
@@ -2523,12 +2703,12 @@ public class HKJ_SisCA_MainPage {
 		parkingListPanel.setLayout(new MigLayout("", "[724px]", "[360px]"));
 		JScrollPane scrollPane = new JScrollPane();
 		parkingListPanel.add(scrollPane, "cell 0 0,grow");
-		
-		
-////////////////
+
+
+		////////////////
 		registerParkingsList = new DefaultListModel();
 		registerParkings = new ArrayList<Object>();
-		
+
 		try {
 			DBManager dbman2 = new DBManager();
 			registerParkings = dbman2 .getFromDB("select sisca_parking_name, sisca_parking_starthour, sisca_parking_endhour from sisca_parking");
@@ -2541,15 +2721,22 @@ public class HKJ_SisCA_MainPage {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
-		JList parkingViewList = new JList(registerParkingsList);
-////////////////
+		parkingViewList.setModel(registerParkingsList);
+		//JList parkingViewList = new JList(registerParkingsList);
+		////////////////
 		parkingViewList.setSelectionForeground(UIManager.getColor("Button.darkShadow"));
 		parkingViewList.setSelectionBackground(UIManager.getColor("Button.background"));
 		parkingViewList.addMouseListener(new MouseAdapter() {
+
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2){
+
+					//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+					mouseSelectParkingViewList = (String) parkingViewList.getSelectedValue();
+					//e.getSource();
+					System.out.println("Get Mouse Click Info: " + mouseSelectParkingViewList );
+
 					frame.setContentPane(parkingInformationView()); // Wrong Way! =S
 					frame.pack();
 					frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());

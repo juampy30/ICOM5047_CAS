@@ -59,14 +59,14 @@ public class DBManager {
 
 		ResultSetMetaData rsmd = rs.getMetaData();
 		numberOfColumns = rsmd.getColumnCount();
-		int i=1;
+		int i=0;
 
 		// Leyendo de la Base de datos
 		while(i < numberOfColumns && rs.next()){
 			for(int k=1; k<=numberOfColumns; k++){
 				//Guardado de la forma: {columnName:Value}
 				rows.add( rsmd.getColumnName(k) + "/" + rs.getString(k));
-				//System.out.println(" ======" + rs.getString(k));
+				System.out.println(" ======" + rs.getString(k));
 			}
 		}
 
@@ -107,7 +107,7 @@ public class DBManager {
 		int toIndex = numberOfColumns; //columna n (donde n es el numero de columnas en la tabla)
 
 		//resultado guardara la lista de la forma [{1:A},{2:B},{3:C}]
-		for (int i=0; (i+1)<rows2.size(); i=i+numberOfColumns){
+		for (int i=0; (i)<rows2.size(); i=i+numberOfColumns){
 			java.util.List<Object> resultado = rows2.subList(fromIndex, toIndex);
 			arrayOfRows.add(resultado);
 			fromIndex = fromIndex + numberOfColumns;
@@ -117,10 +117,15 @@ public class DBManager {
 	}
 
 	//Insertar en la Base de Datos
-	public void insertDB(String updateQuery) throws SQLException{
+	public int insertDB(String updateQuery) throws SQLException{
 		stmt = con.createStatement();
-		stmt.executeUpdate(updateQuery);
-		
+		stmt.executeUpdate(updateQuery, Statement.RETURN_GENERATED_KEYS);
+		int index = 0;
+		ResultSet keySet = stmt.getGeneratedKeys();
+		if(keySet.next()){
+			index = keySet.getInt(1);
+		}
+		return index;
 	}
 
 	//Processar un Solo Tag(int tagID, Authorization type, Date expDate)
