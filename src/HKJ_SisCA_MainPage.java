@@ -71,7 +71,7 @@ public class HKJ_SisCA_MainPage {
 
 	private ArrayList<Object> availableSAD;
 	private ArrayList<Object> availableAtzType;
-<<<<<<< HEAD
+
 	private ArrayList<Object> fillParkingInformation;
 	private ArrayList<Object> registerParkings;
 	private ArrayList<Object> parkingInformation;
@@ -84,14 +84,14 @@ public class HKJ_SisCA_MainPage {
 	private String[] parkingInfoSadList;
 
 	private DefaultListModel registerParkingsList;
-=======
 
->>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
+
+
 	private DefaultListModel availableSADModelList;
 	private DefaultListModel availableAtzTypesModelList;
 	private DefaultListModel chosenSADModelList;
 	private DefaultListModel chosenAtzTypesModelList;
-<<<<<<< HEAD
+
 	private DefaultListModel parkingInformationList;
 	private DefaultListModel parkingInfoSADListView;
 
@@ -109,20 +109,6 @@ public class HKJ_SisCA_MainPage {
 	
 
 
-=======
-
-
-
-	private ArrayList<Object> registerParkings;
-
-	private String[] availableSadList;
-	private String[] availableAtzTypeList;
-
-	private DefaultListModel registerParkingsList;
-
-
-
->>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 
 
 
@@ -1774,12 +1760,11 @@ viewAndAddBynPanel.add(addNewButton);
 		availableSADModelList= new DefaultListModel();
 		availableAtzTypesModelList= new DefaultListModel();
 
-<<<<<<< HEAD
-=======
+
 		availableSADModelList= new DefaultListModel();
 		availableAtzTypesModelList= new DefaultListModel();
 
->>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
+
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Query for showing list of Available SADs and Authorization Types in Add New Parking Page
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1816,33 +1801,23 @@ viewAndAddBynPanel.add(addNewButton);
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-<<<<<<< HEAD
+
 		final JList SADList = new JList(availableSADModelList);
 
-=======
+
 		final JList SADList = new JList(availableSADModelList);
->>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
+
 		scrollPaneSADs.setViewportView(SADList);
 
 		JScrollPane scrollPaneCurrentSADs = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneCurrentSADs, "cell 1 1,grow");
-
-<<<<<<< HEAD
-
-=======
-
->>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
+		
 		final JList currentSADList = new JList();
 		scrollPaneCurrentSADs.setViewportView(currentSADList);
 
 		JScrollPane scrollPaneATypes = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneATypes, "cell 3 1,grow");
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 
 		final JList ATypesList = new JList(availableAtzTypesModelList);
 		scrollPaneATypes.setViewportView(ATypesList);
@@ -1863,10 +1838,9 @@ viewAndAddBynPanel.add(addNewButton);
 		authorizations.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		sadsAndATypesPanel.add(authorizations, "cell 3 0 2 1,growx,aligny bottom");
 
-<<<<<<< HEAD
-=======
+
 		// Default List Initializations
->>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
+
 		chosenSADModelList= new DefaultListModel();
 		chosenAtzTypesModelList = new DefaultListModel();
 
@@ -1919,14 +1893,8 @@ viewAndAddBynPanel.add(addNewButton);
 			}
 		});
 		sadsAndATypesPanel.add(removeATypeBtn, "cell 4 2,growx,aligny top");
-<<<<<<< HEAD
 
 
-=======
-		
-		
-	
->>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 		////////////////////////
 		// Query for Add a New Parking to the DB
 		/////////////////////////////////
@@ -1934,30 +1902,26 @@ viewAndAddBynPanel.add(addNewButton);
 		JButton addParkingBtn = new JButton("Add Parking");
 		addParkingBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-<<<<<<< HEAD
+
 
 				// TODO Este add me lleva a ver la iformaci—n del parking recien a–adido
 				chosenSADModelList.clear();
-=======
->>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
+
 
 				// Fields from text fiedls
 				String pName= "'"+textFieldName.getText()+"'";
 				String pCapacity= "'"+textFieldCapacity.getText()+"'";
 				String pSHours= "'"+textFieldStart.getText()+"'";
 				String pEHours= "'"+textFieldEnd.getText()+"'";
-<<<<<<< HEAD
 
-=======
-			
 
 				// Insert Parking Name, Capacity, Operation Start Hour and Operation End Hour to the DB
->>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
+
 				String stm1 = "INSERT INTO sisca_parking (sisca_parking_name,sisca_parking_capacity,"
 						+ "sisca_parking_starthour, sisca_parking_endhour) "
 						+ "VALUES("+ pName+","+ pCapacity+","+ pSHours+","+ pEHours+")";
 
-<<<<<<< HEAD
+
 				String stm2 = "select sisca_parking_id from sisca_parking where sisca_parking_name="+pName;
 				System.out.println(stm2);
 
@@ -1968,36 +1932,14 @@ viewAndAddBynPanel.add(addNewButton);
 					//int index =(Integer) availableSAD.get(0);
 					//System.out.println("Parking New Index:"+index);
 
-=======
 				try {
 					dbman.insertDB(stm1);
->>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
+
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-<<<<<<< HEAD
 
-				//				try {
-				//					try {
-				//						ArrayList<Object> index = dbman.getFromDB(stm2);
-				//						index = dbman.getID(index);
-				//						System.out.println(index);
-				//						int indexID = (Integer) index.get(0);
-				//						System.out.println(indexID);
-				//					} catch (ParseException e) {
-				//						// TODO Auto-generated catch block
-				//						e.printStackTrace();
-				//					}
-				//				} catch (SQLException e) {
-				//					// TODO Auto-generated catch block
-				//					e.printStackTrace();
-				//				}
-
-
-
-
-=======
 			
 				// Insert Parking SADList to the DB
 				
@@ -2101,7 +2043,6 @@ viewAndAddBynPanel.add(addNewButton);
 				// Clear  Chosen List
 				chosenSADModelList.clear();
 				chosenAtzTypesModelList.clear();
->>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 
 				frame.setContentPane(parkingInformationView());
 				frame.pack(); 
@@ -2143,12 +2084,10 @@ viewAndAddBynPanel.add(addNewButton);
 	//   Edit Parking View								         	//
 	//////////////////////////////////////////////////////////////////
 
-<<<<<<< HEAD
-	private JPanel editParkingView(String parkingName, int parkingID){
-=======
+	//private JPanel editParkingView(String parkingName, int parkingID){
+
 	private JPanel editParkingView(String parkingName, int parkingID, int parkingCapacity, String parkingSHour, String parkingEHour, 
 			String[] sads, String[] authorizationTypes, String[] operationDays){
->>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 
 		// Current Parking Information
 		int parkingIDEdit= parkingID;
@@ -3012,13 +2951,13 @@ viewAndAddBynPanel.add(addNewButton);
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-<<<<<<< HEAD
+
 		parkingViewList.setModel(registerParkingsList);
 		//JList parkingViewList = new JList(registerParkingsList);
-=======
+
 
 		JList parkingViewList = new JList(registerParkingsList);
->>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
+
 		////////////////
 		parkingViewList.setSelectionForeground(UIManager.getColor("Button.darkShadow"));
 		parkingViewList.setSelectionBackground(UIManager.getColor("Button.background"));
