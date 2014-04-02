@@ -66,11 +66,24 @@ public class HKJ_SisCA_MainPage {
 	private DBManager dbman;
 	private ArrayList<Object> availableSAD;
 	private ArrayList<Object> availableAtzType;
+
 	private DefaultListModel availableSADModelList;
 	private DefaultListModel availableAtzTypesModelList;
 	private DefaultListModel chosenSADModelList;
 	private DefaultListModel chosenAtzTypesModelList;
 	
+
+
+	private ArrayList<Object> registerParkings;
+	
+	private String[] availableSadList;
+	private String[] availableAtzTypeList;
+	
+	private DefaultListModel registerParkingsList;
+
+	
+
+
 
 
 	// HKJ_SisCA_MainPage Constructor
@@ -82,7 +95,7 @@ public class HKJ_SisCA_MainPage {
 		frame= new JFrame();
 
 		// Image Icons
-		ImageIcon img1=  new ImageIcon("/Users/JuanPablo/git/ICOM5047_CAS/Icons/i1.png");
+		ImageIcon img1=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i1.png");
 		ImageIcon img2=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i2.png");
 		ImageIcon img3=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i3.png");
 		ImageIcon img4=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i4.png");
@@ -1529,6 +1542,10 @@ public class HKJ_SisCA_MainPage {
 
 		JScrollPane scrollPaneSADs = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneSADs, "cell 0 1,grow");
+
+		
+		availableSADModelList= new DefaultListModel();
+		availableAtzTypesModelList= new DefaultListModel();
 		
 		availableSADModelList= new DefaultListModel();
 		availableAtzTypesModelList= new DefaultListModel();
@@ -1536,8 +1553,8 @@ public class HKJ_SisCA_MainPage {
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Query for showing list of Available SADs and Authorization Types in Add New Parking Page
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		try {
 
+		try {
 			dbman = new DBManager();
 			availableSAD = dbman.getFromDB("select * from sisca_sad where sisca_sad_active='false'");
 			availableSAD = dbman.getAvailableSAD(availableSAD);
@@ -1565,22 +1582,32 @@ public class HKJ_SisCA_MainPage {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		
 		final JList SADList = new JList(availableSADModelList);
+
 		scrollPaneSADs.setViewportView(SADList);
 
 		JScrollPane scrollPaneCurrentSADs = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneCurrentSADs, "cell 1 1,grow");
 
+
 		final JList currentSADList = new JList();
+
 		scrollPaneCurrentSADs.setViewportView(currentSADList);
 
 		JScrollPane scrollPaneATypes = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneATypes, "cell 3 1,grow");
 
+
 		final JList ATypesList = new JList(availableAtzTypesModelList);
+
+
+		
+
+		
 		scrollPaneATypes.setViewportView(ATypesList);
 
 		JScrollPane scrollPaneCurrentATypes = new JScrollPane();
@@ -1606,12 +1633,13 @@ public class HKJ_SisCA_MainPage {
 		JButton addSADBtn = new JButton("Add");
 		addSADBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-			
+
 				chosenSADModelList.addElement(SADList.getSelectedValue().toString());
 				availableSADModelList.removeElement(SADList.getSelectedValue().toString());
 				
 				SADList.setModel(availableSADModelList);
 				currentSADList.setModel(chosenSADModelList);
+
 
 			}
 		});
@@ -1685,7 +1713,8 @@ public class HKJ_SisCA_MainPage {
 				
 	         try {
 					
-					dbman.insertDB(stm1);
+					int index= (int) dbman.insertDB(stm1);
+					System.out.println("Index"+index);
 					
 					//int index =(Integer) availableSAD.get(0);
 					//System.out.println("Parking New Index:"+index);
@@ -1695,21 +1724,21 @@ public class HKJ_SisCA_MainPage {
 					e.printStackTrace();
 				}
 				
-				try {
-					try {
-						ArrayList<Object> index = dbman.getFromDB(stm2);
-						index = dbman.getID(index);
-						System.out.println(index);
-						int indexID = (Integer) index.get(0);
-						System.out.println(indexID);
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+//				try {
+//					try {
+//						ArrayList<Object> index = dbman.getFromDB(stm2);
+//						index = dbman.getID(index);
+//						System.out.println(index);
+//						int indexID = (Integer) index.get(0);
+//						System.out.println(indexID);
+//					} catch (ParseException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//				} catch (SQLException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
 				
 				
 				
@@ -2465,7 +2494,7 @@ public class HKJ_SisCA_MainPage {
 		searchAndAddPanel.add(searchLabel, "cell 0 0,alignx left,aligny center");
 		searchLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
 
-		JTextField textFieldSearch = new JTextField();
+		final JTextField textFieldSearch = new JTextField();
 		textFieldSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame.setContentPane(parkingView());
@@ -2479,6 +2508,8 @@ public class HKJ_SisCA_MainPage {
 		goButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				String myString = textFieldSearch.getSelectedText();
+				System.out.println("Hola >> " + myString);
 				frame.setContentPane(parkingView());
 				frame.pack(); 
 				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
@@ -2504,10 +2535,30 @@ public class HKJ_SisCA_MainPage {
 		parkingListPanel.setLayout(new MigLayout("", "[724px]", "[360px]"));
 		JScrollPane scrollPane = new JScrollPane();
 		parkingListPanel.add(scrollPane, "cell 0 0,grow");
-		JList list = new JList();
-		list.setSelectionForeground(UIManager.getColor("Button.darkShadow"));
-		list.setSelectionBackground(UIManager.getColor("Button.background"));
-		list.addMouseListener(new MouseAdapter() {
+		
+		
+////////////////
+		registerParkingsList = new DefaultListModel();
+		registerParkings = new ArrayList<Object>();
+		
+		try {
+			DBManager dbman2 = new DBManager();
+			registerParkings = dbman2 .getFromDB("select sisca_parking_name, sisca_parking_starthour, sisca_parking_endhour from sisca_parking");
+			registerParkings = dbman2.getRegisterParkings(registerParkings);
+			for(int i=0; i<registerParkings.size(); i++){
+				System.out.println(((String) registerParkings.get(i)).toUpperCase());
+				registerParkingsList.addElement(((String) registerParkings.get(i)).toUpperCase());
+			}
+		} catch (SQLException | ParseException | ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		JList parkingViewList = new JList(registerParkingsList);
+////////////////
+		parkingViewList.setSelectionForeground(UIManager.getColor("Button.darkShadow"));
+		parkingViewList.setSelectionBackground(UIManager.getColor("Button.background"));
+		parkingViewList.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2){
@@ -2517,17 +2568,7 @@ public class HKJ_SisCA_MainPage {
 				}
 			}
 		});
-		scrollPane.setViewportView(list);
-		list.setModel(new AbstractListModel() {
-			String[] values = new String[] {"Test 1", "Test 2", "Test 3", "Test 4", "Test 5", "Test 6", "Test 7", "Test 8", "Test 9", "Test 10"};
-			public int getSize() {
-				return values.length;
-			}
-			public Object getElementAt(int index) {
-				return values[index];
-			}
-		});
-
+		scrollPane.setViewportView(parkingViewList);
 
 		////////////////////////////////////////////////////////
 		//Window Panel
