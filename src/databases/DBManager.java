@@ -34,9 +34,13 @@ public class DBManager {
 	String sadName;
 	private String sadDirection;
 	private String authorizationTypeName;
+
 	private String parkingName;
 	private String startHour;
 	private String endHour;
+
+	private String id;
+
 
 	public DBManager() throws ClassNotFoundException, SQLException{
 		Class.forName ("org.postgresql.Driver");
@@ -114,16 +118,9 @@ public class DBManager {
 
 	//Insertar en la Base de Datos
 	public void insertDB(String updateQuery) throws SQLException{
-		System.out.println(updateQuery + "returning sisca_account_id");
-
+		stmt = con.createStatement();
+		stmt.executeUpdate(updateQuery);
 		
-		//PreparedStatement updateemp = con.prepareStatement(updateQuery);
-		//updateemp.setString(1,"regular");
-		//updateemp.executeUpdate();
-
-		//System.out.println(updateQuery);
-
-		//stmt.close();
 	}
 
 	//Processar un Solo Tag(int tagID, Authorization type, Date expDate)
@@ -272,6 +269,7 @@ public class DBManager {
 		return tagList;	
 	}
 
+
 	public ArrayList<Object> getRegisterParkings(ArrayList<Object> registerParkings) {
 		ArrayList<Object> parkings = new ArrayList<Object>();
 		//[{1:A},{2:B},{3:C}]
@@ -297,6 +295,28 @@ public class DBManager {
 				}
 				System.out.println("Parking Available list: "+ parkings);
 		return parkings;
+	}
+	public ArrayList getID(ArrayList index) {
+		ArrayList<Object> indexID = new ArrayList<Object>();
+		//[{1:A},{2:B},{3:C}]
+				for(int i=0; i<index.size(); i++){
+					//obtener el elemento i del elemento 1 (el array del array) 
+					for(int k=0 ; k<((List<Object>) index.get(i)).size(); k++){
+						//result = 1:A
+						Object result = ((List<Object>) index.get(i)).get(k);
+						//keyValue -> {1,A}
+						keyValue = result.toString().split(":");
+						if(keyValue[0].equals("sisca_parking_id")){
+							id = (String) keyValue[1];
+						}
+						
+					}
+					indexID.add(id);
+				}
+				System.out.println(indexID);
+		
+		return indexID;
+
 	}
 
 

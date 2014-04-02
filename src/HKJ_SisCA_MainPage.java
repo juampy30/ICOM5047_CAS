@@ -7,11 +7,13 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.List;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -51,7 +53,6 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 import databases.DBManager;
-
 import net.miginfocom.swing.MigLayout;
 
 
@@ -65,12 +66,19 @@ public class HKJ_SisCA_MainPage {
 	private DBManager dbman;
 	private ArrayList<Object> availableSAD;
 	private ArrayList<Object> availableAtzType;
+
 	private ArrayList<Object> registerParkings;
 	
 	private String[] availableSadList;
 	private String[] availableAtzTypeList;
 	
 	private DefaultListModel registerParkingsList;
+	private DefaultListModel availableSADModelList;
+	private DefaultListModel availableAtzTypesModelList;
+	private DefaultListModel chosenSADModelList;
+	private DefaultListModel chosenAtzTypesModelList;
+	
+
 
 
 	// HKJ_SisCA_MainPage Constructor
@@ -1440,31 +1448,6 @@ public class HKJ_SisCA_MainPage {
 		centerPanel.add(AddCancelPanel, "cell 0 6,grow");
 		AddCancelPanel.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][][][][][][][]", "[][]"));
 
-		JButton addParkingBtn = new JButton("Add Parking");
-		addParkingBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				// TODO Este add me lleva a ver la iformaci—n del parking recien a–adido
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); 
-				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-
-			}
-		});
-		AddCancelPanel.add(addParkingBtn, "cell 0 0");
-
-		JButton cancelBtn = new JButton("Cancel");
-		cancelBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				// TODO Cancel me hace un BACK en el history
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); 
-				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-
-			}
-		});
-
-		AddCancelPanel.add(cancelBtn, "cell 26 0");
-
 		JPanel pNamePanel = new JPanel();
 		pNamePanel.setBackground((java.awt.Color) null);
 		centerPanel.add(pNamePanel, "cell 0 1,growx,aligny top");
@@ -1474,7 +1457,7 @@ public class HKJ_SisCA_MainPage {
 		pNamePanel.add(nameLabel, "cell 0 0,alignx left,aligny center");
 		nameLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 
-		JTextField textFieldName = new JTextField();
+		final JTextField textFieldName = new JTextField();
 		textFieldName.setPreferredSize(new Dimension(200, 100));
 		pNamePanel.add(textFieldName, "cell 1 0,grow");
 		textFieldName.setColumns(10);
@@ -1488,9 +1471,9 @@ public class HKJ_SisCA_MainPage {
 		capacityPanel.add(capacityLabel, "cell 0 0,alignx left,aligny center");
 		capacityLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 
-		JTextField textField = new JTextField();
-		capacityPanel.add(textField, "cell 1 0,alignx right,aligny top");
-		textField.setColumns(10);
+		final JTextField textFieldCapacity = new JTextField();
+		capacityPanel.add( textFieldCapacity, "cell 1 0,alignx right,aligny top");
+		 textFieldCapacity.setColumns(10);
 
 		JPanel daysPanel = new JPanel();
 		daysPanel.setBackground((java.awt.Color) null);
@@ -1535,7 +1518,7 @@ public class HKJ_SisCA_MainPage {
 		startLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		hoursPanel.add(startLabel, "cell 2 0,alignx trailing");
 
-		JTextField textFieldStart = new JTextField();
+		final JTextField textFieldStart = new JTextField();
 		hoursPanel.add(textFieldStart, "cell 3 0");
 		textFieldStart.setColumns(10);
 
@@ -1543,7 +1526,7 @@ public class HKJ_SisCA_MainPage {
 		endLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		hoursPanel.add(endLabel, "flowx,cell 4 0");
 
-		JTextField textFieldEnd = new JTextField();
+		final JTextField textFieldEnd = new JTextField();
 		textFieldEnd.setColumns(10);
 		hoursPanel.add(textFieldEnd, "cell 5 0");
 
@@ -1554,25 +1537,33 @@ public class HKJ_SisCA_MainPage {
 
 		JScrollPane scrollPaneSADs = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneSADs, "cell 0 1,grow");
-////////////
+
+		
+		availableSADModelList= new DefaultListModel();
+		availableAtzTypesModelList= new DefaultListModel();
+		
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Query for showing list of Available SADs and Authorization Types in Add New Parking Page
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 		try {
 			dbman = new DBManager();
 			availableSAD = dbman.getFromDB("select * from sisca_sad where sisca_sad_active='false'");
 			availableSAD = dbman.getAvailableSAD(availableSAD);
 			availableAtzType = dbman.getFromDB("select * from sisca_authorization");
 			availableAtzType = dbman.getAvailableAuthorizationTypes(availableAtzType);
-			availableSadList = new String[availableSAD.size()];
-			for(int i=0; i<availableSAD.size(); i++){
-				String myString = (String) availableSAD.get(i);
-				availableSadList[i]=myString.toUpperCase();
-				System.out.println(myString);
-			}
-			availableAtzTypeList = new String[availableAtzType.size()];
+		
+			
+			
 			for(int i=0; i<availableAtzType.size(); i++){
-				String myString = (String) availableAtzType.get(i);
-				availableAtzTypeList[i]=myString.toUpperCase();
-				System.out.println(myString);
+				availableAtzTypesModelList.addElement(((String) availableAtzType.get(i)).toUpperCase());
 			}
+			
+			for(int i=0; i<availableSAD.size(); i++){
+				availableSADModelList.addElement(((String) availableSAD.get(i)).toUpperCase());
+			}
+
+			
 		} catch (ClassNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -1583,26 +1574,34 @@ public class HKJ_SisCA_MainPage {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-////////////
-		JList<String> SADList = new JList<String>(availableSadList);
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		
+		final JList SADList = new JList(availableSADModelList);
+
 		scrollPaneSADs.setViewportView(SADList);
 
 		JScrollPane scrollPaneCurrentSADs = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneCurrentSADs, "cell 1 1,grow");
 
-		JList<String> currentSADList = new JList<String>();
+		
+		final JList currentSADList = new JList();
 		scrollPaneCurrentSADs.setViewportView(currentSADList);
 
 		JScrollPane scrollPaneATypes = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneATypes, "cell 3 1,grow");
 
-		JList<String> ATypesList = new JList<String>(availableAtzTypeList);
+
+		
+
+		final JList ATypesList = new JList(availableAtzTypesModelList);
 		scrollPaneATypes.setViewportView(ATypesList);
 
 		JScrollPane scrollPaneCurrentATypes = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneCurrentATypes, "cell 4 1,grow");
 
-		JList currentATypesList = new JList();
+		final JList currentATypesList = new JList();
 		scrollPaneCurrentATypes.setViewportView(currentATypesList);
 
 		JLabel sads = new JLabel("SAD's:");
@@ -1614,12 +1613,21 @@ public class HKJ_SisCA_MainPage {
 		authorizations.setHorizontalAlignment(SwingConstants.CENTER);
 		authorizations.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		sadsAndATypesPanel.add(authorizations, "cell 3 0 2 1,growx,aligny bottom");
-
+		
+		chosenSADModelList= new DefaultListModel();
+		chosenAtzTypesModelList = new DefaultListModel();
+		
 		// SAD And ATypes JList Button
 		JButton addSADBtn = new JButton("Add");
 		addSADBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+
 				// TODO 
+				chosenSADModelList.addElement(SADList.getSelectedValue().toString());
+				availableSADModelList.removeElement(SADList.getSelectedValue().toString());
+				
+				SADList.setModel(availableSADModelList);
+				currentSADList.setModel(chosenSADModelList);
 
 
 			}
@@ -1629,7 +1637,11 @@ public class HKJ_SisCA_MainPage {
 		JButton removeSADBtn = new JButton("Remove");
 		removeSADBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO 
+				availableSADModelList.addElement(currentSADList.getSelectedValue().toString());
+				chosenSADModelList.removeElement(currentSADList.getSelectedValue().toString());
+				
+				SADList.setModel(availableSADModelList);
+				currentSADList.setModel(chosenSADModelList);
 
 
 			}
@@ -1639,8 +1651,12 @@ public class HKJ_SisCA_MainPage {
 		JButton addATypeBtn = new JButton("Add");
 		addATypeBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO 
-
+				
+				chosenAtzTypesModelList.addElement(ATypesList.getSelectedValue().toString());
+				availableAtzTypesModelList.removeElement(ATypesList.getSelectedValue().toString());
+				
+				ATypesList.setModel(availableAtzTypesModelList);
+				currentATypesList.setModel(chosenAtzTypesModelList);
 
 			}
 		});
@@ -1649,12 +1665,92 @@ public class HKJ_SisCA_MainPage {
 		JButton removeATypeBtn = new JButton("Remove");
 		removeATypeBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO 
-
-
+				availableAtzTypesModelList.addElement(currentATypesList.getSelectedValue().toString());
+				chosenAtzTypesModelList.removeElement(currentATypesList.getSelectedValue().toString());
+				
+				ATypesList.setModel(availableAtzTypesModelList);
+				currentATypesList.setModel(chosenAtzTypesModelList); 
 			}
 		});
 		sadsAndATypesPanel.add(removeATypeBtn, "cell 4 2,growx,aligny top");
+		
+		
+		////////////////////////
+		// Query for add parking to the DB
+		/////////////////////////////////
+		
+		JButton addParkingBtn = new JButton("Add Parking");
+		addParkingBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				// TODO Este add me lleva a ver la iformaci—n del parking recien a–adido
+				chosenSADModelList.clear();
+
+				String pName= "'"+textFieldName.getText()+"'";
+				String pCapacity= "'"+textFieldCapacity.getText()+"'";
+				String pSHours= "'"+textFieldStart.getText()+"'";
+				String pEHours= "'"+textFieldEnd.getText()+"'";
+			
+				String stm1 = "INSERT INTO sisca_parking (sisca_parking_name,sisca_parking_capacity,"
+						+ "sisca_parking_starthour, sisca_parking_endhour) "
+						+ "VALUES("+ pName+","+ pCapacity+","+ pSHours+","+ pEHours+")";
+				
+				String stm2 = "select sisca_parking_id from sisca_parking where sisca_parking_name="+pName;
+				
+					
+				System.out.println(stm2);
+				
+	         try {
+					
+					dbman.insertDB(stm1);
+					
+					//int index =(Integer) availableSAD.get(0);
+					//System.out.println("Parking New Index:"+index);
+					
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				try {
+					try {
+						ArrayList<Object> index = dbman.getFromDB(stm2);
+						index = dbman.getID(index);
+						System.out.println(index);
+						int indexID = (Integer) index.get(0);
+						System.out.println(indexID);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
+				
+				
+
+				frame.setContentPane(parkingInformationView());
+				frame.pack(); 
+				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+			}
+		});
+		AddCancelPanel.add(addParkingBtn, "cell 0 0");
+
+		JButton cancelBtn = new JButton("Cancel");
+		cancelBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Cancel me hace un BACK en el history
+				frame.setContentPane(parkingInformationView());
+				frame.pack(); 
+				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+			}
+		});
+		AddCancelPanel.add(cancelBtn, "cell 26 0");
 
 
 		////////////////////////////////////////////////////////
