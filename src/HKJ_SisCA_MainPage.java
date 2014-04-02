@@ -77,7 +77,7 @@ public class HKJ_SisCA_MainPage {
 		frame= new JFrame();
 
 		// Image Icons
-		ImageIcon img1=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i1.png");
+		ImageIcon img1=  new ImageIcon("/Users/JuanPablo/git/ICOM5047_CAS/Icons/i1.png");
 		ImageIcon img2=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i2.png");
 		ImageIcon img3=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i3.png");
 		ImageIcon img4=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i4.png");
@@ -1549,8 +1549,12 @@ public class HKJ_SisCA_MainPage {
 
 		JScrollPane scrollPaneSADs = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneSADs, "cell 0 1,grow");
-////////////
+		
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Query for showing list of Available SADs and Authorization Types in Add New Parking Page
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		try {
+
 			dbman = new DBManager();
 			availableSAD = dbman.getFromDB("select * from sisca_sad where sisca_sad_active='false'");
 			availableSAD = dbman.getAvailableSAD(availableSAD);
@@ -1578,20 +1582,22 @@ public class HKJ_SisCA_MainPage {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-////////////
-		JList<String> SADList = new JList<String>(availableSadList);
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		
+		final JList SADList = new JList(availableSadList);
 		scrollPaneSADs.setViewportView(SADList);
 
 		JScrollPane scrollPaneCurrentSADs = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneCurrentSADs, "cell 1 1,grow");
 
-		JList<String> currentSADList = new JList<String>();
+		JList currentSADList = new JList();
 		scrollPaneCurrentSADs.setViewportView(currentSADList);
 
 		JScrollPane scrollPaneATypes = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneATypes, "cell 3 1,grow");
 
-		JList<String> ATypesList = new JList<String>(availableAtzTypeList);
+		JList ATypesList = new JList(availableAtzTypeList);
 		scrollPaneATypes.setViewportView(ATypesList);
 
 		JScrollPane scrollPaneCurrentATypes = new JScrollPane();
@@ -1614,8 +1620,9 @@ public class HKJ_SisCA_MainPage {
 		JButton addSADBtn = new JButton("Add");
 		addSADBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO 
-
+				
+				System.out.println(SADList.getSelectedValue().toString());
+				currentSADList.addListSelectionListener(listener);
 
 			}
 		});

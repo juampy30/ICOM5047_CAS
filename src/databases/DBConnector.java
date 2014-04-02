@@ -13,7 +13,7 @@ public class DBConnector {
 	}
 
 	public Connection connect() throws SQLException{
-		connection = DriverManager.getConnection(url, "postgres", "manzor321A");	
+		connection = DriverManager.getConnection(url, "postgres","lostuzos");	
 		System.out.println("Connect to DB!");
 		return connection;
 

@@ -37,7 +37,7 @@ public class DBManager {
 
 	public DBManager() throws ClassNotFoundException, SQLException{
 		Class.forName ("org.postgresql.Driver");
-		dbConnect = new DBConnector("jdbc:postgresql://localhost:5001/SisCA");
+		dbConnect = new DBConnector("jdbc:postgresql://localhost:5432/Test_SisCA");
 		con = dbConnect.connect();
 		System.out.println("Main Connect");	
 	}	
@@ -142,7 +142,7 @@ public class DBManager {
 				if(keyValue[0].equals("sisca_authorization_type_id")){
 					authorizationID = Integer.valueOf((String) keyValue[1]);
 				}
-				if(keyValue[0].equals("sisca_authorization_type_name")){
+				if(keyValue[0].equals("sisca_authorization_name")){
 					authorizationname = (String) keyValue[1];
 				}
 				if(keyValue[0].equals("sisca_authorization_type_unconditionalentry")) {
@@ -200,7 +200,7 @@ public class DBManager {
 						//keyValue -> {1,A}
 						keyValue = result.toString().split(":");
 						System.out.println(" KeyVale: " + keyValue[1]);
-						if(keyValue[0].equals("sisca_authorization_type_name")){
+						if(keyValue[0].equals("sisca_authorization_name")){
 							authorizationTypeName = (String) keyValue[1];
 						}						
 					}
