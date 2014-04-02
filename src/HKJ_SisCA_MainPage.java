@@ -2477,10 +2477,10 @@ viewAndAddBynPanel.add(addNewButton);
 		JList currentATypesList = new JList();
 		scrollPaneCurrentATypes.setViewportView(currentATypesList);
 
-		JLabel sads = new JLabel("SAD's:");
-		sads.setHorizontalAlignment(SwingConstants.CENTER);
-		sadsAndATypesPanel.add(sads, "cell 0 0 2 1,growx,aligny top");
-		sads.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
+		JLabel sads1 = new JLabel("SAD's:");
+		sads1.setHorizontalAlignment(SwingConstants.CENTER);
+		sadsAndATypesPanel.add(sads1, "cell 0 0 2 1,growx,aligny top");
+		sads1.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 
 		JLabel authorizations = new JLabel("Authorization Type(s):");
 		authorizations.setHorizontalAlignment(SwingConstants.CENTER);
