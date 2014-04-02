@@ -41,6 +41,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
@@ -70,6 +71,7 @@ public class HKJ_SisCA_MainPage {
 
 	private ArrayList<Object> availableSAD;
 	private ArrayList<Object> availableAtzType;
+<<<<<<< HEAD
 	private ArrayList<Object> fillParkingInformation;
 	private ArrayList<Object> registerParkings;
 	private ArrayList<Object> parkingInformation;
@@ -82,10 +84,14 @@ public class HKJ_SisCA_MainPage {
 	private String[] parkingInfoSadList;
 
 	private DefaultListModel registerParkingsList;
+=======
+
+>>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 	private DefaultListModel availableSADModelList;
 	private DefaultListModel availableAtzTypesModelList;
 	private DefaultListModel chosenSADModelList;
 	private DefaultListModel chosenAtzTypesModelList;
+<<<<<<< HEAD
 	private DefaultListModel parkingInformationList;
 	private DefaultListModel parkingInfoSADListView;
 
@@ -103,6 +109,20 @@ public class HKJ_SisCA_MainPage {
 	
 
 
+=======
+
+
+
+	private ArrayList<Object> registerParkings;
+
+	private String[] availableSadList;
+	private String[] availableAtzTypeList;
+
+	private DefaultListModel registerParkingsList;
+
+
+
+>>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 
 
 
@@ -115,12 +135,12 @@ public class HKJ_SisCA_MainPage {
 		frame= new JFrame();
 
 		// Image Icons
-		ImageIcon img1=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i1.png");
-		ImageIcon img2=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i2.png");
-		ImageIcon img3=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i3.png");
-		ImageIcon img4=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i4.png");
-		ImageIcon img5=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i5.png");
-		ImageIcon img6=  new ImageIcon("/Users/Jeancarlo/Desktop/Documents/GitHub/ICOM5047_CAS/Icons/i6.png");
+		ImageIcon img1=  new ImageIcon("/Users/JuanPablo/git/ICOM5047_CAS/Icons/i1.png");
+		ImageIcon img2=  new ImageIcon("/Users/JuanPablo/git/ICOM5047_CAS/Icons/i2.png");
+		ImageIcon img3=  new ImageIcon("/Users/JuanPablo/git/ICOM5047_CAS/Icons/i3.png");
+		ImageIcon img4=  new ImageIcon("/Users/JuanPablo/git/ICOM5047_CAS/Icons/i4.png");
+		ImageIcon img5=  new ImageIcon("/Users/JuanPablo/git/ICOM5047_CAS/Icons/i5.png");
+		ImageIcon img6=  new ImageIcon("/Users/JuanPablo/git/ICOM5047_CAS/Icons/i6.png");
 
 
 		/////////////////////////////////////////////////////////
@@ -761,188 +781,231 @@ public class HKJ_SisCA_MainPage {
 		LSystemLabel.setForeground(java.awt.Color.BLACK);
 		LSystemLabel.setFont(new Font("Lucida Grande", Font.BOLD, 16));
 
-		JLabel pName1 = new JLabel("New label");
-		pName1.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); 
-				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		pName1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(pName1, "cell 0 3,alignx left,aligny top");
+		
+		
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Query for get Parking Names for the Labels
+////////////////////////////////////////////////////////////////////////////////////
+ArrayList pNameLabelsArray = new ArrayList() ;
+try {
+dbman= new DBManager();
 
-		JLabel pName2 = new JLabel("New label");
-		pName2.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		pName2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(pName2, "cell 0 5,alignx left,aligny top");
+pNameLabelsArray=dbman.getFromDB("Select * from sisca_parking ORDER BY sisca_parking_name");
+//System.out.println("Before Test:"+pNameLabelsArray);
+pNameLabelsArray= dbman.getAvailableParkingNamesFromDB(pNameLabelsArray);
+//System.out.println("After Test:"+pNameLabelsArray.toString());
 
-		JLabel pName3 = new JLabel("New label");
-		pName3.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		pName3.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(pName3, "cell 0 7,alignx left,aligny top");
 
-		JLabel pName4 = new JLabel("New label");
-		pName4.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		pName4.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(pName4, "cell 0 9,alignx left,aligny top");
+} catch (ClassNotFoundException e2) {
+// TODO Auto-generated catch block
+e2.printStackTrace();
+} catch (SQLException e2) {
+// TODO Auto-generated catch block
+e2.printStackTrace();
+} catch (ParseException e1) {
+// TODO Auto-generated catch block
+e1.printStackTrace();
+}
 
-		JLabel pName5 = new JLabel("New label");
-		pName5.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		pName5.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		liveSystemPanel.add(pName5, "cell 0 11,alignx left,aligny top");
 
-		JLabel pName6 = new JLabel("New label");
-		pName6.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		pName6.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		liveSystemPanel.add(pName6, "cell 0 13,alignx left,aligny top");
 
-		JLabel pName7 = new JLabel("New label");
-		pName7.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		pName7.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(pName7, "cell 0 15,alignx left,aligny top");
+JLabel pName1 = new JLabel((String) pNameLabelsArray.get(0));
 
-		JLabel pName8 = new JLabel("New label");
-		pName8.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		pName8.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		liveSystemPanel.add(pName8, "cell 0 17,alignx left,aligny top");
+pName1.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+pName1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+liveSystemPanel.add(pName1, "cell 0 3,alignx left,aligny top");
 
-		JLabel pName9 = new JLabel("New label");
-		pName9.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		pName9.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		liveSystemPanel.add(pName9, "cell 0 19,alignx left,aligny top");
+JLabel pName2 = new JLabel((String) pNameLabelsArray.get(1));
+pName2.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+pName2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+liveSystemPanel.add(pName2, "cell 0 5,alignx left,aligny top");
 
-		JLabel pName10 = new JLabel("New label");
-		pName10.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		pName10.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(pName10, "cell 0 21,alignx left,aligny top");
+JLabel pName3 = new JLabel((String) pNameLabelsArray.get(2));
+pName3.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+pName3.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+liveSystemPanel.add(pName3, "cell 0 7,alignx left,aligny top");
 
-		// Separators
-		JSeparator separator = new JSeparator();
-		liveSystemPanel.add(separator, "cell 0 4,growx,aligny top");
+JLabel pName4 = new JLabel((String) pNameLabelsArray.get(3));
+pName4.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+pName4.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+liveSystemPanel.add(pName4, "cell 0 9,alignx left,aligny top");
 
-		JSeparator separator_1 = new JSeparator();
-		liveSystemPanel.add(separator_1, "cell 0 6,growx,aligny top");
+JLabel pName5 = new JLabel((String) pNameLabelsArray.get(4));
+pName5.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+pName5.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+liveSystemPanel.add(pName5, "cell 0 11,alignx left,aligny top");
 
-		JSeparator separator_2 = new JSeparator();
-		liveSystemPanel.add(separator_2, "cell 0 8,growx,aligny top");
+JLabel pName6 = new JLabel((String) pNameLabelsArray.get(5));
+pName6.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+pName6.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+liveSystemPanel.add(pName6, "cell 0 13,alignx left,aligny top");
 
-		JSeparator separator_3 = new JSeparator();
-		liveSystemPanel.add(separator_3, "cell 0 10,growx,aligny top");
+JLabel pName7 = new JLabel((String) pNameLabelsArray.get(6));
+pName7.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+pName7.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+liveSystemPanel.add(pName7, "cell 0 15,alignx left,aligny top");
 
-		JSeparator separator_4 = new JSeparator();
-		liveSystemPanel.add(separator_4, "cell 0 12,growx,aligny top");
+JLabel pName8 = new JLabel((String) pNameLabelsArray.get(7));
+pName8.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+pName8.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+liveSystemPanel.add(pName8, "cell 0 17,alignx left,aligny top");
 
-		JSeparator separator_5 = new JSeparator();
-		liveSystemPanel.add(separator_5, "cell 0 14,growx,aligny top");
+JLabel pName9 = new JLabel((String) pNameLabelsArray.get(8));
+pName9.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+pName9.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+liveSystemPanel.add(pName9, "cell 0 19,alignx left,aligny top");
 
-		JSeparator separator_7 = new JSeparator();
-		liveSystemPanel.add(separator_7, "cell 0 18,growx,aligny top");
+JLabel pName10 = new JLabel((String) pNameLabelsArray.get(9));
+pName10.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+pName10.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+liveSystemPanel.add(pName10, "cell 0 21,alignx left,aligny top");
 
-		JSeparator separator_6 = new JSeparator();
-		liveSystemPanel.add(separator_6, "cell 0 16,growx,aligny top");
+// Separators
+JSeparator separator = new JSeparator();
+liveSystemPanel.add(separator, "cell 0 4,growx,aligny top");
 
-		JSeparator separator_8 = new JSeparator();
-		liveSystemPanel.add(separator_8, "cell 0 20,growx,aligny top");
+JSeparator separator_1 = new JSeparator();
+liveSystemPanel.add(separator_1, "cell 0 6,growx,aligny top");
 
-		JSeparator separator_9 = new JSeparator();
-		liveSystemPanel.add(separator_9, "cell 0 22,growx,aligny top");
+JSeparator separator_2 = new JSeparator();
+liveSystemPanel.add(separator_2, "cell 0 8,growx,aligny top");
 
-		JSeparator separator_10 = new JSeparator();
-		liveSystemPanel.add(separator_10, "cell 0 2,growx,aligny top");
+JSeparator separator_3 = new JSeparator();
+liveSystemPanel.add(separator_3, "cell 0 10,growx,aligny top");
 
-		JPanel panel_100 = new JPanel();
-		panel_100.setBackground(new Color(245,245,245));
-		liveSystemPanel.add(panel_100, "cell 0 1,growx,aligny top");
-		panel_100.setLayout(new BoxLayout(panel_100, BoxLayout.X_AXIS));
+JSeparator separator_4 = new JSeparator();
+liveSystemPanel.add(separator_4, "cell 0 12,growx,aligny top");
 
-		JLabel searchLabel = new JLabel("Search:");
-		panel_100.add(searchLabel);
-		searchLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+JSeparator separator_5 = new JSeparator();
+liveSystemPanel.add(separator_5, "cell 0 14,growx,aligny top");
 
-		JTextField searchTextField = new JTextField();
-		searchTextField.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				frame.setContentPane(parkingView());
-				frame.pack(); 
-				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
-			}
-		});
-		panel_100.add(searchTextField);
-		searchTextField.setColumns(10);
+JSeparator separator_7 = new JSeparator();
+liveSystemPanel.add(separator_7, "cell 0 18,growx,aligny top");
 
-		JPanel viewAndAddBynPanel = new JPanel();
-		viewAndAddBynPanel.setBackground(new Color(245,245,245));
-		liveSystemPanel.add(viewAndAddBynPanel, "cell 0 23,alignx left,aligny top");
-		viewAndAddBynPanel.setLayout(new GridLayout(0, 2, 0, 0));
+JSeparator separator_6 = new JSeparator();
+liveSystemPanel.add(separator_6, "cell 0 16,growx,aligny top");
 
-		JButton viewAllButton = new JButton("View All");
-		viewAllButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				frame.setContentPane(parkingView());
-				frame.pack(); 
-				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		viewAndAddBynPanel.add(viewAllButton);
+JSeparator separator_8 = new JSeparator();
+liveSystemPanel.add(separator_8, "cell 0 20,growx,aligny top");
 
-		JButton addNewButton = new JButton("Add New Parking");
-		addNewButton.addActionListener(new ActionListener() {
+JSeparator separator_9 = new JSeparator();
+liveSystemPanel.add(separator_9, "cell 0 22,growx,aligny top");
+
+JSeparator separator_10 = new JSeparator();
+liveSystemPanel.add(separator_10, "cell 0 2,growx,aligny top");
+
+JPanel panel_100 = new JPanel();
+panel_100.setBackground(new Color(245,245,245));
+liveSystemPanel.add(panel_100, "cell 0 1,growx,aligny top");
+panel_100.setLayout(new BoxLayout(panel_100, BoxLayout.X_AXIS));
+
+JLabel searchLabel = new JLabel("Search:");
+panel_100.add(searchLabel);
+searchLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+
+JTextField searchTextField = new JTextField();
+panel_100.add(searchTextField);
+searchTextField.addActionListener(new ActionListener() {
+public void actionPerformed(ActionEvent e) {
+frame.setContentPane(parkingView());
+frame.pack(); 
+frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
+}
+});
+searchTextField.setColumns(10);
+
+JPanel viewAndAddBynPanel = new JPanel();
+viewAndAddBynPanel.setBackground(new Color(245,245,245));
+liveSystemPanel.add(viewAndAddBynPanel, "cell 0 23,alignx left,aligny top");
+viewAndAddBynPanel.setLayout(new GridLayout(0, 2, 0, 0));
+
+JButton viewAllButton = new JButton("View All");
+viewAllButton.addActionListener(new ActionListener() {
+public void actionPerformed(ActionEvent arg0) {
+frame.setContentPane(parkingView());
+frame.pack(); 
+frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+}
+});
+viewAndAddBynPanel.add(viewAllButton);
+
+JButton addNewButton = new JButton("Add New Parking");
+addNewButton.addActionListener(new ActionListener() {
+public void actionPerformed(ActionEvent arg0) {
+frame.setContentPane(addParkingView());
+frame.pack(); 
+frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+}
+});
+viewAndAddBynPanel.add(addNewButton);
+		
+		
+		
+
+		JButton addNewButton1 = new JButton("Add New Parking");
+		addNewButton1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//
 
@@ -951,7 +1014,7 @@ public class HKJ_SisCA_MainPage {
 				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
-		viewAndAddBynPanel.add(addNewButton);
+		viewAndAddBynPanel.add(addNewButton1);
 
 
 
@@ -1345,8 +1408,35 @@ public class HKJ_SisCA_MainPage {
 		LSystemLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		LSystemLabel.setForeground(java.awt.Color.BLACK);
 		LSystemLabel.setFont(new Font("Lucida Grande", Font.BOLD, 16));
+		
+		////////////////////////////////////////////////////////////////////////////////////////////////
+		// Query for get Parking Names for the Labels
+		////////////////////////////////////////////////////////////////////////////////////
+		ArrayList pNameLabelsArray = new ArrayList() ;
+		try {
+			dbman= new DBManager();
+		
+			pNameLabelsArray=dbman.getFromDB("Select * from sisca_parking ORDER BY sisca_parking_name");
+			//System.out.println("Before Test:"+pNameLabelsArray);
+			pNameLabelsArray= dbman.getAvailableParkingNamesFromDB(pNameLabelsArray);
+			//System.out.println("After Test:"+pNameLabelsArray.toString());
+		
+			
+		} catch (ClassNotFoundException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+	
 
-		JLabel pName1 = new JLabel("New label");
+		JLabel pName1 = new JLabel((String) pNameLabelsArray.get(0));
+		
 		pName1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -1357,7 +1447,7 @@ public class HKJ_SisCA_MainPage {
 		pName1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		liveSystemPanel.add(pName1, "cell 0 3,alignx left,aligny top");
 
-		JLabel pName2 = new JLabel("New label");
+		JLabel pName2 = new JLabel((String) pNameLabelsArray.get(1));
 		pName2.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -1368,7 +1458,7 @@ public class HKJ_SisCA_MainPage {
 		pName2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		liveSystemPanel.add(pName2, "cell 0 5,alignx left,aligny top");
 
-		JLabel pName3 = new JLabel("New label");
+		JLabel pName3 = new JLabel((String) pNameLabelsArray.get(2));
 		pName3.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -1379,7 +1469,7 @@ public class HKJ_SisCA_MainPage {
 		pName3.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		liveSystemPanel.add(pName3, "cell 0 7,alignx left,aligny top");
 
-		JLabel pName4 = new JLabel("New label");
+		JLabel pName4 = new JLabel((String) pNameLabelsArray.get(3));
 		pName4.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -1390,7 +1480,7 @@ public class HKJ_SisCA_MainPage {
 		pName4.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		liveSystemPanel.add(pName4, "cell 0 9,alignx left,aligny top");
 
-		JLabel pName5 = new JLabel("New label");
+		JLabel pName5 = new JLabel((String) pNameLabelsArray.get(4));
 		pName5.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		pName5.addMouseListener(new MouseAdapter() {
 			@Override
@@ -1401,7 +1491,7 @@ public class HKJ_SisCA_MainPage {
 		});
 		liveSystemPanel.add(pName5, "cell 0 11,alignx left,aligny top");
 
-		JLabel pName6 = new JLabel("New label");
+		JLabel pName6 = new JLabel((String) pNameLabelsArray.get(5));
 		pName6.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		pName6.addMouseListener(new MouseAdapter() {
 			@Override
@@ -1412,7 +1502,7 @@ public class HKJ_SisCA_MainPage {
 		});
 		liveSystemPanel.add(pName6, "cell 0 13,alignx left,aligny top");
 
-		JLabel pName7 = new JLabel("New label");
+		JLabel pName7 = new JLabel((String) pNameLabelsArray.get(6));
 		pName7.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -1423,7 +1513,7 @@ public class HKJ_SisCA_MainPage {
 		pName7.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		liveSystemPanel.add(pName7, "cell 0 15,alignx left,aligny top");
 
-		JLabel pName8 = new JLabel("New label");
+		JLabel pName8 = new JLabel((String) pNameLabelsArray.get(7));
 		pName8.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		pName8.addMouseListener(new MouseAdapter() {
 			@Override
@@ -1434,7 +1524,7 @@ public class HKJ_SisCA_MainPage {
 		});
 		liveSystemPanel.add(pName8, "cell 0 17,alignx left,aligny top");
 
-		JLabel pName9 = new JLabel("New label");
+		JLabel pName9 = new JLabel((String) pNameLabelsArray.get(8));
 		pName9.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		pName9.addMouseListener(new MouseAdapter() {
 			@Override
@@ -1445,7 +1535,7 @@ public class HKJ_SisCA_MainPage {
 		});
 		liveSystemPanel.add(pName9, "cell 0 19,alignx left,aligny top");
 
-		JLabel pName10 = new JLabel("New label");
+		JLabel pName10 = new JLabel((String) pNameLabelsArray.get(9));
 		pName10.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -1626,25 +1716,25 @@ public class HKJ_SisCA_MainPage {
 		daysPanel.add(daysLabel, "cell 0 0,growx,aligny top");
 		daysLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 
-		JRadioButton monRadioBtn = new JRadioButton("Mon");
+		final JRadioButton monRadioBtn = new JRadioButton("Mon");
 		daysPanel.add(monRadioBtn, "cell 0 0,alignx right,aligny top");
 
-		JRadioButton tueRadioBtn = new JRadioButton("Tue");
+		final JRadioButton tueRadioBtn = new JRadioButton("Tue");
 		daysPanel.add(tueRadioBtn, "cell 1 0,alignx left,aligny top");
 
-		JRadioButton wenRadioBtn = new JRadioButton("Wen");
+		final JRadioButton wenRadioBtn = new JRadioButton("Wen");
 		daysPanel.add(wenRadioBtn, "cell 2 0,alignx left,aligny top");
 
-		JRadioButton thuRadioBtn = new JRadioButton("Thu");
+		final JRadioButton thuRadioBtn = new JRadioButton("Thu");
 		daysPanel.add(thuRadioBtn, "cell 3 0,alignx left,aligny top");
 
-		JRadioButton friRadioBtn = new JRadioButton("Fri");
+		final JRadioButton friRadioBtn = new JRadioButton("Fri");
 		daysPanel.add(friRadioBtn, "cell 4 0,growx,aligny top");
 
-		JRadioButton satRadioBtn = new JRadioButton("Sat");
+		final JRadioButton satRadioBtn = new JRadioButton("Sat");
 		daysPanel.add(satRadioBtn, "cell 5 0,alignx left,aligny top");
 
-		JRadioButton sunRadioBtn = new JRadioButton("Sun");
+		final JRadioButton sunRadioBtn = new JRadioButton("Sun");
 		daysPanel.add(sunRadioBtn, "cell 6 0,alignx left,aligny top");
 
 		JPanel hoursPanel = new JPanel();
@@ -1684,6 +1774,12 @@ public class HKJ_SisCA_MainPage {
 		availableSADModelList= new DefaultListModel();
 		availableAtzTypesModelList= new DefaultListModel();
 
+<<<<<<< HEAD
+=======
+		availableSADModelList= new DefaultListModel();
+		availableAtzTypesModelList= new DefaultListModel();
+
+>>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Query for showing list of Available SADs and Authorization Types in Add New Parking Page
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1720,22 +1816,33 @@ public class HKJ_SisCA_MainPage {
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+<<<<<<< HEAD
 		final JList SADList = new JList(availableSADModelList);
 
+=======
+		final JList SADList = new JList(availableSADModelList);
+>>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 		scrollPaneSADs.setViewportView(SADList);
 
 		JScrollPane scrollPaneCurrentSADs = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneCurrentSADs, "cell 1 1,grow");
 
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 		final JList currentSADList = new JList();
 		scrollPaneCurrentSADs.setViewportView(currentSADList);
 
 		JScrollPane scrollPaneATypes = new JScrollPane();
 		sadsAndATypesPanel.add(scrollPaneATypes, "cell 3 1,grow");
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 
 		final JList ATypesList = new JList(availableAtzTypesModelList);
 		scrollPaneATypes.setViewportView(ATypesList);
@@ -1756,6 +1863,10 @@ public class HKJ_SisCA_MainPage {
 		authorizations.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		sadsAndATypesPanel.add(authorizations, "cell 3 0 2 1,growx,aligny bottom");
 
+<<<<<<< HEAD
+=======
+		// Default List Initializations
+>>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 		chosenSADModelList= new DefaultListModel();
 		chosenAtzTypesModelList = new DefaultListModel();
 
@@ -1763,15 +1874,11 @@ public class HKJ_SisCA_MainPage {
 		JButton addSADBtn = new JButton("Add");
 		addSADBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-
-				// TODO 
 				chosenSADModelList.addElement(SADList.getSelectedValue().toString());
 				availableSADModelList.removeElement(SADList.getSelectedValue().toString());
 
 				SADList.setModel(availableSADModelList);
 				currentSADList.setModel(chosenSADModelList);
-
-
 			}
 		});
 		sadsAndATypesPanel.add(addSADBtn, "cell 0 2,growx,aligny top");
@@ -1784,8 +1891,6 @@ public class HKJ_SisCA_MainPage {
 
 				SADList.setModel(availableSADModelList);
 				currentSADList.setModel(chosenSADModelList);
-
-
 			}
 		});
 		sadsAndATypesPanel.add(removeSADBtn, "cell 1 2,growx,aligny top");
@@ -1799,7 +1904,6 @@ public class HKJ_SisCA_MainPage {
 
 				ATypesList.setModel(availableAtzTypesModelList);
 				currentATypesList.setModel(chosenAtzTypesModelList);
-
 			}
 		});
 		sadsAndATypesPanel.add(addATypeBtn, "cell 3 2,growx,aligny top");
@@ -1815,28 +1919,45 @@ public class HKJ_SisCA_MainPage {
 			}
 		});
 		sadsAndATypesPanel.add(removeATypeBtn, "cell 4 2,growx,aligny top");
+<<<<<<< HEAD
 
 
+=======
+		
+		
+	
+>>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 		////////////////////////
-		// Query for add parking to the DB
+		// Query for Add a New Parking to the DB
 		/////////////////////////////////
 
 		JButton addParkingBtn = new JButton("Add Parking");
 		addParkingBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+<<<<<<< HEAD
 
 				// TODO Este add me lleva a ver la iformaci—n del parking recien a–adido
 				chosenSADModelList.clear();
+=======
+>>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 
+				// Fields from text fiedls
 				String pName= "'"+textFieldName.getText()+"'";
 				String pCapacity= "'"+textFieldCapacity.getText()+"'";
 				String pSHours= "'"+textFieldStart.getText()+"'";
 				String pEHours= "'"+textFieldEnd.getText()+"'";
+<<<<<<< HEAD
 
+=======
+			
+
+				// Insert Parking Name, Capacity, Operation Start Hour and Operation End Hour to the DB
+>>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 				String stm1 = "INSERT INTO sisca_parking (sisca_parking_name,sisca_parking_capacity,"
 						+ "sisca_parking_starthour, sisca_parking_endhour) "
 						+ "VALUES("+ pName+","+ pCapacity+","+ pSHours+","+ pEHours+")";
 
+<<<<<<< HEAD
 				String stm2 = "select sisca_parking_id from sisca_parking where sisca_parking_name="+pName;
 				System.out.println(stm2);
 
@@ -1847,10 +1968,15 @@ public class HKJ_SisCA_MainPage {
 					//int index =(Integer) availableSAD.get(0);
 					//System.out.println("Parking New Index:"+index);
 
+=======
+				try {
+					dbman.insertDB(stm1);
+>>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+<<<<<<< HEAD
 
 				//				try {
 				//					try {
@@ -1871,6 +1997,111 @@ public class HKJ_SisCA_MainPage {
 
 
 
+=======
+			
+				// Insert Parking SADList to the DB
+				
+				// Fields from Jlist
+				ListModel curretnSADListModel=currentSADList.getModel();
+				String[] currentSADStringArray= new String[curretnSADListModel.getSize()];
+				
+				for (int i=0; i<curretnSADListModel.getSize();i++){
+					String s= (String) curretnSADListModel.getElementAt(i);
+					String[] arrayTest= s.split(" >>");
+					currentSADStringArray[i]="'"+ arrayTest[0]+"'";
+					
+				}
+				
+				for(String sName: currentSADStringArray){
+					//System.out.println("SAD Name:\n"+sName);
+					String stm2 = "INSERT INTO sisca_sad_parking_list (sisca_sad_name,sisca_parking_name)"
+							+ "VALUES("+ sName+","+ pName+")";
+					String stm3= "update sisca_sad SET sisca_sad_active='true' where sisca_sad_name="+sName;
+					
+					
+					try {
+						dbman.insertDB(stm2);
+						dbman.updatetDB(stm3);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+				}
+				
+				// Insert Parking AuthorizationTypesList to the DB
+
+				// Fields from Jlist
+				ListModel curretnAtzTypesListModel=currentATypesList.getModel();
+				String[] currentAtzTypestringArray= new String[curretnAtzTypesListModel.getSize()];
+				
+				for (int i=0; i<curretnAtzTypesListModel.getSize();i++){
+					currentAtzTypestringArray[i]="'"+ curretnAtzTypesListModel.getElementAt(i)+"'";
+				}
+				
+				for(String aTName: currentAtzTypestringArray){
+					String stm2 = "INSERT INTO sisca_authorization_parking_list (sisca_parking_name,sisca_authorization_name)"
+							+ "VALUES("+ pName+","+ aTName+")";
+					try {
+						dbman.insertDB(stm2);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}	
+				}
+				
+				// Insert Parking Operation Days to the DB
+				
+				// Fields from Jlist
+				String[] operationDays= new String[7];
+				int j=0;
+				if(monRadioBtn.isSelected()){
+					operationDays[j]="'Monday'";
+					j++;
+				}
+				if(tueRadioBtn.isSelected()){
+					operationDays[j]="'Tuesday'";
+					j++;
+				}
+				if(wenRadioBtn.isSelected()){
+					operationDays[j]="'Wenesday'";
+					j++;
+				}
+				if(thuRadioBtn.isSelected()){
+					operationDays[j]="'Thursday'";
+					j++;
+				}
+				if(friRadioBtn.isSelected()){
+					operationDays[j]="'Friday'";
+					j++;
+				}
+				if(satRadioBtn.isSelected()){
+					operationDays[j]="'Saturday'";
+					j++;
+				}
+				if(sunRadioBtn.isSelected()){
+					operationDays[j]="'Sunday'";
+					j++;
+				}
+				int j2=0;
+				for(String oDay: operationDays){
+					String stm2 = "INSERT INTO sisca_parking_operation_days_list (sisca_parking_name,sisca_operations_day)"
+							+ "VALUES("+ pName+","+ oDay+")";
+					if(j2<j){
+						try {
+							dbman.insertDB(stm2);
+						} catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}	
+						j2++;
+					}
+					
+				}
+				// Clear  Chosen List
+				chosenSADModelList.clear();
+				chosenAtzTypesModelList.clear();
+>>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 
 				frame.setContentPane(parkingInformationView());
 				frame.pack(); 
@@ -1912,12 +2143,28 @@ public class HKJ_SisCA_MainPage {
 	//   Edit Parking View								         	//
 	//////////////////////////////////////////////////////////////////
 
+<<<<<<< HEAD
 	private JPanel editParkingView(String parkingName, int parkingID){
+=======
+	private JPanel editParkingView(String parkingName, int parkingID, int parkingCapacity, String parkingSHour, String parkingEHour, 
+			String[] sads, String[] authorizationTypes, String[] operationDays){
+>>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 
+		// Current Parking Information
+		int parkingIDEdit= parkingID;
+
+		String parkingNameEdit= parkingName;
+		String parkingStartHour= parkingSHour;
+		String parkingEndHour= parkingEHour;
+
+		String[] parkingSADs= sads;
+		String[] parkingAuthorizationTypes= authorizationTypes;
+		String[] parkingOperationDays= operationDays;
 
 		/////////////////////////////////////////////////////////
 		//           Menu Panel
 		/////////////////////////////////////////////////////////
+
 
 		// Configurations 
 		JPanel menuPanelEditParking = new JPanel();
@@ -1937,7 +2184,7 @@ public class HKJ_SisCA_MainPage {
 		homeLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				//frame.setContentPane(windowPanel); // Wrong Way! =S
+				frame.setContentPane(windowPanel); // Wrong Way! =S
 				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -1950,7 +2197,7 @@ public class HKJ_SisCA_MainPage {
 		parkingManagerLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				//frame.setContentPane(parkingView());
+				frame.setContentPane(parkingView());
 				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -1966,6 +2213,8 @@ public class HKJ_SisCA_MainPage {
 		editParkingLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				frame.setContentPane(editParkingView());
+				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		editParkingLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -2041,199 +2290,223 @@ public class HKJ_SisCA_MainPage {
 		LSystemLabel.setForeground(java.awt.Color.BLACK);
 		LSystemLabel.setFont(new Font("Lucida Grande", Font.BOLD, 16));
 
-		JLabel pName1 = new JLabel("New label");
-		pName1.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		pName1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(pName1, "cell 0 3,alignx left,aligny top");
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Query for get Parking Names for the Labels
+////////////////////////////////////////////////////////////////////////////////////
+ArrayList pNameLabelsArray = new ArrayList() ;
+try {
+dbman= new DBManager();
 
-		JLabel pName2 = new JLabel("New label");
-		pName2.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		pName2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(pName2, "cell 0 5,alignx left,aligny top");
+pNameLabelsArray=dbman.getFromDB("Select * from sisca_parking ORDER BY sisca_parking_name");
+//System.out.println("Before Test:"+pNameLabelsArray);
+pNameLabelsArray= dbman.getAvailableParkingNamesFromDB(pNameLabelsArray);
+//System.out.println("After Test:"+pNameLabelsArray.toString());
 
-		JLabel pName3 = new JLabel("New label");
-		pName3.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		pName3.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(pName3, "cell 0 7,alignx left,aligny top");
 
-		JLabel pName4 = new JLabel("New label");
-		pName4.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		pName4.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(pName4, "cell 0 9,alignx left,aligny top");
+} catch (ClassNotFoundException e2) {
+// TODO Auto-generated catch block
+e2.printStackTrace();
+} catch (SQLException e2) {
+// TODO Auto-generated catch block
+e2.printStackTrace();
+} catch (ParseException e1) {
+// TODO Auto-generated catch block
+e1.printStackTrace();
+}
 
-		JLabel pName5 = new JLabel("New label");
-		pName5.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		pName5.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		liveSystemPanel.add(pName5, "cell 0 11,alignx left,aligny top");
 
-		JLabel pName6 = new JLabel("New label");
-		pName6.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		pName6.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		liveSystemPanel.add(pName6, "cell 0 13,alignx left,aligny top");
 
-		JLabel pName7 = new JLabel("New label");
-		pName7.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		pName7.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(pName7, "cell 0 15,alignx left,aligny top");
+JLabel pName1 = new JLabel((String) pNameLabelsArray.get(0));
 
-		JLabel pName8 = new JLabel("New label");
-		pName8.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		pName8.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		liveSystemPanel.add(pName8, "cell 0 17,alignx left,aligny top");
+pName1.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+pName1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+liveSystemPanel.add(pName1, "cell 0 3,alignx left,aligny top");
 
-		JLabel pName9 = new JLabel("New label");
-		pName9.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		pName9.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); 
-				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		liveSystemPanel.add(pName9, "cell 0 19,alignx left,aligny top");
+JLabel pName2 = new JLabel((String) pNameLabelsArray.get(1));
+pName2.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+pName2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+liveSystemPanel.add(pName2, "cell 0 5,alignx left,aligny top");
 
-		JLabel pName10 = new JLabel("New label");
-		pName10.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(parkingInformationView());
-				frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		pName10.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(pName10, "cell 0 21,alignx left,aligny top");
+JLabel pName3 = new JLabel((String) pNameLabelsArray.get(2));
+pName3.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+pName3.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+liveSystemPanel.add(pName3, "cell 0 7,alignx left,aligny top");
 
-		// Separators
-		JSeparator separator = new JSeparator();
-		liveSystemPanel.add(separator, "cell 0 4,growx,aligny top");
+JLabel pName4 = new JLabel((String) pNameLabelsArray.get(3));
+pName4.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+pName4.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+liveSystemPanel.add(pName4, "cell 0 9,alignx left,aligny top");
 
-		JSeparator separator_1 = new JSeparator();
-		liveSystemPanel.add(separator_1, "cell 0 6,growx,aligny top");
+JLabel pName5 = new JLabel((String) pNameLabelsArray.get(4));
+pName5.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+pName5.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+liveSystemPanel.add(pName5, "cell 0 11,alignx left,aligny top");
 
-		JSeparator separator_2 = new JSeparator();
-		liveSystemPanel.add(separator_2, "cell 0 8,growx,aligny top");
+JLabel pName6 = new JLabel((String) pNameLabelsArray.get(5));
+pName6.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+pName6.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+liveSystemPanel.add(pName6, "cell 0 13,alignx left,aligny top");
 
-		JSeparator separator_3 = new JSeparator();
-		liveSystemPanel.add(separator_3, "cell 0 10,growx,aligny top");
+JLabel pName7 = new JLabel((String) pNameLabelsArray.get(6));
+pName7.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+pName7.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+liveSystemPanel.add(pName7, "cell 0 15,alignx left,aligny top");
 
-		JSeparator separator_4 = new JSeparator();
-		liveSystemPanel.add(separator_4, "cell 0 12,growx,aligny top");
+JLabel pName8 = new JLabel((String) pNameLabelsArray.get(7));
+pName8.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+pName8.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+liveSystemPanel.add(pName8, "cell 0 17,alignx left,aligny top");
 
-		JSeparator separator_5 = new JSeparator();
-		liveSystemPanel.add(separator_5, "cell 0 14,growx,aligny top");
+JLabel pName9 = new JLabel((String) pNameLabelsArray.get(8));
+pName9.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+pName9.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+liveSystemPanel.add(pName9, "cell 0 19,alignx left,aligny top");
 
-		JSeparator separator_7 = new JSeparator();
-		liveSystemPanel.add(separator_7, "cell 0 18,growx,aligny top");
+JLabel pName10 = new JLabel((String) pNameLabelsArray.get(9));
+pName10.addMouseListener(new MouseAdapter() {
+@Override
+public void mouseClicked(MouseEvent e) {
+frame.setContentPane(parkingInformationView());
+frame.pack(); frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+}
+});
+pName10.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+liveSystemPanel.add(pName10, "cell 0 21,alignx left,aligny top");
 
-		JSeparator separator_6 = new JSeparator();
-		liveSystemPanel.add(separator_6, "cell 0 16,growx,aligny top");
+// Separators
+JSeparator separator = new JSeparator();
+liveSystemPanel.add(separator, "cell 0 4,growx,aligny top");
 
-		JSeparator separator_8 = new JSeparator();
-		liveSystemPanel.add(separator_8, "cell 0 20,growx,aligny top");
+JSeparator separator_1 = new JSeparator();
+liveSystemPanel.add(separator_1, "cell 0 6,growx,aligny top");
 
-		JSeparator separator_9 = new JSeparator();
-		liveSystemPanel.add(separator_9, "cell 0 22,growx,aligny top");
+JSeparator separator_2 = new JSeparator();
+liveSystemPanel.add(separator_2, "cell 0 8,growx,aligny top");
 
-		JSeparator separator_10 = new JSeparator();
-		liveSystemPanel.add(separator_10, "cell 0 2,growx,aligny top");
+JSeparator separator_3 = new JSeparator();
+liveSystemPanel.add(separator_3, "cell 0 10,growx,aligny top");
 
-		JPanel panel_100 = new JPanel();
-		panel_100.setBackground(new Color(245,245,245));
-		liveSystemPanel.add(panel_100, "cell 0 1,growx,aligny top");
-		panel_100.setLayout(new BoxLayout(panel_100, BoxLayout.X_AXIS));
+JSeparator separator_4 = new JSeparator();
+liveSystemPanel.add(separator_4, "cell 0 12,growx,aligny top");
 
-		JLabel searchLabel = new JLabel("Search:");
-		panel_100.add(searchLabel);
-		searchLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+JSeparator separator_5 = new JSeparator();
+liveSystemPanel.add(separator_5, "cell 0 14,growx,aligny top");
 
-		JTextField searchTextField = new JTextField();
-		searchTextField.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				frame.setContentPane(parkingView());
-				frame.pack(); 
-				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
-			}
-		});
-		panel_100.add(searchTextField);
-		searchTextField.setColumns(10);
+JSeparator separator_7 = new JSeparator();
+liveSystemPanel.add(separator_7, "cell 0 18,growx,aligny top");
 
-		JPanel viewAndAddBynPanel = new JPanel();
-		viewAndAddBynPanel.setBackground(new Color(245,245,245));
-		liveSystemPanel.add(viewAndAddBynPanel, "cell 0 23,alignx left,aligny top");
-		viewAndAddBynPanel.setLayout(new GridLayout(0, 2, 0, 0));
+JSeparator separator_6 = new JSeparator();
+liveSystemPanel.add(separator_6, "cell 0 16,growx,aligny top");
 
-		JButton viewAllButton = new JButton("View All");
-		viewAllButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				// TODO Cancel me hace un BACK en el history
-				frame.setContentPane(parkingView());
-				frame.pack(); 
-				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+JSeparator separator_8 = new JSeparator();
+liveSystemPanel.add(separator_8, "cell 0 20,growx,aligny top");
 
-			}
-		});
-		viewAndAddBynPanel.add(viewAllButton);
+JSeparator separator_9 = new JSeparator();
+liveSystemPanel.add(separator_9, "cell 0 22,growx,aligny top");
 
-		JButton addNewButton = new JButton("Add New Parking");
-		addNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				// TODO Cancel me hace un BACK en el history
-				frame.setContentPane(addParkingView());
-				frame.pack(); 
-				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+JSeparator separator_10 = new JSeparator();
+liveSystemPanel.add(separator_10, "cell 0 2,growx,aligny top");
 
-			}
-		});
-		viewAndAddBynPanel.add(addNewButton);
+JPanel panel_100 = new JPanel();
+panel_100.setBackground(new Color(245,245,245));
+liveSystemPanel.add(panel_100, "cell 0 1,growx,aligny top");
+panel_100.setLayout(new BoxLayout(panel_100, BoxLayout.X_AXIS));
+
+JLabel searchLabel = new JLabel("Search:");
+panel_100.add(searchLabel);
+searchLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+
+JTextField searchTextField = new JTextField();
+panel_100.add(searchTextField);
+searchTextField.addActionListener(new ActionListener() {
+public void actionPerformed(ActionEvent e) {
+frame.setContentPane(parkingView());
+frame.pack(); 
+frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
+}
+});
+searchTextField.setColumns(10);
+
+JPanel viewAndAddBynPanel = new JPanel();
+viewAndAddBynPanel.setBackground(new Color(245,245,245));
+liveSystemPanel.add(viewAndAddBynPanel, "cell 0 23,alignx left,aligny top");
+viewAndAddBynPanel.setLayout(new GridLayout(0, 2, 0, 0));
+
+JButton viewAllButton = new JButton("View All");
+viewAllButton.addActionListener(new ActionListener() {
+public void actionPerformed(ActionEvent arg0) {
+frame.setContentPane(parkingView());
+frame.pack(); 
+frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+}
+});
+viewAndAddBynPanel.add(viewAllButton);
+
+JButton addNewButton = new JButton("Add New Parking");
+addNewButton.addActionListener(new ActionListener() {
+public void actionPerformed(ActionEvent arg0) {
+frame.setContentPane(addParkingView());
+frame.pack(); 
+frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+}
+});
+viewAndAddBynPanel.add(addNewButton);
 
 
 
@@ -2288,6 +2561,9 @@ public class HKJ_SisCA_MainPage {
 		centerPanel.add(AddCancelPanel, "cell 0 6,grow");
 		AddCancelPanel.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][][][][][][][]", "[][]"));
 
+		///////////////////////////////////////////////////////////////////////////
+		// Query for Edit a Parking to the DB
+		///////////////////////////////////////////////////////////////////////////
 		JButton editParkingBtn = new JButton("Edit Parking");
 		editParkingBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -2299,7 +2575,11 @@ public class HKJ_SisCA_MainPage {
 			}
 		});
 		AddCancelPanel.add(editParkingBtn, "cell 0 0");
-
+		///////////////////////////////////////////////////////////////////////////
+		// 
+		///////////////////////////////////////////////////////////////////////////
+		
+		
 		JButton cancelBtn = new JButton("Cancel");
 		cancelBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -2317,6 +2597,7 @@ public class HKJ_SisCA_MainPage {
 		centerPanel.add(pNamePanel, "cell 0 1,growx,aligny top");
 		pNamePanel.setLayout(new MigLayout("", "[109px][269.00px]", "[28px]"));
 
+		// Parking Name
 		JLabel nameLabel = new JLabel("Parking Name: ");
 		pNamePanel.add(nameLabel, "cell 0 0,alignx left,aligny center");
 		nameLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
@@ -2326,6 +2607,7 @@ public class HKJ_SisCA_MainPage {
 		pNamePanel.add(textFieldName, "cell 1 0,grow");
 		textFieldName.setColumns(10);
 
+		// Parking Capacity
 		JPanel capacityPanel = new JPanel();
 		capacityPanel.setBackground((java.awt.Color) null);
 		centerPanel.add(capacityPanel, "cell 0 2,growx,aligny top");
@@ -2335,6 +2617,7 @@ public class HKJ_SisCA_MainPage {
 		capacityPanel.add(capacityLabel, "cell 0 0,alignx left,aligny center");
 		capacityLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 
+		// Parking Operation Days
 		JTextField textField = new JTextField();
 		capacityPanel.add(textField, "cell 1 0,alignx right,aligny top");
 		textField.setColumns(10);
@@ -2369,6 +2652,7 @@ public class HKJ_SisCA_MainPage {
 		JRadioButton sunRadioBtn = new JRadioButton("Sun");
 		daysPanel.add(sunRadioBtn, "cell 6 0,alignx left,aligny top");
 
+		// Parking Operation Hours
 		JPanel hoursPanel = new JPanel();
 		hoursPanel.setBackground((java.awt.Color) null);
 		centerPanel.add(hoursPanel, "cell 0 4,grow");
@@ -2394,6 +2678,7 @@ public class HKJ_SisCA_MainPage {
 		textFieldEnd.setColumns(10);
 		hoursPanel.add(textFieldEnd, "cell 5 0");
 
+		// Parking SADs & Authorization Types
 		JPanel sadsAndATypesPanel = new JPanel();
 		sadsAndATypesPanel.setBackground((java.awt.Color) null);
 		centerPanel.add(sadsAndATypesPanel, "cell 0 5,grow");
@@ -2423,17 +2708,17 @@ public class HKJ_SisCA_MainPage {
 		JList currentATypesList = new JList();
 		scrollPaneCurrentATypes.setViewportView(currentATypesList);
 
-		JLabel sads = new JLabel("SAD's:");
-		sads.setHorizontalAlignment(SwingConstants.CENTER);
-		sadsAndATypesPanel.add(sads, "cell 0 0 2 1,growx,aligny top");
-		sads.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
+		JLabel sads1 = new JLabel("SAD's:");
+		sads1.setHorizontalAlignment(SwingConstants.CENTER);
+		sadsAndATypesPanel.add(sads1, "cell 0 0 2 1,growx,aligny top");
+		sads1.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 
 		JLabel authorizations = new JLabel("Authorization Type(s):");
 		authorizations.setHorizontalAlignment(SwingConstants.CENTER);
 		authorizations.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		sadsAndATypesPanel.add(authorizations, "cell 3 0 2 1,growx,aligny bottom");
 
-		// SAD And ATypes JList Button
+		// Manage SAD and Authorization Lists
 		JButton addSADBtn = new JButton("Add");
 		addSADBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -2717,12 +3002,23 @@ public class HKJ_SisCA_MainPage {
 				System.out.println(((String) registerParkings.get(i)).toUpperCase());
 				registerParkingsList.addElement(((String) registerParkings.get(i)).toUpperCase());
 			}
-		} catch (SQLException | ParseException | ClassNotFoundException e1) {
+		} catch (SQLException  e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (ParseException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+<<<<<<< HEAD
 		parkingViewList.setModel(registerParkingsList);
 		//JList parkingViewList = new JList(registerParkingsList);
+=======
+
+		JList parkingViewList = new JList(registerParkingsList);
+>>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 		////////////////
 		parkingViewList.setSelectionForeground(UIManager.getColor("Button.darkShadow"));
 		parkingViewList.setSelectionBackground(UIManager.getColor("Button.background"));

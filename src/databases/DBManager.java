@@ -2,6 +2,7 @@ package databases;
 
 import java.sql.Connection;
 import java.util.Date;
+import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -35,16 +36,20 @@ public class DBManager {
 	private String sadDirection;
 	private String authorizationTypeName;
 
+	private String id;
+
+
 	private String parkingName;
 	private String startHour;
 	private String endHour;
 
-	private String id;
+
+
 
 
 	public DBManager() throws ClassNotFoundException, SQLException{
 		Class.forName ("org.postgresql.Driver");
-		dbConnect = new DBConnector("jdbc:postgresql://localhost:5001/SisCA");
+		dbConnect = new DBConnector("jdbc:postgresql://localhost:5432/Test_SisCA");
 		con = dbConnect.connect();
 		System.out.println("Main Connect");	
 	}	
@@ -119,6 +124,7 @@ public class DBManager {
 	//Insertar en la Base de Datos
 	public int insertDB(String updateQuery) throws SQLException{
 		stmt = con.createStatement();
+<<<<<<< HEAD
 		stmt.executeUpdate(updateQuery, Statement.RETURN_GENERATED_KEYS);
 		int index = 0;
 		ResultSet keySet = stmt.getGeneratedKeys();
@@ -126,6 +132,25 @@ public class DBManager {
 			index = keySet.getInt(1);
 		}
 		return index;
+=======
+		stmt.executeUpdate(updateQuery,Statement.RETURN_GENERATED_KEYS);
+		ResultSet keyset= stmt.getGeneratedKeys();
+		int index=-1;
+		
+		if(keyset.next()){
+			index = keyset.getInt(1);
+		}
+		index = keyset.getInt(1);
+		return index;
+		
+	}
+	//Update en la Base de Datos
+	public void updatetDB(String updateQuery) throws SQLException{
+		stmt = con.createStatement();
+		stmt.executeUpdate(updateQuery,Statement.RETURN_GENERATED_KEYS);
+		
+		
+>>>>>>> branch 'master' of https://github.com/juampy30/ICOM5047_CAS.git
 	}
 
 	//Processar un Solo Tag(int tagID, Authorization type, Date expDate)
@@ -189,7 +214,7 @@ public class DBManager {
 					}
 					availableSAD.add(sadName +" >> "+  sadDirection);
 				}
-				System.out.println("AVAILABLE SAD:" + availableSAD);
+				//System.out.println("AVAILABLE SAD:" + availableSAD);
 		
 		return availableSAD;
 		
@@ -205,16 +230,39 @@ public class DBManager {
 						Object result = ((List<Object>) listToProcess.get(i)).get(k);
 						//keyValue -> {1,A}
 						keyValue = result.toString().split("/");
-						System.out.println("KeyVale authorization Types: " + keyValue[1]);
+						//System.out.println("KeyVale authorization Types: " + keyValue[1]);
 						if(keyValue[0].equals("sisca_authorization_name")){
 							authorizationTypeName = (String) keyValue[1];
 						}						
 					}
 					availableAtzType.add(authorizationTypeName);
 				}
-				System.out.println("Available AutoType: "+ availableAtzType);
+				//System.out.println("Available AutoType: "+ availableAtzType);
 		
 		return availableAtzType;
+		
+	}
+	
+	public ArrayList<Object> getAvailableParkingNamesFromDB(ArrayList<Object> listToProcess){
+		ArrayList<Object> availableParkingNames = new ArrayList<Object>();
+		String pName=null;
+				for(int i=0; i<listToProcess.size(); i++){
+					//obtener el elemento i del elemento 1 (el array del array) 
+					for(int k=0 ; k<((List<Object>) listToProcess.get(i)).size(); k++){
+						//result = 1:A
+						Object result = ((List<Object>) listToProcess.get(i)).get(k);
+						//keyValue -> {1,A}
+						keyValue = result.toString().split("/");
+				
+						if(keyValue[0].equals("sisca_parking_name")){
+							pName = (String) keyValue[1];
+						}						
+					}
+					availableParkingNames.add(pName);
+				}
+				
+		
+		return availableParkingNames;
 		
 	}
 	
@@ -273,6 +321,7 @@ public class DBManager {
 		//	System.out.println(tagList.get(0).getExpirationDate());
 		return tagList;	
 	}
+
 
 
 	public ArrayList<Object> getRegisterParkings(ArrayList<Object> registerParkings) {
