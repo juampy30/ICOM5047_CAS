@@ -209,6 +209,32 @@ public class DBManager {
 		return availableSAD;
 		
 	}
+	
+	public ArrayList<Object> getAvailableSADOnly(ArrayList<Object> listToProcess){
+		ArrayList<Object> availableSAD = new ArrayList<Object>();
+		//[{1:A},{2:B},{3:C}]
+				for(int i=0; i<listToProcess.size(); i++){
+					//obtener el elemento i del elemento 1 (el array del array) 
+					for(int k=0 ; k<((List<Object>) listToProcess.get(i)).size(); k++){
+						//result = 1:A
+						Object result = ((List<Object>) listToProcess.get(i)).get(k);
+						//keyValue -> {1,A}
+						keyValue = result.toString().split("/");
+						if(keyValue[0].equals("sisca_sad_name")){
+							sadName = (String) keyValue[1];
+						}
+						if(keyValue[0].equals("sisca_sad_direction")){
+							sadDirection = (String) keyValue[1];
+						}
+						
+					}
+					availableSAD.add(sadName);
+				}
+				//System.out.println("AVAILABLE SAD:" + availableSAD);
+		
+		return availableSAD;
+		
+	}
 
 	public ArrayList<Object> getAvailableAuthorizationTypes(ArrayList<Object> listToProcess){
 		ArrayList<Object> availableAtzType = new ArrayList<Object>();
