@@ -17,6 +17,7 @@ import java.util.List;
 import javax.lang.model.element.Element;
 import javax.swing.AbstractListModel;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -37,10 +38,12 @@ import net.miginfocom.swing.MigLayout;
 
 
 public class SADManager {
-	
+
 	static DBManager dbman;
 	static ArrayList<Object> availableSAD;
 	static DefaultListModel availableSADModelList;
+	static Boolean updateJList=true;
+	private static JList sadList;
 
 	SADManager (){
 
@@ -181,14 +184,14 @@ public class SADManager {
 		////////////////////
 		// Update JList by textField and Go Button
 		////////////////////
+
 		
-		availableSAD= new ArrayList<Object>();
-		availableSADModelList= new DefaultListModel();
-		
+
 		final JTextField textFieldSearch = new JTextField();
 		textFieldSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Update del JList
+				updateJList= false;
 				availableSADModelList.clear();
 
 				String searchField="'"+textFieldSearch.getText()+"'";
@@ -210,9 +213,9 @@ public class SADManager {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-
-
-
+				HKJ_SisCA_MainPage.frame.setContentPane(sadView());
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
 
 			}
 		});
@@ -222,7 +225,8 @@ public class SADManager {
 		goButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				// Update del JList	
+				// Update del JList
+				updateJList= false;
 				availableSADModelList.clear();
 
 				String searchField="'"+textFieldSearch.getText()+"'";
@@ -244,6 +248,9 @@ public class SADManager {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
+				HKJ_SisCA_MainPage.frame.setContentPane(sadView());
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
 
 
 			}
@@ -273,28 +280,36 @@ public class SADManager {
 		// Initialize SAD List
 		/////////////////////////////////
 
-		String query= "Select * from sisca_sad";
-		try {
-			dbman= new DBManager();
-			availableSAD= dbman.getFromDB(query);
-			availableSAD= dbman.getAvailableSAD(availableSAD);
-			for(int i=0; i<availableSAD.size(); i++){
-				availableSADModelList.addElement(availableSAD.get(i));
+		sadList = new JList();
+		
+		if (updateJList== true){
+			availableSAD= new ArrayList<Object>();
+			availableSADModelList= new DefaultListModel();
+			String query= "Select * from sisca_sad";
+			try {
+				dbman= new DBManager();
+				availableSAD= dbman.getFromDB(query);
+				availableSAD= dbman.getAvailableSAD(availableSAD);
+				for(int i=0; i<availableSAD.size(); i++){
+					availableSADModelList.addElement(availableSAD.get(i));
+				}
+			} catch (ClassNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ParseException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (ParseException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			sadList.setModel(availableSADModelList);
+		}
+		else{
+			updateJList=true;
+			sadList.setModel(availableSADModelList);
 		}
 
-
-		final JList sadList = new JList();
-		sadList.setModel(availableSADModelList);
 		sadList.setSelectionForeground(UIManager.getColor("Button.darkShadow"));
 		sadList.setSelectionBackground(UIManager.getColor("Button.background"));
 		sadList.addMouseListener(new MouseAdapter() {
@@ -304,11 +319,11 @@ public class SADManager {
 					//////////////////////////
 					// Paso Informaci—n del SAD seleccionado
 					/////////////////////////
-					
+
 					String selectedValue=(String) sadList.getSelectedValue();
 					String[] selectedValueArray= selectedValue.split(" >>");
 					selectedValue= selectedValueArray[0];
-					
+
 					HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(selectedValue)); 
 					HKJ_SisCA_MainPage.frame.pack();
 					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
@@ -316,7 +331,7 @@ public class SADManager {
 			}
 		});
 		sadScrollPane.setViewportView(sadList);
-		
+
 
 
 		////////////////////////////////////////////////////////
@@ -337,7 +352,8 @@ public class SADManager {
 	//////////////////////////////////////////////////////////////////
 
 	private static JPanel sadInformationView(String s_Name) {
-		
+
+		System.out.println("Printing sName:" + s_Name);
 		final String sadName= s_Name;
 
 		/////////////////////////////////////////////////////////
@@ -467,13 +483,6 @@ public class SADManager {
 		//SAD Name Labels & MouseCliked Event 
 
 		liveSystemPanel.setLayout(new MigLayout("", "[347.00px]", "[50px][28px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][29px]"));
-
-
-		
-		
-		
-		
-		
 		//LeftPanel Labels
 		JLabel LSystemLabel = new JLabel("SAD LIST");
 		liveSystemPanel.add(LSystemLabel, "cell 0 0,alignx center,aligny top");
@@ -482,42 +491,39 @@ public class SADManager {
 		LSystemLabel.setForeground(java.awt.Color.BLACK);
 		LSystemLabel.setFont(new Font("Lucida Grande", Font.BOLD, 16));
 
-		
-////////////////////////////////////////////////////////////////////////////////////////////////
-// Query for get Parking Names for the Labels
-////////////////////////////////////////////////////////////////////////////////////
-ArrayList sNameLabelsArray = new ArrayList() ;
-try {
-dbman= new DBManager();
 
-sNameLabelsArray=dbman.getFromDB("Select * from sisca_sad ORDER BY sisca_sad_name");
-//System.out.println("Before Test:"+pNameLabelsArray);
-sNameLabelsArray= dbman.getAvailableSADOnly(sNameLabelsArray);
+		////////////////////////////////////////////////////////////////////////////////////////////////
+		// Query for get Parking Names for the Labels
+		////////////////////////////////////////////////////////////////////////////////////
+		ArrayList sNameLabelsArray = new ArrayList() ;
+		try {
+			dbman= new DBManager();
+
+			sNameLabelsArray=dbman.getFromDB("Select * from sisca_sad ORDER BY sisca_sad_name");
+			//System.out.println("Before Test:"+pNameLabelsArray);
+			sNameLabelsArray= dbman.getAvailableSADOnly(sNameLabelsArray);
 
 
-} catch (ClassNotFoundException e2) {
-// TODO Auto-generated catch block
-e2.printStackTrace();
-} catch (SQLException e2) {
-// TODO Auto-generated catch block
-e2.printStackTrace();
-} catch (ParseException e1) {
-// TODO Auto-generated catch block
-e1.printStackTrace();
-}
-		
-		
-		
-		
-		
-		JLabel sName1 = new JLabel();
+		} catch (ClassNotFoundException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+
+		final JLabel sName1 = new JLabel();
 		if(sNameLabelsArray.size()>=1){
 			sName1.setText((String) sNameLabelsArray.get(0));
 		}
 		sName1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sadName));
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName1.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
@@ -525,49 +531,49 @@ e1.printStackTrace();
 		sName1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		liveSystemPanel.add(sName1, "cell 0 3,alignx left,aligny top");
 
-		JLabel sName2 = new JLabel();
+		final JLabel sName2 = new JLabel();
 		if(sNameLabelsArray.size()>=2){
 			sName2.setText((String) sNameLabelsArray.get(1));
 		}
 		sName2.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sadName));
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName2.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		sName2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		liveSystemPanel.add(sName2, "cell 0 5,alignx left,aligny top");
 
-		JLabel sName3 = new JLabel();
+		final JLabel sName3 = new JLabel();
 		if(sNameLabelsArray.size()>=3){
 			sName3.setText((String) sNameLabelsArray.get(2));
 		}
 		sName3.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sadName));
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName3.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		sName3.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		liveSystemPanel.add(sName3, "cell 0 7,alignx left,aligny top");
 
-		JLabel sName4 = new JLabel();
+		final JLabel sName4 = new JLabel();
 		if(sNameLabelsArray.size()>=4){
 			sName4.setText((String) sNameLabelsArray.get(3));
 		}
 		sName4.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sadName));
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName4.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		sName4.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		liveSystemPanel.add(sName4, "cell 0 9,alignx left,aligny top");
 
-		JLabel sName5 = new JLabel();
+		final JLabel sName5 = new JLabel();
 		if(sNameLabelsArray.size()>=5){
 			sName5.setText((String) sNameLabelsArray.get(4));
 		}
@@ -575,13 +581,13 @@ e1.printStackTrace();
 		sName5.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sadName));
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName5.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		liveSystemPanel.add(sName5, "cell 0 11,alignx left,aligny top");
 
-		JLabel sName6 = new JLabel();
+		final JLabel sName6 = new JLabel();
 		if(sNameLabelsArray.size()>=6){
 			sName6.setText((String) sNameLabelsArray.get(5));
 		}
@@ -589,27 +595,27 @@ e1.printStackTrace();
 		sName6.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sadName));
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName6.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		liveSystemPanel.add(sName6, "cell 0 13,alignx left,aligny top");
 
-		JLabel sName7 = new JLabel();
+		final JLabel sName7 = new JLabel();
 		if(sNameLabelsArray.size()>=7){
 			sName7.setText((String) sNameLabelsArray.get(6));
 		}
 		sName7.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sadName));
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName7.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		sName7.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		liveSystemPanel.add(sName7, "cell 0 15,alignx left,aligny top");
 
-		JLabel sName8 = new JLabel();
+		final JLabel sName8 = new JLabel();
 		if(sNameLabelsArray.size()>=8){
 			sName8.setText((String) sNameLabelsArray.get(7));
 		}
@@ -617,13 +623,13 @@ e1.printStackTrace();
 		sName8.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sadName));
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName8.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		liveSystemPanel.add(sName8, "cell 0 17,alignx left,aligny top");
 
-		JLabel sName9 = new JLabel();
+		final JLabel sName9 = new JLabel();
 		if(sNameLabelsArray.size()>=9){
 			sName9.setText((String) sNameLabelsArray.get(8));
 		}
@@ -631,20 +637,20 @@ e1.printStackTrace();
 		sName9.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sadName));
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName9.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		liveSystemPanel.add(sName9, "cell 0 19,alignx left,aligny top");
 
-		JLabel sName10 = new JLabel();
+		final JLabel sName10 = new JLabel();
 		if(sNameLabelsArray.size()>=10){
 			sName10.setText((String) sNameLabelsArray.get(9));
 		}
 		sName10.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sadName));
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName10.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -694,9 +700,33 @@ e1.printStackTrace();
 		panel_100.add(searchLabel);
 		searchLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
 
-		JTextField searchTextField = new JTextField();
+		final JTextField searchTextField = new JTextField();
 		searchTextField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				// Update del JList
+				updateJList= false;
+				availableSADModelList.clear();
+
+				String searchField="'"+searchTextField.getText()+"'";
+				String query= "Select * from sisca_sad where sisca_sad_name ~*"+searchField;
+				try {
+					dbman= new DBManager();
+					availableSAD= dbman.getFromDB(query);
+					availableSAD= dbman.getAvailableSAD(availableSAD);
+					for(int i=0; i<availableSAD.size(); i++){
+						availableSADModelList.addElement(availableSAD.get(i));
+					}
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				HKJ_SisCA_MainPage.frame.setContentPane(sadView());
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
@@ -772,9 +802,9 @@ e1.printStackTrace();
 		centerPanel.setLayout(new MigLayout("", "[849.00px]", "[50px][][12px][19px][12px][19px][12px][19px][12px][19px][12px][19px][12px][65px]"));
 
 		// Fill SAD Information
-		
 
-		
+
+
 		JLabel SADid = new JLabel(sadName);
 		SADid.setPreferredSize(new Dimension(100, 50));
 		SADid.setHorizontalAlignment(SwingConstants.CENTER);
@@ -787,10 +817,13 @@ e1.printStackTrace();
 		JLabel lblDirection = new JLabel("Direction: ");
 		lblDirection.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		centerPanel.add(lblDirection, "cell 0 3,alignx left,aligny top");
-		
+
 		JLabel lblActive = new JLabel("Active?: ");
 		lblActive.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		centerPanel.add(lblActive, "cell 0 5,alignx left,aligny top");
+		
+		String savedDirection = null;
+		String savedActive = null;
 
 
 		String query= "Select * from sisca_sad where sisca_sad_name='"+sadName+"'";
@@ -800,33 +833,40 @@ e1.printStackTrace();
 			//String direction= (String) sadInformation.get(0);
 			//String active= (String) sadInformation.get(0);
 			
+			//sadSavedInformation[0]=sadName;
+
 			Object result = ((List<Object>) sadInformation.get(0)).get(2);
 			Object[] keyValue;
 			keyValue = result.toString().split("/");;
 			String sadDirection= (String) keyValue[1];
 			
+			savedDirection=sadDirection;
+			
+
 			result = ((List<Object>) sadInformation.get(0)).get(3);
 			keyValue = result.toString().split("/");;
 			String activeStatus= (String) keyValue[1];
 			
+			savedActive=activeStatus;
+
 			if(sadDirection.equals("exit")){
 				lblDirection.setText("Direction: Exit");
 			}
 			else{
 				lblDirection.setText("Direction: Entry");
 			}
-			
-			
-			
+
+
+
 			if(activeStatus.equals("t")){
 				lblActive.setText("Is Active?: Yes ");
 			}
 			else{
 				lblActive.setText("Is Active?: No ");
 			}
-			
-		
-			
+
+
+
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -840,8 +880,8 @@ e1.printStackTrace();
 		JSeparator separator_12 = new JSeparator();
 		centerPanel.add(separator_12, "cell 0 4,growx,aligny top");
 		//
-				JSeparator separator_13 = new JSeparator();
-				centerPanel.add(separator_13, "cell 0 6,growx,aligny top");
+		JSeparator separator_13 = new JSeparator();
+		centerPanel.add(separator_13, "cell 0 6,growx,aligny top");
 		//
 		//		JLabel days = new JLabel("Operation Days: ");
 		//		days.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
@@ -862,10 +902,12 @@ e1.printStackTrace();
 		centerPanel.add(editAndRemovePanel, "cell 0 11,grow");
 		editAndRemovePanel.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][][][][][][][]", "[][]"));
 
+		final String s1= savedDirection;
+		final String s2= savedActive;
 		JButton editButton = new JButton("Edit");
 		editButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				HKJ_SisCA_MainPage.frame.setContentPane(editSADView());
+				HKJ_SisCA_MainPage.frame.setContentPane(editSADView(sadName,s1,s2));
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
@@ -1010,293 +1052,316 @@ e1.printStackTrace();
 
 
 
-/////////////////////////////////////////////////////////
-//Left Panel
-/////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////
+		//Left Panel
+		/////////////////////////////////////////////////////////
 
-//Configurations 
-JPanel leftPanelSADInformation = new JPanel();
-leftPanelSADInformation.setBackground(new Color(245,245,245));
-leftPanelSADInformation.setPreferredSize(new Dimension(390, 10));
-leftPanelSADInformation.setLayout(new BorderLayout(0, 0));
+		//Configurations 
+		JPanel leftPanelSADInformation = new JPanel();
+		leftPanelSADInformation.setBackground(new Color(245,245,245));
+		leftPanelSADInformation.setPreferredSize(new Dimension(390, 10));
+		leftPanelSADInformation.setLayout(new BorderLayout(0, 0));
 
-JPanel liveSystemPanel = new JPanel();
-liveSystemPanel.setBackground(new Color(245,245,245));
+		JPanel liveSystemPanel = new JPanel();
+		liveSystemPanel.setBackground(new Color(245,245,245));
 
-JScrollPane scrollPane = new JScrollPane();
-scrollPane.setViewportView(liveSystemPanel);
-leftPanelSADInformation.add(scrollPane);
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setViewportView(liveSystemPanel);
+		leftPanelSADInformation.add(scrollPane);
 
-JLayeredPane liveSystemPanel21 = new JLayeredPane();
-scrollPane.setViewportView(liveSystemPanel);
-scrollPane.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-liveSystemPanel21.setLayout(new MigLayout("", "[101px][4px][1px][20px][69px][90px][8px][75px]", "[26px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][1px][29px]"));
+		JLayeredPane liveSystemPanel21 = new JLayeredPane();
+		scrollPane.setViewportView(liveSystemPanel);
+		scrollPane.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		liveSystemPanel21.setLayout(new MigLayout("", "[101px][4px][1px][20px][69px][90px][8px][75px]", "[26px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][1px][29px]"));
 
-//SAD Name Labels & MouseCliked Event 
+		//SAD Name Labels & MouseCliked Event 
 
-liveSystemPanel.setLayout(new MigLayout("", "[347.00px]", "[50px][28px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][29px]"));
-
-
+		liveSystemPanel.setLayout(new MigLayout("", "[347.00px]", "[50px][28px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][29px]"));
 
 
 
 
 
-//LeftPanel Labels
-JLabel LSystemLabel = new JLabel("SAD LIST");
-liveSystemPanel.add(LSystemLabel, "cell 0 0,alignx center,aligny top");
-LSystemLabel.setPreferredSize(new Dimension(100, 50));
-LSystemLabel.setHorizontalAlignment(SwingConstants.CENTER);
-LSystemLabel.setForeground(java.awt.Color.BLACK);
-LSystemLabel.setFont(new Font("Lucida Grande", Font.BOLD, 16));
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-//Query for get Parking Names for the Labels
-////////////////////////////////////////////////////////////////////////////////////
-ArrayList sNameLabelsArray = new ArrayList() ;
-try {
-dbman= new DBManager();
-
-sNameLabelsArray=dbman.getFromDB("Select * from sisca_sad ORDER BY sisca_sad_name");
-//System.out.println("Before Test:"+pNameLabelsArray);
-sNameLabelsArray= dbman.getAvailableSADOnly(sNameLabelsArray);
+		//LeftPanel Labels
+		JLabel LSystemLabel = new JLabel("SAD LIST");
+		liveSystemPanel.add(LSystemLabel, "cell 0 0,alignx center,aligny top");
+		LSystemLabel.setPreferredSize(new Dimension(100, 50));
+		LSystemLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		LSystemLabel.setForeground(java.awt.Color.BLACK);
+		LSystemLabel.setFont(new Font("Lucida Grande", Font.BOLD, 16));
 
 
-} catch (ClassNotFoundException e2) {
-//TODO Auto-generated catch block
-e2.printStackTrace();
-} catch (SQLException e2) {
-//TODO Auto-generated catch block
-e2.printStackTrace();
-} catch (ParseException e1) {
-//TODO Auto-generated catch block
-e1.printStackTrace();
-}
+		////////////////////////////////////////////////////////////////////////////////////////////////
+		//Query for get Parking Names for the Labels
+		////////////////////////////////////////////////////////////////////////////////////
+		ArrayList sNameLabelsArray = new ArrayList() ;
+		try {
+			dbman= new DBManager();
+
+			sNameLabelsArray=dbman.getFromDB("Select * from sisca_sad ORDER BY sisca_sad_name");
+			//System.out.println("Before Test:"+pNameLabelsArray);
+			sNameLabelsArray= dbman.getAvailableSADOnly(sNameLabelsArray);
+
+
+		} catch (ClassNotFoundException e2) {
+			//TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (SQLException e2) {
+			//TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (ParseException e1) {
+			//TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 
 
 
 
-final JLabel sName1 = new JLabel();
-if(sNameLabelsArray.size()>=1){
-sName1.setText((String) sNameLabelsArray.get(0));
-}
-sName1.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName1.getText()));
-HKJ_SisCA_MainPage.frame.pack(); 
-HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-sName1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-liveSystemPanel.add(sName1, "cell 0 3,alignx left,aligny top");
+		final JLabel sName1 = new JLabel();
+		if(sNameLabelsArray.size()>=1){
+			sName1.setText((String) sNameLabelsArray.get(0));
+		}
+		sName1.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName1.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		sName1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		liveSystemPanel.add(sName1, "cell 0 3,alignx left,aligny top");
 
-final JLabel sName2 = new JLabel();
-if(sNameLabelsArray.size()>=2){
-sName2.setText((String) sNameLabelsArray.get(1));
-}
-sName2.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName2.getText()));
-HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-sName2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-liveSystemPanel.add(sName2, "cell 0 5,alignx left,aligny top");
+		final JLabel sName2 = new JLabel();
+		if(sNameLabelsArray.size()>=2){
+			sName2.setText((String) sNameLabelsArray.get(1));
+		}
+		sName2.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName2.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		sName2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		liveSystemPanel.add(sName2, "cell 0 5,alignx left,aligny top");
 
-final JLabel sName3 = new JLabel();
-if(sNameLabelsArray.size()>=3){
-sName3.setText((String) sNameLabelsArray.get(2));
-}
-sName3.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName3.getText()));
-HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-sName3.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-liveSystemPanel.add(sName3, "cell 0 7,alignx left,aligny top");
+		final JLabel sName3 = new JLabel();
+		if(sNameLabelsArray.size()>=3){
+			sName3.setText((String) sNameLabelsArray.get(2));
+		}
+		sName3.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName3.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		sName3.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		liveSystemPanel.add(sName3, "cell 0 7,alignx left,aligny top");
 
-final JLabel sName4 = new JLabel();
-if(sNameLabelsArray.size()>=4){
-sName4.setText((String) sNameLabelsArray.get(3));
-}
-sName4.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName4.getText()));
-HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-sName4.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-liveSystemPanel.add(sName4, "cell 0 9,alignx left,aligny top");
+		final JLabel sName4 = new JLabel();
+		if(sNameLabelsArray.size()>=4){
+			sName4.setText((String) sNameLabelsArray.get(3));
+		}
+		sName4.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName4.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		sName4.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		liveSystemPanel.add(sName4, "cell 0 9,alignx left,aligny top");
 
-final JLabel sName5 = new JLabel();
-if(sNameLabelsArray.size()>=5){
-sName5.setText((String) sNameLabelsArray.get(4));
-}
-sName5.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-sName5.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName5.getText()));
-HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-liveSystemPanel.add(sName5, "cell 0 11,alignx left,aligny top");
+		final JLabel sName5 = new JLabel();
+		if(sNameLabelsArray.size()>=5){
+			sName5.setText((String) sNameLabelsArray.get(4));
+		}
+		sName5.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		sName5.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName5.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		liveSystemPanel.add(sName5, "cell 0 11,alignx left,aligny top");
 
-final JLabel sName6 = new JLabel();
-if(sNameLabelsArray.size()>=6){
-sName6.setText((String) sNameLabelsArray.get(5));
-}
-sName6.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-sName6.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName6.getText()));
-HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-liveSystemPanel.add(sName6, "cell 0 13,alignx left,aligny top");
+		final JLabel sName6 = new JLabel();
+		if(sNameLabelsArray.size()>=6){
+			sName6.setText((String) sNameLabelsArray.get(5));
+		}
+		sName6.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		sName6.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName6.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		liveSystemPanel.add(sName6, "cell 0 13,alignx left,aligny top");
 
-final JLabel sName7 = new JLabel();
-if(sNameLabelsArray.size()>=7){
-sName7.setText((String) sNameLabelsArray.get(6));
-}
-sName7.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName7.getText()));
-HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-sName7.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-liveSystemPanel.add(sName7, "cell 0 15,alignx left,aligny top");
+		final JLabel sName7 = new JLabel();
+		if(sNameLabelsArray.size()>=7){
+			sName7.setText((String) sNameLabelsArray.get(6));
+		}
+		sName7.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName7.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		sName7.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		liveSystemPanel.add(sName7, "cell 0 15,alignx left,aligny top");
 
-final JLabel sName8 = new JLabel();
-if(sNameLabelsArray.size()>=8){
-sName8.setText((String) sNameLabelsArray.get(7));
-}
-sName8.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-sName8.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName8.getText()));
-HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-liveSystemPanel.add(sName8, "cell 0 17,alignx left,aligny top");
+		final JLabel sName8 = new JLabel();
+		if(sNameLabelsArray.size()>=8){
+			sName8.setText((String) sNameLabelsArray.get(7));
+		}
+		sName8.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		sName8.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName8.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		liveSystemPanel.add(sName8, "cell 0 17,alignx left,aligny top");
 
-final JLabel sName9 = new JLabel();
-if(sNameLabelsArray.size()>=9){
-sName9.setText((String) sNameLabelsArray.get(8));
-}
-sName9.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-sName9.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName9.getText()));
-HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-liveSystemPanel.add(sName9, "cell 0 19,alignx left,aligny top");
+		final JLabel sName9 = new JLabel();
+		if(sNameLabelsArray.size()>=9){
+			sName9.setText((String) sNameLabelsArray.get(8));
+		}
+		sName9.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		sName9.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName9.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		liveSystemPanel.add(sName9, "cell 0 19,alignx left,aligny top");
 
-final JLabel sName10 = new JLabel();
-if(sNameLabelsArray.size()>=10){
-sName10.setText((String) sNameLabelsArray.get(9));
-}
-sName10.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName10.getText()));
-HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-sName10.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-liveSystemPanel.add(sName10, "cell 0 21,alignx left,aligny top");
+		final JLabel sName10 = new JLabel();
+		if(sNameLabelsArray.size()>=10){
+			sName10.setText((String) sNameLabelsArray.get(9));
+		}
+		sName10.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName10.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		sName10.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		liveSystemPanel.add(sName10, "cell 0 21,alignx left,aligny top");
 
-//Separators
-JSeparator separator = new JSeparator();
-liveSystemPanel.add(separator, "cell 0 4,growx,aligny top");
+		//Separators
+		JSeparator separator = new JSeparator();
+		liveSystemPanel.add(separator, "cell 0 4,growx,aligny top");
 
-JSeparator separator_1 = new JSeparator();
-liveSystemPanel.add(separator_1, "cell 0 6,growx,aligny top");
+		JSeparator separator_1 = new JSeparator();
+		liveSystemPanel.add(separator_1, "cell 0 6,growx,aligny top");
 
-JSeparator separator_2 = new JSeparator();
-liveSystemPanel.add(separator_2, "cell 0 8,growx,aligny top");
+		JSeparator separator_2 = new JSeparator();
+		liveSystemPanel.add(separator_2, "cell 0 8,growx,aligny top");
 
-JSeparator separator_3 = new JSeparator();
-liveSystemPanel.add(separator_3, "cell 0 10,growx,aligny top");
+		JSeparator separator_3 = new JSeparator();
+		liveSystemPanel.add(separator_3, "cell 0 10,growx,aligny top");
 
-JSeparator separator_4 = new JSeparator();
-liveSystemPanel.add(separator_4, "cell 0 12,growx,aligny top");
+		JSeparator separator_4 = new JSeparator();
+		liveSystemPanel.add(separator_4, "cell 0 12,growx,aligny top");
 
-JSeparator separator_5 = new JSeparator();
-liveSystemPanel.add(separator_5, "cell 0 14,growx,aligny top");
+		JSeparator separator_5 = new JSeparator();
+		liveSystemPanel.add(separator_5, "cell 0 14,growx,aligny top");
 
-JSeparator separator_7 = new JSeparator();
-liveSystemPanel.add(separator_7, "cell 0 18,growx,aligny top");
+		JSeparator separator_7 = new JSeparator();
+		liveSystemPanel.add(separator_7, "cell 0 18,growx,aligny top");
 
-JSeparator separator_6 = new JSeparator();
-liveSystemPanel.add(separator_6, "cell 0 16,growx,aligny top");
+		JSeparator separator_6 = new JSeparator();
+		liveSystemPanel.add(separator_6, "cell 0 16,growx,aligny top");
 
-JSeparator separator_8 = new JSeparator();
-liveSystemPanel.add(separator_8, "cell 0 20,growx,aligny top");
+		JSeparator separator_8 = new JSeparator();
+		liveSystemPanel.add(separator_8, "cell 0 20,growx,aligny top");
 
-JSeparator separator_9 = new JSeparator();
-liveSystemPanel.add(separator_9, "cell 0 22,growx,aligny top");
+		JSeparator separator_9 = new JSeparator();
+		liveSystemPanel.add(separator_9, "cell 0 22,growx,aligny top");
 
-JSeparator separator_10 = new JSeparator();
-liveSystemPanel.add(separator_10, "cell 0 2,growx,aligny top");
+		JSeparator separator_10 = new JSeparator();
+		liveSystemPanel.add(separator_10, "cell 0 2,growx,aligny top");
 
-JPanel panel_100 = new JPanel();
-panel_100.setBackground(new Color(245,245,245));
-liveSystemPanel.add(panel_100, "cell 0 1,growx,aligny top");
-panel_100.setLayout(new BoxLayout(panel_100, BoxLayout.X_AXIS));
+		JPanel panel_100 = new JPanel();
+		panel_100.setBackground(new Color(245,245,245));
+		liveSystemPanel.add(panel_100, "cell 0 1,growx,aligny top");
+		panel_100.setLayout(new BoxLayout(panel_100, BoxLayout.X_AXIS));
 
-JLabel searchLabel = new JLabel("Search:");
-panel_100.add(searchLabel);
-searchLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+		JLabel searchLabel = new JLabel("Search:");
+		panel_100.add(searchLabel);
+		searchLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
 
-JTextField searchTextField = new JTextField();
-searchTextField.addActionListener(new ActionListener() {
-public void actionPerformed(ActionEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadView());
-HKJ_SisCA_MainPage.frame.pack(); 
-HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
-}
-});
-panel_100.add(searchTextField);
-searchTextField.setColumns(10);
+		final JTextField searchTextField = new JTextField();
+		searchTextField.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// Update del JList
+				updateJList= false;
+				availableSADModelList.clear();
 
-JPanel viewAndAddBynPanel = new JPanel();
-viewAndAddBynPanel.setBackground(new Color(245,245,245));
-liveSystemPanel.add(viewAndAddBynPanel, "cell 0 23,alignx left,aligny top");
-viewAndAddBynPanel.setLayout(new GridLayout(0, 2, 0, 0));
+				String searchField="'"+searchTextField.getText()+"'";
+				String query= "Select * from sisca_sad where sisca_sad_name ~*"+searchField;
+				try {
+					dbman= new DBManager();
+					availableSAD= dbman.getFromDB(query);
+					availableSAD= dbman.getAvailableSAD(availableSAD);
+					for(int i=0; i<availableSAD.size(); i++){
+						availableSADModelList.addElement(availableSAD.get(i));
+					}
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				HKJ_SisCA_MainPage.frame.setContentPane(sadView());
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
+			}
+		});
+		panel_100.add(searchTextField);
+		searchTextField.setColumns(10);
 
-JButton viewAllButton = new JButton("View All");
-viewAllButton.addActionListener(new ActionListener() {
-public void actionPerformed(ActionEvent arg0) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadView());
-HKJ_SisCA_MainPage.frame.pack(); 
-HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-viewAndAddBynPanel.add(viewAllButton);
+		JPanel viewAndAddBynPanel = new JPanel();
+		viewAndAddBynPanel.setBackground(new Color(245,245,245));
+		liveSystemPanel.add(viewAndAddBynPanel, "cell 0 23,alignx left,aligny top");
+		viewAndAddBynPanel.setLayout(new GridLayout(0, 2, 0, 0));
 
-JButton addNewButton = new JButton("Add New SAD");
-addNewButton.addActionListener(new ActionListener() {
-public void actionPerformed(ActionEvent arg0) {
-HKJ_SisCA_MainPage.frame.setContentPane(addSADView());
-HKJ_SisCA_MainPage.frame.pack(); 
-HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-viewAndAddBynPanel.add(addNewButton);
+		JButton viewAllButton = new JButton("View All");
+		viewAllButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadView());
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		viewAndAddBynPanel.add(viewAllButton);
+
+		JButton addNewButton = new JButton("Add New SAD");
+		addNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				HKJ_SisCA_MainPage.frame.setContentPane(addSADView());
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		viewAndAddBynPanel.add(addNewButton);
 
 
 
@@ -1352,7 +1417,7 @@ viewAndAddBynPanel.add(addNewButton);
 		centerPanel.add(AddCancelPanel, "cell 0 4,grow");
 		AddCancelPanel.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][][][][][][][]", "[][]"));
 
-		
+
 		JPanel sadIDPanel = new JPanel();
 		sadIDPanel.setBackground((java.awt.Color) null);
 		centerPanel.add(sadIDPanel, "cell 0 1,growx,aligny top");
@@ -1376,16 +1441,32 @@ viewAndAddBynPanel.add(addNewButton);
 		directionPanel.add(directionLabel, "cell 0 0");
 		directionLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 
-		JRadioButton rdbtnEntry = new JRadioButton("Entry");
-		directionPanel.add(rdbtnEntry, "cell 2 0");
+		final JComboBox directionComboBox = new JComboBox();
+		directionComboBox.setModel(new DefaultComboBoxModel(new String[] {"entry", "exit"}));
+		directionComboBox.setBounds(92, 94, 285, 27);
+		directionPanel.add(directionComboBox, "cell 1 0");
+	
 
-		JRadioButton rdbtnExit = new JRadioButton("Exit");
-		directionPanel.add(rdbtnExit, "cell 3 0");
-		
 		JButton addSADBtn = new JButton("Add SAD");
 		addSADBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Este add me lleva a ver la iformaci—n del SAD recien a–adido
+				//////////////////////////////////////////////////////
+				// Query for Add Values of the new SAD in the DB
+				//////////////////////////////////////////////////////
+				
+				String sadNameFromTextField= "'"+textFieldSADName.getText()+"'";
+				String sadDirectionFromComboBox= "'"+directionComboBox.getSelectedItem()+"'";
+		
+				System.out.println("SAD Name:"+sadNameFromTextField+" Direction:"+sadDirectionFromComboBox );
+				
+				String query= "Insert into sisca_sad (sisca_sad_name,sisca_sad_direction,sisca_sad_active) VALUES ("+sadNameFromTextField+","+sadDirectionFromComboBox+",'false')";
+				try {
+					dbman.insertDB(query);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
 				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(textFieldSADName.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
@@ -1404,7 +1485,6 @@ viewAndAddBynPanel.add(addNewButton);
 
 			}
 		});
-
 		AddCancelPanel.add(cancelBtn, "cell 26 0");
 
 
@@ -1441,7 +1521,12 @@ viewAndAddBynPanel.add(addNewButton);
 	// Edit SAD View								               	//
 	//////////////////////////////////////////////////////////////////
 
-	private static JPanel editSADView(){
+	private static JPanel editSADView( String sName, String direction, String active){
+		
+		String sadEditName= sName;
+		String sadEditDirection= direction;
+		String sadEditActive= active;
+		
 		/////////////////////////////////////////////////////////
 		//           Menu Panel
 		/////////////////////////////////////////////////////////
@@ -1540,292 +1625,315 @@ viewAndAddBynPanel.add(addNewButton);
 
 
 
-/////////////////////////////////////////////////////////
-//Left Panel
-/////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////
+		//Left Panel
+		/////////////////////////////////////////////////////////
 
-//Configurations 
-JPanel leftPanelSADInformation = new JPanel();
-leftPanelSADInformation.setBackground(new Color(245,245,245));
-leftPanelSADInformation.setPreferredSize(new Dimension(390, 10));
-leftPanelSADInformation.setLayout(new BorderLayout(0, 0));
+		//Configurations 
+		JPanel leftPanelSADInformation = new JPanel();
+		leftPanelSADInformation.setBackground(new Color(245,245,245));
+		leftPanelSADInformation.setPreferredSize(new Dimension(390, 10));
+		leftPanelSADInformation.setLayout(new BorderLayout(0, 0));
 
-JPanel liveSystemPanel = new JPanel();
-liveSystemPanel.setBackground(new Color(245,245,245));
+		JPanel liveSystemPanel = new JPanel();
+		liveSystemPanel.setBackground(new Color(245,245,245));
 
-JScrollPane scrollPane = new JScrollPane();
-scrollPane.setViewportView(liveSystemPanel);
-leftPanelSADInformation.add(scrollPane);
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setViewportView(liveSystemPanel);
+		leftPanelSADInformation.add(scrollPane);
 
-JLayeredPane liveSystemPanel21 = new JLayeredPane();
-scrollPane.setViewportView(liveSystemPanel);
-scrollPane.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-liveSystemPanel21.setLayout(new MigLayout("", "[101px][4px][1px][20px][69px][90px][8px][75px]", "[26px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][1px][29px]"));
+		JLayeredPane liveSystemPanel21 = new JLayeredPane();
+		scrollPane.setViewportView(liveSystemPanel);
+		scrollPane.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		liveSystemPanel21.setLayout(new MigLayout("", "[101px][4px][1px][20px][69px][90px][8px][75px]", "[26px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][29px][12px][1px][29px]"));
 
-//SAD Name Labels & MouseCliked Event 
+		//SAD Name Labels & MouseCliked Event 
 
-liveSystemPanel.setLayout(new MigLayout("", "[347.00px]", "[50px][28px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][29px]"));
-
-
+		liveSystemPanel.setLayout(new MigLayout("", "[347.00px]", "[50px][28px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][29px]"));
 
 
 
 
 
-//LeftPanel Labels
-JLabel LSystemLabel = new JLabel("SAD LIST");
-liveSystemPanel.add(LSystemLabel, "cell 0 0,alignx center,aligny top");
-LSystemLabel.setPreferredSize(new Dimension(100, 50));
-LSystemLabel.setHorizontalAlignment(SwingConstants.CENTER);
-LSystemLabel.setForeground(java.awt.Color.BLACK);
-LSystemLabel.setFont(new Font("Lucida Grande", Font.BOLD, 16));
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-//Query for get Parking Names for the Labels
-////////////////////////////////////////////////////////////////////////////////////
-ArrayList sNameLabelsArray = new ArrayList() ;
-try {
-dbman= new DBManager();
-
-sNameLabelsArray=dbman.getFromDB("Select * from sisca_sad ORDER BY sisca_sad_name");
-//System.out.println("Before Test:"+pNameLabelsArray);
-sNameLabelsArray= dbman.getAvailableSADOnly(sNameLabelsArray);
+		//LeftPanel Labels
+		JLabel LSystemLabel = new JLabel("SAD LIST");
+		liveSystemPanel.add(LSystemLabel, "cell 0 0,alignx center,aligny top");
+		LSystemLabel.setPreferredSize(new Dimension(100, 50));
+		LSystemLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		LSystemLabel.setForeground(java.awt.Color.BLACK);
+		LSystemLabel.setFont(new Font("Lucida Grande", Font.BOLD, 16));
 
 
-} catch (ClassNotFoundException e2) {
-//TODO Auto-generated catch block
-e2.printStackTrace();
-} catch (SQLException e2) {
-//TODO Auto-generated catch block
-e2.printStackTrace();
-} catch (ParseException e1) {
-//TODO Auto-generated catch block
-e1.printStackTrace();
-}
+		////////////////////////////////////////////////////////////////////////////////////////////////
+		//Query for get Parking Names for the Labels
+		////////////////////////////////////////////////////////////////////////////////////
+		ArrayList sNameLabelsArray = new ArrayList() ;
+		try {
+			dbman= new DBManager();
+
+			sNameLabelsArray=dbman.getFromDB("Select * from sisca_sad ORDER BY sisca_sad_name");
+			//System.out.println("Before Test:"+pNameLabelsArray);
+			sNameLabelsArray= dbman.getAvailableSADOnly(sNameLabelsArray);
+
+
+		} catch (ClassNotFoundException e2) {
+			//TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (SQLException e2) {
+			//TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (ParseException e1) {
+			//TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 
 
 
 
-final JLabel sName1 = new JLabel();
-if(sNameLabelsArray.size()>=1){
-sName1.setText((String) sNameLabelsArray.get(0));
-}
-sName1.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName1.getText()));
-HKJ_SisCA_MainPage.frame.pack(); 
-HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-sName1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-liveSystemPanel.add(sName1, "cell 0 3,alignx left,aligny top");
+		final JLabel sName1 = new JLabel();
+		if(sNameLabelsArray.size()>=1){
+			sName1.setText((String) sNameLabelsArray.get(0));
+		}
+		sName1.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName1.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		sName1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		liveSystemPanel.add(sName1, "cell 0 3,alignx left,aligny top");
 
-final JLabel sName2 = new JLabel();
-if(sNameLabelsArray.size()>=2){
-sName2.setText((String) sNameLabelsArray.get(1));
-}
-sName2.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName2.getText()));
-HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-sName2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-liveSystemPanel.add(sName2, "cell 0 5,alignx left,aligny top");
+		final JLabel sName2 = new JLabel();
+		if(sNameLabelsArray.size()>=2){
+			sName2.setText((String) sNameLabelsArray.get(1));
+		}
+		sName2.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName2.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		sName2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		liveSystemPanel.add(sName2, "cell 0 5,alignx left,aligny top");
 
-final JLabel sName3 = new JLabel();
-if(sNameLabelsArray.size()>=3){
-sName3.setText((String) sNameLabelsArray.get(2));
-}
-sName3.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName3.getText()));
-HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-sName3.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-liveSystemPanel.add(sName3, "cell 0 7,alignx left,aligny top");
+		final JLabel sName3 = new JLabel();
+		if(sNameLabelsArray.size()>=3){
+			sName3.setText((String) sNameLabelsArray.get(2));
+		}
+		sName3.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName3.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		sName3.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		liveSystemPanel.add(sName3, "cell 0 7,alignx left,aligny top");
 
-final JLabel sName4 = new JLabel();
-if(sNameLabelsArray.size()>=4){
-sName4.setText((String) sNameLabelsArray.get(3));
-}
-sName4.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName4.getText()));
-HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-sName4.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-liveSystemPanel.add(sName4, "cell 0 9,alignx left,aligny top");
+		final JLabel sName4 = new JLabel();
+		if(sNameLabelsArray.size()>=4){
+			sName4.setText((String) sNameLabelsArray.get(3));
+		}
+		sName4.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName4.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		sName4.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		liveSystemPanel.add(sName4, "cell 0 9,alignx left,aligny top");
 
-final JLabel sName5 = new JLabel();
-if(sNameLabelsArray.size()>=5){
-sName5.setText((String) sNameLabelsArray.get(4));
-}
-sName5.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-sName5.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName5.getText()));
-HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-liveSystemPanel.add(sName5, "cell 0 11,alignx left,aligny top");
+		final JLabel sName5 = new JLabel();
+		if(sNameLabelsArray.size()>=5){
+			sName5.setText((String) sNameLabelsArray.get(4));
+		}
+		sName5.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		sName5.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName5.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		liveSystemPanel.add(sName5, "cell 0 11,alignx left,aligny top");
 
-final JLabel sName6 = new JLabel();
-if(sNameLabelsArray.size()>=6){
-sName6.setText((String) sNameLabelsArray.get(5));
-}
-sName6.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-sName6.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName6.getText()));
-HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-liveSystemPanel.add(sName6, "cell 0 13,alignx left,aligny top");
+		final JLabel sName6 = new JLabel();
+		if(sNameLabelsArray.size()>=6){
+			sName6.setText((String) sNameLabelsArray.get(5));
+		}
+		sName6.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		sName6.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName6.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		liveSystemPanel.add(sName6, "cell 0 13,alignx left,aligny top");
 
-final JLabel sName7 = new JLabel();
-if(sNameLabelsArray.size()>=7){
-sName7.setText((String) sNameLabelsArray.get(6));
-}
-sName7.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName7.getText()));
-HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-sName7.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-liveSystemPanel.add(sName7, "cell 0 15,alignx left,aligny top");
+		final JLabel sName7 = new JLabel();
+		if(sNameLabelsArray.size()>=7){
+			sName7.setText((String) sNameLabelsArray.get(6));
+		}
+		sName7.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName7.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		sName7.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		liveSystemPanel.add(sName7, "cell 0 15,alignx left,aligny top");
 
-final JLabel sName8 = new JLabel();
-if(sNameLabelsArray.size()>=8){
-sName8.setText((String) sNameLabelsArray.get(7));
-}
-sName8.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-sName8.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName8.getText()));
-HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-liveSystemPanel.add(sName8, "cell 0 17,alignx left,aligny top");
+		final JLabel sName8 = new JLabel();
+		if(sNameLabelsArray.size()>=8){
+			sName8.setText((String) sNameLabelsArray.get(7));
+		}
+		sName8.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		sName8.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName8.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		liveSystemPanel.add(sName8, "cell 0 17,alignx left,aligny top");
 
-final JLabel sName9 = new JLabel();
-if(sNameLabelsArray.size()>=9){
-sName9.setText((String) sNameLabelsArray.get(8));
-}
-sName9.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-sName9.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName9.getText()));
-HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-liveSystemPanel.add(sName9, "cell 0 19,alignx left,aligny top");
+		final JLabel sName9 = new JLabel();
+		if(sNameLabelsArray.size()>=9){
+			sName9.setText((String) sNameLabelsArray.get(8));
+		}
+		sName9.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		sName9.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName9.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		liveSystemPanel.add(sName9, "cell 0 19,alignx left,aligny top");
 
-final JLabel sName10 = new JLabel();
-if(sNameLabelsArray.size()>=10){
-sName10.setText((String) sNameLabelsArray.get(9));
-}
-sName10.addMouseListener(new MouseAdapter() {
-@Override
-public void mouseClicked(MouseEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName10.getText()));
-HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-sName10.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-liveSystemPanel.add(sName10, "cell 0 21,alignx left,aligny top");
-//Separators
-JSeparator separator = new JSeparator();
-liveSystemPanel.add(separator, "cell 0 4,growx,aligny top");
+		final JLabel sName10 = new JLabel();
+		if(sNameLabelsArray.size()>=10){
+			sName10.setText((String) sNameLabelsArray.get(9));
+		}
+		sName10.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sName10.getText()));
+				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		sName10.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		liveSystemPanel.add(sName10, "cell 0 21,alignx left,aligny top");
+		//Separators
+		JSeparator separator = new JSeparator();
+		liveSystemPanel.add(separator, "cell 0 4,growx,aligny top");
 
-JSeparator separator_1 = new JSeparator();
-liveSystemPanel.add(separator_1, "cell 0 6,growx,aligny top");
+		JSeparator separator_1 = new JSeparator();
+		liveSystemPanel.add(separator_1, "cell 0 6,growx,aligny top");
 
-JSeparator separator_2 = new JSeparator();
-liveSystemPanel.add(separator_2, "cell 0 8,growx,aligny top");
+		JSeparator separator_2 = new JSeparator();
+		liveSystemPanel.add(separator_2, "cell 0 8,growx,aligny top");
 
-JSeparator separator_3 = new JSeparator();
-liveSystemPanel.add(separator_3, "cell 0 10,growx,aligny top");
+		JSeparator separator_3 = new JSeparator();
+		liveSystemPanel.add(separator_3, "cell 0 10,growx,aligny top");
 
-JSeparator separator_4 = new JSeparator();
-liveSystemPanel.add(separator_4, "cell 0 12,growx,aligny top");
+		JSeparator separator_4 = new JSeparator();
+		liveSystemPanel.add(separator_4, "cell 0 12,growx,aligny top");
 
-JSeparator separator_5 = new JSeparator();
-liveSystemPanel.add(separator_5, "cell 0 14,growx,aligny top");
+		JSeparator separator_5 = new JSeparator();
+		liveSystemPanel.add(separator_5, "cell 0 14,growx,aligny top");
 
-JSeparator separator_7 = new JSeparator();
-liveSystemPanel.add(separator_7, "cell 0 18,growx,aligny top");
+		JSeparator separator_7 = new JSeparator();
+		liveSystemPanel.add(separator_7, "cell 0 18,growx,aligny top");
 
-JSeparator separator_6 = new JSeparator();
-liveSystemPanel.add(separator_6, "cell 0 16,growx,aligny top");
+		JSeparator separator_6 = new JSeparator();
+		liveSystemPanel.add(separator_6, "cell 0 16,growx,aligny top");
 
-JSeparator separator_8 = new JSeparator();
-liveSystemPanel.add(separator_8, "cell 0 20,growx,aligny top");
+		JSeparator separator_8 = new JSeparator();
+		liveSystemPanel.add(separator_8, "cell 0 20,growx,aligny top");
 
-JSeparator separator_9 = new JSeparator();
-liveSystemPanel.add(separator_9, "cell 0 22,growx,aligny top");
+		JSeparator separator_9 = new JSeparator();
+		liveSystemPanel.add(separator_9, "cell 0 22,growx,aligny top");
 
-JSeparator separator_10 = new JSeparator();
-liveSystemPanel.add(separator_10, "cell 0 2,growx,aligny top");
+		JSeparator separator_10 = new JSeparator();
+		liveSystemPanel.add(separator_10, "cell 0 2,growx,aligny top");
 
-JPanel panel_100 = new JPanel();
-panel_100.setBackground(new Color(245,245,245));
-liveSystemPanel.add(panel_100, "cell 0 1,growx,aligny top");
-panel_100.setLayout(new BoxLayout(panel_100, BoxLayout.X_AXIS));
+		JPanel panel_100 = new JPanel();
+		panel_100.setBackground(new Color(245,245,245));
+		liveSystemPanel.add(panel_100, "cell 0 1,growx,aligny top");
+		panel_100.setLayout(new BoxLayout(panel_100, BoxLayout.X_AXIS));
 
-JLabel searchLabel = new JLabel("Search:");
-panel_100.add(searchLabel);
-searchLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+		JLabel searchLabel = new JLabel("Search:");
+		panel_100.add(searchLabel);
+		searchLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
 
-JTextField searchTextField = new JTextField();
-searchTextField.addActionListener(new ActionListener() {
-public void actionPerformed(ActionEvent e) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadView());
-HKJ_SisCA_MainPage.frame.pack(); 
-HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
-}
-});
-panel_100.add(searchTextField);
-searchTextField.setColumns(10);
+		final JTextField searchTextField = new JTextField();
+		searchTextField.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// Update del JList
+				updateJList= false;
+				availableSADModelList.clear();
 
-JPanel viewAndAddBynPanel = new JPanel();
-viewAndAddBynPanel.setBackground(new Color(245,245,245));
-liveSystemPanel.add(viewAndAddBynPanel, "cell 0 23,alignx left,aligny top");
-viewAndAddBynPanel.setLayout(new GridLayout(0, 2, 0, 0));
+				String searchField="'"+searchTextField.getText()+"'";
+				String query= "Select * from sisca_sad where sisca_sad_name ~*"+searchField;
+				try {
+					dbman= new DBManager();
+					availableSAD= dbman.getFromDB(query);
+					availableSAD= dbman.getAvailableSAD(availableSAD);
+					for(int i=0; i<availableSAD.size(); i++){
+						availableSADModelList.addElement(availableSAD.get(i));
+					}
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				HKJ_SisCA_MainPage.frame.setContentPane(sadView());
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());		
+			}
+		});
+		panel_100.add(searchTextField);
+		searchTextField.setColumns(10);
 
-JButton viewAllButton = new JButton("View All");
-viewAllButton.addActionListener(new ActionListener() {
-public void actionPerformed(ActionEvent arg0) {
-HKJ_SisCA_MainPage.frame.setContentPane(sadView());
-HKJ_SisCA_MainPage.frame.pack(); 
-HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-viewAndAddBynPanel.add(viewAllButton);
+		JPanel viewAndAddBynPanel = new JPanel();
+		viewAndAddBynPanel.setBackground(new Color(245,245,245));
+		liveSystemPanel.add(viewAndAddBynPanel, "cell 0 23,alignx left,aligny top");
+		viewAndAddBynPanel.setLayout(new GridLayout(0, 2, 0, 0));
 
-JButton addNewButton = new JButton("Add New SAD");
-addNewButton.addActionListener(new ActionListener() {
-public void actionPerformed(ActionEvent arg0) {
-HKJ_SisCA_MainPage.frame.setContentPane(addSADView());
-HKJ_SisCA_MainPage.frame.pack(); 
-HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-}
-});
-viewAndAddBynPanel.add(addNewButton);
+		JButton viewAllButton = new JButton("View All");
+		viewAllButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				HKJ_SisCA_MainPage.frame.setContentPane(sadView());
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		viewAndAddBynPanel.add(viewAllButton);
+
+		JButton addNewButton = new JButton("Add New SAD");
+		addNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				HKJ_SisCA_MainPage.frame.setContentPane(addSADView());
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		viewAndAddBynPanel.add(addNewButton);
 
 
 
@@ -1880,7 +1988,7 @@ viewAndAddBynPanel.add(addNewButton);
 		centerPanel.add(editCancelPanel, "cell 0 4,grow");
 		editCancelPanel.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][][][][][][][]", "[][]"));
 
-		
+
 
 		JPanel sadIDPanel = new JPanel();
 		sadIDPanel.setBackground((java.awt.Color) null);
@@ -1891,7 +1999,7 @@ viewAndAddBynPanel.add(addNewButton);
 		sadIDPanel.add(idLabel, "cell 0 0,alignx left,aligny center");
 		idLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 
-		final JTextField textFieldSADName = new JTextField();
+		final JTextField textFieldSADName = new JTextField(sadEditName);
 		textFieldSADName.setPreferredSize(new Dimension(200, 100));
 		sadIDPanel.add(textFieldSADName, "cell 1 0,grow");
 		textFieldSADName.setColumns(10);
@@ -1905,12 +2013,14 @@ viewAndAddBynPanel.add(addNewButton);
 		directionPanel.add(directionLabel, "cell 0 0");
 		directionLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 
-		JRadioButton rdbtnEntry = new JRadioButton("Entry");
-		directionPanel.add(rdbtnEntry, "cell 2 0");
+		JComboBox comboBox = new JComboBox();
+		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Entry", "Exit"}));
+		comboBox.setBounds(92, 94, 285, 27);
+		System.out.println(sadEditDirection);
+		//comboBox.setEditable(true);
+		comboBox.setSelectedItem(sadEditDirection);
+		directionPanel.add(comboBox, "cell 1 0");
 
-		JRadioButton rdbtnExit = new JRadioButton("Exit");
-		directionPanel.add(rdbtnExit, "cell 3 0");
-		
 		JButton editSADBtn = new JButton("Edit SAD");
 		editSADBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -1963,5 +2073,4 @@ viewAndAddBynPanel.add(addNewButton);
 
 		return windowPanelEditSAD;
 	}
-
 }
