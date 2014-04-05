@@ -31,7 +31,7 @@ public class DBManager {
 	String authorizationname = null;
 	Authorization atzType = null;
 	Date date = null;
-	Object[] keyValue = null;
+	Object[] keyValue;
 	String sadName;
 	private String sadDirection;
 	private String authorizationTypeName;
@@ -42,6 +42,7 @@ public class DBManager {
 	private String parkingName;
 	private String startHour;
 	private String endHour;
+	private String capacity;
 
 
 
@@ -137,9 +138,9 @@ public class DBManager {
 	}
 	//Update en la Base de Datos
 	public void updatetDB(String updateQuery) throws SQLException{
+		System.out.println("////////////////////UPDATE QUERY/////////////////////////");
 		stmt = con.createStatement();
-		stmt.executeUpdate(updateQuery,Statement.RETURN_GENERATED_KEYS);
-		
+		stmt.executeUpdate(updateQuery);
 		
 	}
 
@@ -192,17 +193,19 @@ public class DBManager {
 					for(int k=0 ; k<((List<Object>) listToProcess.get(i)).size(); k++){
 						//result = 1:A
 						Object result = ((List<Object>) listToProcess.get(i)).get(k);
-						//keyValue -> {1,A}
+						//System.out.println("Object:"+result.toString());
 						keyValue = result.toString().split("/");
 						if(keyValue[0].equals("sisca_sad_name")){
+							//System.out.println("Key Value 1:"+keyValue[1]);
 							sadName = (String) keyValue[1];
 						}
 						if(keyValue[0].equals("sisca_sad_direction")){
+							//System.out.println("Key Value 2:"+keyValue[1]);
 							sadDirection = (String) keyValue[1];
 						}
 						
 					}
-					availableSAD.add(sadName +" >> "+  sadDirection);
+					availableSAD.add(sadName.toUpperCase() +" >> "+  sadDirection);
 				}
 				//System.out.println("AVAILABLE SAD:" + availableSAD);
 		
@@ -210,7 +213,7 @@ public class DBManager {
 		
 	}
 	
-	public ArrayList<Object> getAvailableSADOnly(ArrayList<Object> listToProcess){
+	public ArrayList<Object> getAvailableSADOnlyName(ArrayList<Object> listToProcess){
 		ArrayList<Object> availableSAD = new ArrayList<Object>();
 		//[{1:A},{2:B},{3:C}]
 				for(int i=0; i<listToProcess.size(); i++){
@@ -366,6 +369,41 @@ public class DBManager {
 				System.out.println("Parking Available list: "+ parkings);
 		return parkings;
 	}
+	
+	
+	public ArrayList<Object> getRegisterParkingsLiveSystem(ArrayList<Object> registerParkings) {
+		ArrayList<Object> parkings = new ArrayList<Object>();
+		//[{1:A},{2:B},{3:C}]
+				for(int i=0; i<registerParkings.size(); i++){
+					//obtener el elemento i del elemento 1 (el array del array) 
+					for(int k=0 ; k<((List<Object>) registerParkings.get(i)).size(); k++){
+						//result = 1:A
+						Object result = ((List<Object>) registerParkings.get(i)).get(k);
+						//keyValue -> {1,A}
+						keyValue = result.toString().split("/");
+						if(keyValue[0].equals("sisca_parking_name")){
+							parkingName = (String) keyValue[1];
+						}
+						if(keyValue[0].equals("sisca_parking_starthour")){
+							startHour = (String) keyValue[1];
+						}
+						if(keyValue[0].equals("sisca_parking_endhour")){
+							endHour = (String) keyValue[1];
+						}
+						if(keyValue[0].equals("sisca_parking_capacity")){
+							capacity = (String) keyValue[1];
+						}
+						
+					}
+					parkings.add(parkingName.toUpperCase()+" >> Capacity: "+capacity);
+				}
+				System.out.println("Parking Available list: "+ parkings);
+		return parkings;
+	}
+	
+	
+	
+	
 	public ArrayList getID(ArrayList index) {
 		ArrayList<Object> indexID = new ArrayList<Object>();
 		//[{1:A},{2:B},{3:C}]
@@ -387,6 +425,43 @@ public class DBManager {
 		
 		return indexID;
 
+	}
+
+	public String getFromDBCount(String query) throws SQLException {
+		
+		stmt = con.createStatement();
+		rs = stmt.executeQuery(query);
+		String result= null;
+		
+		if(rs.next()){
+			result = rs.getString(1);
+		}
+		return result;
+		
+	}
+
+	public String getUserRealNameFromDB(String query) throws SQLException {
+		stmt = con.createStatement();
+		rs = stmt.executeQuery(query);
+		String result= null;
+		
+		if(rs.next()){
+			result = rs.getString(1) +" " + rs.getString(2);
+		}
+		return result;
+	}
+	
+
+
+	public String getAccountTypeFromDB(String query) throws SQLException {
+		stmt = con.createStatement();
+		rs = stmt.executeQuery(query);
+		String result= null;
+		
+		if(rs.next()){
+			result = rs.getString(6);
+		}
+		return result;
 	}
 
 

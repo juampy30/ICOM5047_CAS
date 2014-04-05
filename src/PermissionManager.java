@@ -92,6 +92,11 @@ public class PermissionManager {
 		logOutLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.setActiveUsername(null);
+				HKJ_SisCA_MainPage.frame.setContentPane(LogInManager.standByView());
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				
 			}
 		});
 		logOutLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -106,7 +111,7 @@ public class PermissionManager {
 		menuPanelPermission.add(userNamePanel, BorderLayout.CENTER);
 		userNamePanel.setLayout(new BorderLayout(0, 0));
 
-		JLabel userNameLabel = new JLabel("User Name   ");
+		JLabel userNameLabel = new JLabel(HKJ_SisCA_MainPage.getActiveUsername());
 		userNamePanel.add(userNameLabel, BorderLayout.EAST);
 		userNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		userNameLabel.setForeground((java.awt.Color) null);

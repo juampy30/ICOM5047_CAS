@@ -24,6 +24,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -112,6 +113,11 @@ public class SADManager {
 		logOutLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.setActiveUsername(null);
+				HKJ_SisCA_MainPage.frame.setContentPane(LogInManager.standByView());
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
 			}
 		});
 		logOutLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -126,7 +132,7 @@ public class SADManager {
 		menuPanelSAD.add(userNamePanel, BorderLayout.CENTER);
 		userNamePanel.setLayout(new BorderLayout(0, 0));
 
-		JLabel userNameLabel = new JLabel("User Name   ");
+		JLabel userNameLabel = new JLabel(HKJ_SisCA_MainPage.getActiveUsername());
 		userNamePanel.add(userNameLabel, BorderLayout.EAST);
 		userNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		userNameLabel.setForeground((java.awt.Color) null);
@@ -185,7 +191,7 @@ public class SADManager {
 		// Update JList by textField and Go Button
 		////////////////////
 
-		
+
 
 		final JTextField textFieldSearch = new JTextField();
 		textFieldSearch.addActionListener(new ActionListener() {
@@ -261,9 +267,15 @@ public class SADManager {
 		JButton addNewSADBtn = new JButton("Add New SAD");
 		addNewSADBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				HKJ_SisCA_MainPage.frame.setContentPane(addSADView());
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				if (HKJ_SisCA_MainPage.getCanView()==true){
+					HKJ_SisCA_MainPage.frame.setContentPane(addSADView());
+					HKJ_SisCA_MainPage.frame.pack(); 
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				}
+				else{
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You have no permission for Add New SADs");
+				}
+
 
 			}
 		});
@@ -281,15 +293,20 @@ public class SADManager {
 		/////////////////////////////////
 
 		sadList = new JList();
-		
+
 		if (updateJList== true){
 			availableSAD= new ArrayList<Object>();
 			availableSADModelList= new DefaultListModel();
-			String query= "Select * from sisca_sad";
+			String query= "Select * from sisca_sad ORDER BY sisca_sad_name";
 			try {
 				dbman= new DBManager();
+
 				availableSAD= dbman.getFromDB(query);
+				//System.out.println("Available SAD:"+availableSAD);
 				availableSAD= dbman.getAvailableSAD(availableSAD);
+
+				// System.out.println("Available SAD:"+availableSAD);
+
 				for(int i=0; i<availableSAD.size(); i++){
 					availableSADModelList.addElement(availableSAD.get(i));
 				}
@@ -433,6 +450,11 @@ public class SADManager {
 		logOutLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.setActiveUsername(null);
+				HKJ_SisCA_MainPage.frame.setContentPane(LogInManager.standByView());
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
 			}
 		});
 		logOutLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -448,7 +470,7 @@ public class SADManager {
 		menuPanelSADInformation.add(userNamePanel, BorderLayout.CENTER);
 		userNamePanel.setLayout(new BorderLayout(0, 0));
 
-		JLabel userNameLabel = new JLabel("User Name   ");
+		JLabel userNameLabel = new JLabel(HKJ_SisCA_MainPage.getActiveUsername());
 		userNamePanel.add(userNameLabel, BorderLayout.EAST);
 		userNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		userNameLabel.setForeground((java.awt.Color) null);
@@ -501,7 +523,7 @@ public class SADManager {
 
 			sNameLabelsArray=dbman.getFromDB("Select * from sisca_sad ORDER BY sisca_sad_name");
 			//System.out.println("Before Test:"+pNameLabelsArray);
-			sNameLabelsArray= dbman.getAvailableSADOnly(sNameLabelsArray);
+			sNameLabelsArray= dbman.getAvailableSADOnlyName(sNameLabelsArray);
 
 
 		} catch (ClassNotFoundException e2) {
@@ -703,7 +725,7 @@ public class SADManager {
 		final JTextField searchTextField = new JTextField();
 		searchTextField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				// Update del JList
 				updateJList= false;
 				availableSADModelList.clear();
@@ -753,9 +775,17 @@ public class SADManager {
 		JButton addNewButton = new JButton("Add New SAD");
 		addNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				HKJ_SisCA_MainPage.frame.setContentPane(addSADView());
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+				if (HKJ_SisCA_MainPage.getCanView()==true){
+					HKJ_SisCA_MainPage.frame.setContentPane(addSADView());
+					HKJ_SisCA_MainPage.frame.pack(); 
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				}
+				else{
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You have no permission for Add New SADs");
+				}
+
+
 			}
 		});
 		viewAndAddBynPanel.add(addNewButton);
@@ -821,7 +851,7 @@ public class SADManager {
 		JLabel lblActive = new JLabel("Active?: ");
 		lblActive.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		centerPanel.add(lblActive, "cell 0 5,alignx left,aligny top");
-		
+
 		String savedDirection = null;
 		String savedActive = null;
 
@@ -832,21 +862,21 @@ public class SADManager {
 			//sadInformation= dbman.getAvailableSAD(sadInformation);
 			//String direction= (String) sadInformation.get(0);
 			//String active= (String) sadInformation.get(0);
-			
+
 			//sadSavedInformation[0]=sadName;
 
 			Object result = ((List<Object>) sadInformation.get(0)).get(2);
 			Object[] keyValue;
 			keyValue = result.toString().split("/");;
 			String sadDirection= (String) keyValue[1];
-			
+
 			savedDirection=sadDirection;
-			
+
 
 			result = ((List<Object>) sadInformation.get(0)).get(3);
 			keyValue = result.toString().split("/");;
 			String activeStatus= (String) keyValue[1];
-			
+
 			savedActive=activeStatus;
 
 			if(sadDirection.equals("exit")){
@@ -907,9 +937,16 @@ public class SADManager {
 		JButton editButton = new JButton("Edit");
 		editButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				HKJ_SisCA_MainPage.frame.setContentPane(editSADView(sadName,s1,s2));
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+				if (HKJ_SisCA_MainPage.getCanView()==true){
+					HKJ_SisCA_MainPage.frame.setContentPane(editSADView(sadName,s1,s2));
+					HKJ_SisCA_MainPage.frame.pack(); 
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				}
+				else{
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You have no permission for Add New SADs");
+				}
+
 			}
 		});
 		editAndRemovePanel.add(editButton, "cell 0 0");
@@ -917,10 +954,15 @@ public class SADManager {
 		JButton btnRemove = new JButton("Remove");
 		btnRemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//TODO remover
-				HKJ_SisCA_MainPage.frame.setContentPane(sadView());
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				if (HKJ_SisCA_MainPage.getCanView()==true){
+					HKJ_SisCA_MainPage.frame.setContentPane(sadView());
+					HKJ_SisCA_MainPage.frame.pack(); 
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				}
+				else{
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You have no permission for Add New SADs");
+				}
+
 			}
 
 		});
@@ -1007,9 +1049,14 @@ public class SADManager {
 		addSADLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(addSADView());
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				if (HKJ_SisCA_MainPage.getCanView()==true){
+					HKJ_SisCA_MainPage.frame.setContentPane(addSADView());
+					HKJ_SisCA_MainPage.frame.pack(); 
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				}
+				else{
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You have no permission for Add New SADs");
+				}
 			}
 		});
 		addSADLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -1029,6 +1076,11 @@ public class SADManager {
 		logOutLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.setActiveUsername(null);
+				HKJ_SisCA_MainPage.frame.setContentPane(LogInManager.standByView());
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
 			}
 		});
 		logOutLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -1044,7 +1096,7 @@ public class SADManager {
 		menuPanelAddSAD.add(userNamePanel, BorderLayout.CENTER);
 		userNamePanel.setLayout(new BorderLayout(0, 0));
 
-		JLabel userNameLabel = new JLabel("User Name   ");
+		JLabel userNameLabel = new JLabel(HKJ_SisCA_MainPage.getActiveUsername());
 		userNamePanel.add(userNameLabel, BorderLayout.EAST);
 		userNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		userNameLabel.setForeground((java.awt.Color) null);
@@ -1102,7 +1154,7 @@ public class SADManager {
 
 			sNameLabelsArray=dbman.getFromDB("Select * from sisca_sad ORDER BY sisca_sad_name");
 			//System.out.println("Before Test:"+pNameLabelsArray);
-			sNameLabelsArray= dbman.getAvailableSADOnly(sNameLabelsArray);
+			sNameLabelsArray= dbman.getAvailableSADOnlyName(sNameLabelsArray);
 
 
 		} catch (ClassNotFoundException e2) {
@@ -1356,9 +1408,14 @@ public class SADManager {
 		JButton addNewButton = new JButton("Add New SAD");
 		addNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				HKJ_SisCA_MainPage.frame.setContentPane(addSADView());
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				if (HKJ_SisCA_MainPage.getCanView()==true){
+					HKJ_SisCA_MainPage.frame.setContentPane(addSADView());
+					HKJ_SisCA_MainPage.frame.pack(); 
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				}
+				else{
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You have no permission for Add New SADs");
+				}
 			}
 		});
 		viewAndAddBynPanel.add(addNewButton);
@@ -1445,20 +1502,20 @@ public class SADManager {
 		directionComboBox.setModel(new DefaultComboBoxModel(new String[] {"entry", "exit"}));
 		directionComboBox.setBounds(92, 94, 285, 27);
 		directionPanel.add(directionComboBox, "cell 1 0");
-	
 
-		JButton addSADBtn = new JButton("Add SAD");
+
+		JButton addSADBtn = new JButton("Ok");
 		addSADBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//////////////////////////////////////////////////////
 				// Query for Add Values of the new SAD in the DB
 				//////////////////////////////////////////////////////
-				
+
 				String sadNameFromTextField= "'"+textFieldSADName.getText()+"'";
 				String sadDirectionFromComboBox= "'"+directionComboBox.getSelectedItem()+"'";
-		
+
 				System.out.println("SAD Name:"+sadNameFromTextField+" Direction:"+sadDirectionFromComboBox );
-				
+
 				String query= "Insert into sisca_sad (sisca_sad_name,sisca_sad_direction,sisca_sad_active) VALUES ("+sadNameFromTextField+","+sadDirectionFromComboBox+",'false')";
 				try {
 					dbman.insertDB(query);
@@ -1522,11 +1579,11 @@ public class SADManager {
 	//////////////////////////////////////////////////////////////////
 
 	private static JPanel editSADView( String sName, String direction, String active){
-		
-		String sadEditName= sName;
+
+		final String sadEditName= sName;
 		String sadEditDirection= direction;
 		String sadEditActive= active;
-		
+
 		/////////////////////////////////////////////////////////
 		//           Menu Panel
 		/////////////////////////////////////////////////////////
@@ -1602,6 +1659,11 @@ public class SADManager {
 		logOutLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.setActiveUsername(null);
+				HKJ_SisCA_MainPage.frame.setContentPane(LogInManager.standByView());
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
 			}
 		});
 		logOutLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -1617,7 +1679,7 @@ public class SADManager {
 		menuPanelEditSAD.add(userNamePanel, BorderLayout.CENTER);
 		userNamePanel.setLayout(new BorderLayout(0, 0));
 
-		JLabel userNameLabel = new JLabel("User Name   ");
+		JLabel userNameLabel = new JLabel(HKJ_SisCA_MainPage.getActiveUsername());
 		userNamePanel.add(userNameLabel, BorderLayout.EAST);
 		userNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		userNameLabel.setForeground((java.awt.Color) null);
@@ -1675,7 +1737,7 @@ public class SADManager {
 
 			sNameLabelsArray=dbman.getFromDB("Select * from sisca_sad ORDER BY sisca_sad_name");
 			//System.out.println("Before Test:"+pNameLabelsArray);
-			sNameLabelsArray= dbman.getAvailableSADOnly(sNameLabelsArray);
+			sNameLabelsArray= dbman.getAvailableSADOnlyName(sNameLabelsArray);
 
 
 		} catch (ClassNotFoundException e2) {
@@ -1928,9 +1990,14 @@ public class SADManager {
 		JButton addNewButton = new JButton("Add New SAD");
 		addNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				HKJ_SisCA_MainPage.frame.setContentPane(addSADView());
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				if (HKJ_SisCA_MainPage.getCanView()==true){
+					HKJ_SisCA_MainPage.frame.setContentPane(addSADView());
+					HKJ_SisCA_MainPage.frame.pack(); 
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				}
+				else{
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You have no permission for Add New SADs");
+				}
 			}
 		});
 		viewAndAddBynPanel.add(addNewButton);
@@ -2013,21 +2080,43 @@ public class SADManager {
 		directionPanel.add(directionLabel, "cell 0 0");
 		directionLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 
-		JComboBox comboBox = new JComboBox();
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Entry", "Exit"}));
+		final JComboBox comboBox = new JComboBox();
+		comboBox.setModel(new DefaultComboBoxModel(new String[] {"entry", "exit"}));
 		comboBox.setBounds(92, 94, 285, 27);
 		System.out.println(sadEditDirection);
 		//comboBox.setEditable(true);
 		comboBox.setSelectedItem(sadEditDirection);
 		directionPanel.add(comboBox, "cell 1 0");
 
-		JButton editSADBtn = new JButton("Edit SAD");
+		JButton editSADBtn = new JButton("OK");
 		editSADBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Este add me lleva a ver la iformaci—n del SAD recien a–adido
-				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(textFieldSADName.getText()));
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+				if (HKJ_SisCA_MainPage.getCanView()==true){
+
+					String s1= "'"+textFieldSADName.getText()+"'";
+					String s2= "'"+comboBox.getSelectedItem()+"'";
+
+					String query= "Update sisca_sad SET sisca_sad_name="+s1+", sisca_sad_direction="+s2+"where sisca_sad_name ~*"+s1;
+
+					try {
+						dbman= new DBManager();
+						dbman.updatetDB(query);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(textFieldSADName.getText()));
+					HKJ_SisCA_MainPage.frame.pack(); 
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				}
+				else{
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You have no permission for Add New SADs");
+				}
 
 			}
 		});
