@@ -8,8 +8,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.ArrayList;
 
 import javax.swing.AbstractListModel;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -20,10 +24,17 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 
+import databases.DBManager;
 import net.miginfocom.swing.MigLayout;
 
 
 public class PermissionManager {
+	
+	static DBManager dbman;
+	static ArrayList<Object> availablePermission;
+	static DefaultListModel availablePermissionModelList;
+	static Boolean updateJList=true;
+	private static JList PermissionList;
 
 	PermissionManager(){
 
@@ -166,23 +177,87 @@ public class PermissionManager {
 		searchAndAddPanel.add(searchLabel, "cell 0 0,alignx left,aligny center");
 		searchLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
 
-		JTextField textFieldSearch = new JTextField();
+
+		////////////////////
+		// Update JList by textField and Go Button
+		////////////////////
+		
+		
+		final JTextField textFieldSearch = new JTextField();
 		textFieldSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(permissionView());
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
+				
+				availablePermission= new ArrayList<Object>();
+				availablePermissionModelList= new DefaultListModel(); 
+				
+				// Update del JList
+				updateJList= false;
+				availablePermissionModelList.clear();
+				System.out.println("Hola");
+				String searchField="'"+textFieldSearch.getText()+"'";
+				
+				System.out.println("text field"+textFieldSearch.getText());
+				String query= "Select * from sisca_permission where sisca_permission_tag_number ~*"+searchField;
+				try {
+					dbman= new DBManager();
+					availablePermission= dbman.getFromDB(query);
+					availablePermission= dbman.getAvailablePermission(availablePermission);
+					for(int i=0; i<availablePermission.size(); i++){
+						availablePermissionModelList.addElement(availablePermission.get(i));
+					}
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				PermissionList.setModel(availablePermissionModelList);
+	
 			}
 		});
 		searchAndAddPanel.add(textFieldSearch, "cell 1 0,growx,aligny top");
 		textFieldSearch.setColumns(10);
+		
 		JButton goButton = new JButton("Go");
 		goButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(permissionView());
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
+				availablePermission= new ArrayList<Object>();
+				availablePermissionModelList= new DefaultListModel(); 
+				
+				// Update del JList
+				updateJList= false;
+				availablePermissionModelList.clear();
+				System.out.println("Hola");
+				String searchField="'"+textFieldSearch.getText()+"'";
+				
+				System.out.println("text field"+textFieldSearch.getText());
+				String query= "Select * from sisca_permission where sisca_permission_tag_number ~*"+searchField;
+				try {
+					dbman= new DBManager();
+					availablePermission= dbman.getFromDB(query);
+					availablePermission= dbman.getAvailablePermission(availablePermission);
+					for(int i=0; i<availablePermission.size(); i++){
+						availablePermissionModelList.addElement(availablePermission.get(i));
+					}
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				PermissionList.setModel(availablePermissionModelList);
+	
 			}
 		});
 		goButton.setPreferredSize(new Dimension(10, 29));
@@ -198,6 +273,7 @@ public class PermissionManager {
 			}
 		});
 		searchAndAddPanel.add(addNewPermissionBtn, "cell 25 0,alignx left,aligny top");
+		
 		JPanel PermissionListPanel = new JPanel();
 		PermissionListPanel.setBackground(new Color(250,250,250));
 
@@ -205,7 +281,45 @@ public class PermissionManager {
 		PermissionListPanel.setLayout(new MigLayout("", "[724px]", "[360px]"));
 		JScrollPane PermissionScrollPane = new JScrollPane();
 		PermissionListPanel.add(PermissionScrollPane, "cell 0 0,grow");
-		JList PermissionList = new JList();
+		
+		
+		PermissionList= new JList();
+		
+		if (updateJList== true){
+			
+			System.out.println("holaaaaaaa");
+			availablePermission= new ArrayList<Object>();
+			availablePermissionModelList= new DefaultListModel();
+			String query= "Select * from sisca_permission ORDER BY sisca_permission_tag_number";
+			try {
+				dbman= new DBManager();
+
+				availablePermission= dbman.getFromDB(query);
+				
+				availablePermission= dbman.getAvailablePermission(availablePermission);
+
+
+				for(int i=0; i<availablePermission.size(); i++){
+					availablePermissionModelList.addElement(availablePermission.get(i));
+				}
+			} catch (ClassNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ParseException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			PermissionList.setModel(availablePermissionModelList);
+		}
+		else{
+			updateJList=true;
+			PermissionList.setModel(availablePermissionModelList);
+		}
+		
+		
 		PermissionList.setSelectionForeground(UIManager.getColor("Button.darkShadow"));
 		PermissionList.setSelectionBackground(UIManager.getColor("Button.background"));
 		PermissionList.addMouseListener(new MouseAdapter() {
@@ -219,15 +333,7 @@ public class PermissionManager {
 			}
 		});
 		PermissionScrollPane.setViewportView(PermissionList);
-		PermissionList.setModel(new AbstractListModel() {
-			String[] values = new String[] {"Test 1", "Test 2", "Test 3", "Test 4", "Test 5", "Test 6", "Test 7", "Test 8", "Test 9", "Test 10"};
-			public int getSize() {
-				return values.length;
-			}
-			public Object getElementAt(int index) {
-				return values[index];
-			}
-		});
+		
 
 
 		////////////////////////////////////////////////////////

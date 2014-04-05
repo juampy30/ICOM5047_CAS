@@ -9,25 +9,37 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.swing.AbstractListModel;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.ListModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 
+import databases.DBManager;
 import net.miginfocom.swing.MigLayout;
 
 
 public class AuthorizationTypeManager {
+
+	private DBManager dbman;
+	private String authorizationSelectedByUserFromAccountView;
+	private String authorizationNameEdit;
+	private int authorizationIDEdit;
 
 	AuthorizationTypeManager(){
 	}
@@ -36,7 +48,7 @@ public class AuthorizationTypeManager {
 	//   Authorization Type View								    //
 	//////////////////////////////////////////////////////////////////
 
-	static JPanel authorizationTypeView(){
+	public JPanel authorizationTypeView(){
 
 		/////////////////////////////////////////////////////////
 		//Menu Panel
@@ -100,7 +112,7 @@ public class AuthorizationTypeManager {
 				HKJ_SisCA_MainPage.frame.setContentPane(LogInManager.standByView());
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-				
+
 			}
 		});
 		logOutLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -209,30 +221,65 @@ public class AuthorizationTypeManager {
 		AuthorizationTypeListPanel.setLayout(new MigLayout("", "[724px]", "[360px]"));
 		JScrollPane AuthorizationTypeScrollPane = new JScrollPane();
 		AuthorizationTypeListPanel.add(AuthorizationTypeScrollPane, "cell 0 0,grow");
-		JList AuthorizationTypeList = new JList();
+
+		DefaultListModel authorizationNameListView = new DefaultListModel();
+		/**
+		 * Fill the List of Authorization types
+		 * dbman : connect to DBManager to run the required querys 
+		 */
+		try {
+			dbman = new DBManager();
+			ArrayList<Object> authorizationTypeArrayListQuery = dbman.getFromDB("select * from sisca_authorization order by  sisca_authorization_name");
+			/**
+			 * userActiveListView : 
+			 */
+			String[] keyValue;
+			String authorizationName = null;
+			//[{1:A},{2:B},{3:C}]
+			for(int i=0; i< authorizationTypeArrayListQuery.size(); i++){
+				//obtener el elemento i del elemento 1 (el array del array) 
+				for(int k=0 ; k<((List<Object>) authorizationTypeArrayListQuery.get(i)).size(); k++){
+					//result = 1:A 
+					Object result = ((List<Object>) authorizationTypeArrayListQuery.get(i)).get(k);
+					//keyValue -> {1,A}
+					keyValue = result.toString().split("/");
+					if(keyValue[0].equals("sisca_authorization_name")){
+						authorizationName = (String) keyValue[1];
+					}
+				}
+				authorizationNameListView .addElement(authorizationName);
+			}		
+
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		final JList AuthorizationTypeList = new JList(authorizationNameListView);
+
 		AuthorizationTypeList.setSelectionForeground(UIManager.getColor("Button.darkShadow"));
 		AuthorizationTypeList.setSelectionBackground(UIManager.getColor("Button.background"));
 		AuthorizationTypeList.addMouseListener(new MouseAdapter() {
+
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2){
-					HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView()); // Wrong Way! =S
+
+					authorizationSelectedByUserFromAccountView = (String) AuthorizationTypeList.getSelectedValue();
+
+					HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(authorizationSelectedByUserFromAccountView)); // Wrong Way! =S
 					HKJ_SisCA_MainPage.frame.pack();
 					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 				}
 			}
 		});
 		AuthorizationTypeScrollPane.setViewportView(AuthorizationTypeList);
-		AuthorizationTypeList.setModel(new AbstractListModel() {
-			String[] values = new String[] {"Test 1", "Test 2", "Test 3", "Test 4", "Test 5", "Test 6", "Test 7", "Test 8", "Test 9", "Test 10"};
-			public int getSize() {
-				return values.length;
-			}
-			public Object getElementAt(int index) {
-				return values[index];
-			}
-		});
-
 
 		////////////////////////////////////////////////////////
 		//Window Panel
@@ -251,7 +298,7 @@ public class AuthorizationTypeManager {
 	//   Authorization Type Information View						//
 	//////////////////////////////////////////////////////////////////
 
-	private static JPanel authorizationTypeInformationView(){
+	public JPanel authorizationTypeInformationView(String authorization){
 
 
 		/////////////////////////////////////////////////////////
@@ -309,7 +356,7 @@ public class AuthorizationTypeManager {
 		listAuthorizationTypeLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack();
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
@@ -335,7 +382,7 @@ public class AuthorizationTypeManager {
 				HKJ_SisCA_MainPage.frame.setContentPane(LogInManager.standByView());
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-				
+
 			}
 		});
 		logOutLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -396,11 +443,32 @@ public class AuthorizationTypeManager {
 		LSystemLabel.setForeground(java.awt.Color.BLACK);
 		LSystemLabel.setFont(new Font("Lucida Grande", Font.BOLD, 16));
 
-		JLabel aTName1 = new JLabel("New label");
+		/**
+		 * 
+		 */
+		ArrayList<Object> authorizationNameListView = getAccountList();
+		int position = 1;
+		for(int i=0; i<authorizationNameListView.size() && i<10 ; i++){
+			position = position+2;
+			final JLabel userName = new JLabel(authorizationNameListView.get(i).toString());
+			userName.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(userName.getText()));
+					HKJ_SisCA_MainPage.frame.pack(); 
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				}
+			});
+			userName.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			liveSystemPanel.add(userName, "cell 0 "+ position +" ,alignx left,aligny top");
+		}
+
+		
+		/*JLabel aTName1 = new JLabel("New label");
 		aTName1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
@@ -412,7 +480,7 @@ public class AuthorizationTypeManager {
 		aTName2.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -423,7 +491,7 @@ public class AuthorizationTypeManager {
 		aTName3.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -434,7 +502,7 @@ public class AuthorizationTypeManager {
 		aTName4.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -446,7 +514,7 @@ public class AuthorizationTypeManager {
 		aTName5.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -457,7 +525,7 @@ public class AuthorizationTypeManager {
 		aTName6.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -467,7 +535,7 @@ public class AuthorizationTypeManager {
 		aTName7.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -479,7 +547,7 @@ public class AuthorizationTypeManager {
 		aTName8.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -490,7 +558,7 @@ public class AuthorizationTypeManager {
 		aTName9.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -500,12 +568,12 @@ public class AuthorizationTypeManager {
 		aTName10.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		aTName10.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(aTName10, "cell 0 21,alignx left,aligny top");
+		liveSystemPanel.add(aTName10, "cell 0 21,alignx left,aligny top");*/
 
 		//Separators
 		JSeparator separator = new JSeparator();
@@ -625,12 +693,17 @@ public class AuthorizationTypeManager {
 		mainPanelAuthorizationTypeInformation.add(centerPanel, BorderLayout.CENTER);
 		centerPanel.setLayout(new MigLayout("", "[849px]", "[193.00px][65px][12px]"));
 
-		JLabel realName = new JLabel("Real Name");
-		realName.setPreferredSize(new Dimension(100, 50));
-		realName.setHorizontalAlignment(SwingConstants.CENTER);
-		realName.setForeground(java.awt.Color.BLACK);
-		realName.setFont(new Font("Lucida Grande", Font.BOLD, 16));
-		centerPanel.add(realName, "cell 0 0,alignx center,aligny top");
+		/**
+		 * 
+		 */
+		authorizationNameEdit = authorization;
+
+		JLabel authorizationTypeName = new JLabel(authorization);
+		authorizationTypeName.setPreferredSize(new Dimension(100, 50));
+		authorizationTypeName.setHorizontalAlignment(SwingConstants.CENTER);
+		authorizationTypeName.setForeground(java.awt.Color.BLACK);
+		authorizationTypeName.setFont(new Font("Lucida Grande", Font.BOLD, 16));
+		centerPanel.add(authorizationTypeName, "cell 0 0,alignx center,aligny top");
 
 		JPanel editAndRemovePanel = new JPanel();
 		editAndRemovePanel.setBackground(new Color(250,250,250));
@@ -640,7 +713,7 @@ public class AuthorizationTypeManager {
 		JButton editButton = new JButton("Edit");
 		editButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				HKJ_SisCA_MainPage.frame.setContentPane(editAuthorizationTypeView());
+				HKJ_SisCA_MainPage.frame.setContentPane(editAuthorizationTypeView(authorizationIDEdit));
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
@@ -650,10 +723,57 @@ public class AuthorizationTypeManager {
 		JButton btnRemove = new JButton("Remove");
 		btnRemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//TODO remover
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeView());
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				
+				int sure = JOptionPane.showConfirmDialog(HKJ_SisCA_MainPage.frame, "Are You Sure?");
+				//System.out.println("SURE: " + sure);
+				String authorizationToRemove = authorizationSelectedByUserFromAccountView;
+				if(sure==0){
+					/**
+					 * 
+					 */
+					String[] keyValue;
+					//String accountUsername = userNameToRemove;
+					ArrayList<Object> authorizationInformationRemove = null;
+					try {
+						authorizationInformationRemove = dbman.getFromDB("select * from sisca_authorization where sisca_authorization_name='"+ authorizationToRemove + "'");
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (ParseException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					//TODO ARE YOU SURE YOU WANT TO REMOVE?
+					for(int i=0; i<authorizationInformationRemove.size(); i++){
+						//obtener el elemento i del elemento 1 (el array del array) 
+						for(int k=0 ; k<((List<Object>) authorizationInformationRemove.get(i)).size(); k++){
+							//result = 1:A
+							Object result = ((List<Object>) authorizationInformationRemove.get(i)).get(k);
+							//keyValue -> {1,A}
+							keyValue = result.toString().split("/");
+							if(keyValue[0].equals("sisca_authorization_name")){
+								authorizationToRemove = (String) keyValue[1];
+							}
+						}
+					}
+
+					try {
+						dbman.updatetDB("delete from sisca_authorization where sisca_authorization_name='" +authorizationToRemove+"'");
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeView());
+					HKJ_SisCA_MainPage.frame.pack(); 
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				}
+				else{
+					HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeView());
+					HKJ_SisCA_MainPage.frame.pack(); 
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				}
+			
 			}
 
 		});
@@ -679,7 +799,7 @@ public class AuthorizationTypeManager {
 	//   Add Authorization Type View						        //
 	//////////////////////////////////////////////////////////////////
 
-	private static JPanel addAuthorizationTypeView(){
+	public JPanel addAuthorizationTypeView(){
 		/////////////////////////////////////////////////////////
 		//Menu Panel
 		/////////////////////////////////////////////////////////
@@ -759,7 +879,7 @@ public class AuthorizationTypeManager {
 				HKJ_SisCA_MainPage.frame.setContentPane(LogInManager.standByView());
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-				
+
 			}
 		});
 		logOutLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -822,7 +942,7 @@ public class AuthorizationTypeManager {
 		aTName1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -833,7 +953,7 @@ public class AuthorizationTypeManager {
 		aTName2.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -844,7 +964,7 @@ public class AuthorizationTypeManager {
 		aTName3.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -855,7 +975,7 @@ public class AuthorizationTypeManager {
 		aTName4.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -867,7 +987,7 @@ public class AuthorizationTypeManager {
 		aTName5.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -881,7 +1001,7 @@ public class AuthorizationTypeManager {
 		aTName6.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -891,7 +1011,7 @@ public class AuthorizationTypeManager {
 		aTName7.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -903,7 +1023,7 @@ public class AuthorizationTypeManager {
 		aTName8.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -914,7 +1034,7 @@ public class AuthorizationTypeManager {
 		aTName9.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -924,7 +1044,7 @@ public class AuthorizationTypeManager {
 		aTName10.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -1062,14 +1182,91 @@ public class AuthorizationTypeManager {
 		centerPanel.add(AddCancelPanel, "cell 0 2,grow");
 		AddCancelPanel.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][][][][][][][]", "[][]"));
 
-		JButton AddAuthorizationTypeBtn = new JButton("Add Authorization Type");
+		JPanel AuthorizationTypeIDPanel = new JPanel();
+		AuthorizationTypeIDPanel.setBackground((java.awt.Color) null);
+		centerPanel.add(AuthorizationTypeIDPanel, "cell 0 1,growx,aligny top");
+		AuthorizationTypeIDPanel.setLayout(new MigLayout("", "[57.00px][371.00px]", "[28px]"));
+
+		JLabel nameLabel = new JLabel("New Authorization Name: ");
+		AuthorizationTypeIDPanel.add(nameLabel, "cell 0 0,alignx left,aligny center");
+		nameLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
+
+		final JTextField addNameTextField = new JTextField();
+		addNameTextField.setPreferredSize(new Dimension(200, 100));
+		AuthorizationTypeIDPanel.add(addNameTextField, "cell 1 0,grow");
+		addNameTextField.setColumns(10);
+
+		JButton AddAuthorizationTypeBtn = new JButton("OK");
 		AddAuthorizationTypeBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//TODO Este add me lleva a ver la iformaci—n del AuthorizationType recien a–adido
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 
+				/**
+				 * Adding a new Authorization type Name
+				 */
+				String createAuthorizationType = addNameTextField.getText();
+				/**
+				 * Verificar que el userName no exista
+				 */
+				ArrayList<Object> authorizationTypeExistDB;
+				boolean alreadyExist=false;
+				String authorizationName = null;
+				int authorizationID = 99999999;
+				try {
+					authorizationTypeExistDB = dbman.getFromDB("select sisca_authorization_name from sisca_authorization");
+					ArrayList<Object> authorizationTypeExist = new ArrayList<Object>();
+					String[] keyValue;
+
+					for(int i=0; i<authorizationTypeExistDB.size(); i++){
+						//obtener el elemento i del elemento 1 (el array del array) 
+						for(int k=0 ; k<((List<Object>) authorizationTypeExistDB.get(i)).size(); k++){
+							//result = 1:A
+							Object result = ((List<Object>) authorizationTypeExistDB.get(i)).get(k);
+							//keyValue -> {1,A}
+							keyValue = result.toString().split("/");
+							if(keyValue[0].equals("sisca_authorization_name")){
+								authorizationName = (String) keyValue[1];
+							}	
+							if(keyValue[0].equals("sisca_authorization_if")){
+								authorizationID = Integer.valueOf(keyValue[1]);
+							}	
+						}
+						authorizationTypeExist.add(authorizationName);
+					}
+					/**
+					 * Verificar UserName
+					 */
+					for(int i=0 ; i<authorizationTypeExist.size(); i++){
+						if(createAuthorizationType.toLowerCase().equals(authorizationTypeExist.get(i).toString().toLowerCase())){
+							alreadyExist=true;
+						}
+					}
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
+				/**
+				 * 
+				 */
+				if(alreadyExist){
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "AUTHORIZATION NAME already exist.");
+				}
+				else{
+					try {
+						dbman.updatetDB("insert into sisca_authorization(sisca_authorization_name) values('"+createAuthorizationType+"')");
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					};
+
+					HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(createAuthorizationType));
+					HKJ_SisCA_MainPage.frame.pack(); 
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+				}
 			}
 		});
 		AddCancelPanel.add(AddAuthorizationTypeBtn, "cell 0 0");
@@ -1078,7 +1275,7 @@ public class AuthorizationTypeManager {
 		cancelBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//TODO Cancel me hace un BACK en el history
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 
@@ -1086,21 +1283,6 @@ public class AuthorizationTypeManager {
 		});
 
 		AddCancelPanel.add(cancelBtn, "cell 26 0");
-
-		JPanel AuthorizationTypeIDPanel = new JPanel();
-		AuthorizationTypeIDPanel.setBackground((java.awt.Color) null);
-		centerPanel.add(AuthorizationTypeIDPanel, "cell 0 1,growx,aligny top");
-		AuthorizationTypeIDPanel.setLayout(new MigLayout("", "[57.00px][371.00px]", "[28px]"));
-
-		JLabel nameLabel = new JLabel("Name:");
-		AuthorizationTypeIDPanel.add(nameLabel, "cell 0 0,alignx left,aligny center");
-		nameLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
-
-		JTextField addNameTextField = new JTextField();
-		addNameTextField.setPreferredSize(new Dimension(200, 100));
-		AuthorizationTypeIDPanel.add(addNameTextField, "cell 1 0,grow");
-		addNameTextField.setColumns(10);
-
 
 		////////////////////////////////////////////////////////
 		//Window Panel
@@ -1119,7 +1301,7 @@ public class AuthorizationTypeManager {
 	//   Edit Authorization Type View						        //
 	//////////////////////////////////////////////////////////////////
 
-	private static JPanel editAuthorizationTypeView(){
+	public JPanel editAuthorizationTypeView(int ID){
 		/////////////////////////////////////////////////////////
 		//Menu Panel
 		/////////////////////////////////////////////////////////
@@ -1199,7 +1381,7 @@ public class AuthorizationTypeManager {
 				HKJ_SisCA_MainPage.frame.setContentPane(LogInManager.standByView());
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-				
+
 			}
 		});
 		logOutLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -1262,7 +1444,7 @@ public class AuthorizationTypeManager {
 		aTName1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -1273,7 +1455,7 @@ public class AuthorizationTypeManager {
 		aTName2.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -1284,7 +1466,7 @@ public class AuthorizationTypeManager {
 		aTName3.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -1295,7 +1477,7 @@ public class AuthorizationTypeManager {
 		aTName4.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -1307,7 +1489,7 @@ public class AuthorizationTypeManager {
 		aTName5.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -1321,7 +1503,7 @@ public class AuthorizationTypeManager {
 		aTName6.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -1331,7 +1513,7 @@ public class AuthorizationTypeManager {
 		aTName7.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -1343,7 +1525,7 @@ public class AuthorizationTypeManager {
 		aTName8.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -1354,7 +1536,7 @@ public class AuthorizationTypeManager {
 		aTName9.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -1364,7 +1546,7 @@ public class AuthorizationTypeManager {
 		aTName10.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(null));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -1497,18 +1679,90 @@ public class AuthorizationTypeManager {
 		editAuthorizationTypeLabelPanel.setFont(new Font("Lucida Grande", Font.BOLD, 16));
 		centerPanel.add(editAuthorizationTypeLabelPanel, "cell 0 0,alignx center,growy");
 
+		JPanel AuthorizationTypeIDPanel = new JPanel();
+		AuthorizationTypeIDPanel.setBackground((java.awt.Color) null);
+		centerPanel.add(AuthorizationTypeIDPanel, "cell 0 1,growx,aligny top");
+		AuthorizationTypeIDPanel.setLayout(new MigLayout("", "[57.00px][371.00px]", "[28px]"));
+
+		/**
+		 * authorizationNameEdit: the authorization name selected to edit
+		 */		
+		JLabel nameLabel = new JLabel("Authorization New Name:");
+		AuthorizationTypeIDPanel.add(nameLabel, "cell 0 0,alignx left,aligny center");
+		nameLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
+
+		final JTextField editNameTextField = new JTextField(authorizationNameEdit);
+		editNameTextField.setPreferredSize(new Dimension(200, 100));
+		AuthorizationTypeIDPanel.add(editNameTextField, "cell 1 0,grow");
+		editNameTextField.setColumns(10);
+
 		JPanel AddCancelPanel = new JPanel();
 		AddCancelPanel.setBackground(new Color(250,250,250));
 		centerPanel.add(AddCancelPanel, "cell 0 2,grow");
 		AddCancelPanel.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][][][][][][][]", "[][]"));
 
-		JButton editAuthorizationTypeBtn = new JButton("Edit Authorization Type");
+		JButton editAuthorizationTypeBtn = new JButton("OK");
 		editAuthorizationTypeBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//TODO Este add me lleva a ver la iformaci—n del AuthorizationType recien a–adido
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+				String newAuthorizationType = editNameTextField.getText();
+				boolean alreadyExist=false;
+
+				ArrayList<Object> unavailableAuthorizationNamesDB;
+				try {
+					unavailableAuthorizationNamesDB = dbman.getFromDB("select sisca_authorization_name from sisca_authorization");
+					ArrayList<Object> unavailableAuthorizationNames = new ArrayList<Object>();
+					String[] keyValue;
+					String authorizationName=null;
+					int authorizationID = 9999999;
+
+					for(int i=0; i<unavailableAuthorizationNamesDB.size(); i++){
+						//obtener el elemento i del elemento 1 (el array del array) 
+						for(int k=0 ; k<((List<Object>) unavailableAuthorizationNamesDB.get(i)).size(); k++){
+							//result = 1:A
+							Object result = ((List<Object>) unavailableAuthorizationNamesDB.get(i)).get(k);
+							//keyValue -> {1,A}
+							keyValue = result.toString().split("/");
+							if(keyValue[0].equals("sisca_authorization_name")){
+								authorizationName = (String) keyValue[1];
+							}
+						}
+						unavailableAuthorizationNames.add(authorizationName);
+					}
+
+					for(int i=0; i<unavailableAuthorizationNames.size();i++){
+						if(newAuthorizationType.toLowerCase().equals(((String) unavailableAuthorizationNames.get(i)).toLowerCase())){
+							alreadyExist = true;
+						}
+					}
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
+				if(alreadyExist){
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "The Authorization Name already exist.");
+				}
+				else
+				{
+					try {
+						dbman.insertDB("update sisca_authorization set sisca_authorization_name='"+newAuthorizationType+ "' where sisca_authorization_name='"+authorizationNameEdit+"'");
+						HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(newAuthorizationType));
+						HKJ_SisCA_MainPage.frame.pack(); 
+						HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+/*
+					HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(newAuthorizationType));
+					HKJ_SisCA_MainPage.frame.pack(); 
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+*/
+				}
 
 			}
 		});
@@ -1517,8 +1771,8 @@ public class AuthorizationTypeManager {
 		JButton cancelBtn = new JButton("Cancel");
 		cancelBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//TODO Cancel me hace un BACK en el history
-				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView());
+				
+				HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(authorizationNameEdit));
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 
@@ -1526,20 +1780,6 @@ public class AuthorizationTypeManager {
 		});
 
 		AddCancelPanel.add(cancelBtn, "cell 26 0");
-
-		JPanel AuthorizationTypeIDPanel = new JPanel();
-		AuthorizationTypeIDPanel.setBackground((java.awt.Color) null);
-		centerPanel.add(AuthorizationTypeIDPanel, "cell 0 1,growx,aligny top");
-		AuthorizationTypeIDPanel.setLayout(new MigLayout("", "[57.00px][371.00px]", "[28px]"));
-
-		JLabel nameLabel = new JLabel("Name:");
-		AuthorizationTypeIDPanel.add(nameLabel, "cell 0 0,alignx left,aligny center");
-		nameLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
-
-		JTextField editNameTextField = new JTextField();
-		editNameTextField.setPreferredSize(new Dimension(200, 100));
-		AuthorizationTypeIDPanel.add(editNameTextField, "cell 1 0,grow");
-		editNameTextField.setColumns(10);
 
 
 		////////////////////////////////////////////////////////
@@ -1554,4 +1794,38 @@ public class AuthorizationTypeManager {
 		windowPanelEditAuthorizationType.add(mainPanelEditAuthorizationType, BorderLayout.CENTER);
 		return windowPanelEditAuthorizationType;
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	private ArrayList<Object> getAccountList() {
+		ArrayList<Object> authorizationNameFromDB = new ArrayList<Object>();
+		try {
+			ArrayList<Object> authorizationNameListFromDB = dbman.getFromDB("select * from sisca_authorization order by sisca_authorization_name");
+			String[] keyValue;
+			String authorizationName = null;
+			for(int i=0; i<authorizationNameListFromDB.size(); i++){
+				//obtener el elemento i del elemento 1 (el array del array) 
+				for(int k=0 ; k<((List<Object>) authorizationNameListFromDB.get(i)).size(); k++){
+					//result = 1:A
+					Object result = ((List<Object>) authorizationNameListFromDB.get(i)).get(k);
+					//keyValue -> {1,A}
+					keyValue = result.toString().split("/");
+					if(keyValue[0].equals("sisca_authorization_name")){
+						authorizationName = (String) keyValue[1];
+					}
+				}
+				authorizationNameFromDB.add(authorizationName);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return authorizationNameFromDB;
+	}
+
 }

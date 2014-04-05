@@ -43,6 +43,8 @@ public class DBManager {
 	private String startHour;
 	private String endHour;
 	private String capacity;
+	private String tagNumber;
+	private String permissionName;
 
 
 
@@ -285,6 +287,30 @@ public class DBManager {
 		
 	}
 	
+	public ArrayList<Object> getAvailableParkingCapacityFromDB(ArrayList<Object> listToProcess){
+		ArrayList<Object> availableParkingCapacity = new ArrayList<Object>();
+		String pName=null;
+				for(int i=0; i<listToProcess.size(); i++){
+					//obtener el elemento i del elemento 1 (el array del array) 
+					for(int k=0 ; k<((List<Object>) listToProcess.get(i)).size(); k++){
+						//result = 1:A
+						Object result = ((List<Object>) listToProcess.get(i)).get(k);
+						//keyValue -> {1,A}
+						keyValue = result.toString().split("/");
+				
+						if(keyValue[0].equals("sisca_parking_capacity")){
+							pName = (String) keyValue[1];
+						}						
+					}
+					availableParkingCapacity.add(pName);
+				}
+				
+		
+		return availableParkingCapacity;
+		
+	}
+	
+	
 	@SuppressWarnings("unchecked")
 	public ArrayList<Tag> getTagList(ArrayList<Object> rows2) throws ParseException{
 		ArrayList<Tag> tagList = new ArrayList<Tag>();
@@ -462,6 +488,29 @@ public class DBManager {
 			result = rs.getString(6);
 		}
 		return result;
+	}
+
+	public ArrayList<Object> getAvailablePermission(ArrayList<Object> availablePermission) {
+		
+		ArrayList<Object> permissions = new ArrayList<Object>();
+		//[{1:A},{2:B},{3:C}]
+				for(int i=0; i<availablePermission.size(); i++){
+					//obtener el elemento i del elemento 1 (el array del array) 
+					for(int k=0 ; k<((List<Object>) availablePermission.get(i)).size(); k++){
+						//result = 1:A
+						Object result = ((List<Object>) availablePermission.get(i)).get(k);
+						//keyValue -> {1,A}
+						keyValue = result.toString().split("/");
+						if(keyValue[0].equals("sisca_permission_tag_number")){
+							tagNumber = (String) keyValue[1];
+						}
+					
+						
+					}
+					permissions.add(tagNumber.toUpperCase());
+				}
+				System.out.println("Permission Available list: "+ permissions);
+		return permissions;
 	}
 
 

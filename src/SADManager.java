@@ -1507,27 +1507,32 @@ public class SADManager {
 		JButton addSADBtn = new JButton("Ok");
 		addSADBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//////////////////////////////////////////////////////
-				// Query for Add Values of the new SAD in the DB
-				//////////////////////////////////////////////////////
 
-				String sadNameFromTextField= "'"+textFieldSADName.getText()+"'";
-				String sadDirectionFromComboBox= "'"+directionComboBox.getSelectedItem()+"'";
+				int sure = JOptionPane.showConfirmDialog(HKJ_SisCA_MainPage.frame, "Are You Sure?");
+				if(sure==0){
+					//////////////////////////////////////////////////////
+					// Query for Add Values of the new SAD in the DB
+					//////////////////////////////////////////////////////
 
-				System.out.println("SAD Name:"+sadNameFromTextField+" Direction:"+sadDirectionFromComboBox );
+					String sadNameFromTextField= "'"+textFieldSADName.getText()+"'";
+					String sadDirectionFromComboBox= "'"+directionComboBox.getSelectedItem()+"'";
 
-				String query= "Insert into sisca_sad (sisca_sad_name,sisca_sad_direction,sisca_sad_active) VALUES ("+sadNameFromTextField+","+sadDirectionFromComboBox+",'false')";
-				try {
-					dbman.insertDB(query);
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					System.out.println("SAD Name:"+sadNameFromTextField+" Direction:"+sadDirectionFromComboBox );
+
+					String query= "Insert into sisca_sad (sisca_sad_name,sisca_sad_direction,sisca_sad_active) VALUES ("+sadNameFromTextField+","+sadDirectionFromComboBox+",'false')";
+					try {
+						dbman.insertDB(query);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(textFieldSADName.getText()));
+					HKJ_SisCA_MainPage.frame.pack(); 
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
 				}
-
-				HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(textFieldSADName.getText()));
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-
+				
 			}
 		});
 		AddCancelPanel.add(addSADBtn, "cell 0 0");
@@ -2093,26 +2098,32 @@ public class SADManager {
 			public void actionPerformed(ActionEvent arg0) {
 
 				if (HKJ_SisCA_MainPage.getCanView()==true){
+					
+					int sure = JOptionPane.showConfirmDialog(HKJ_SisCA_MainPage.frame, "Are You Sure?");
+					if(sure==0){
+						String s1= "'"+textFieldSADName.getText()+"'";
+						String s2= "'"+comboBox.getSelectedItem()+"'";
 
-					String s1= "'"+textFieldSADName.getText()+"'";
-					String s2= "'"+comboBox.getSelectedItem()+"'";
+						String query= "Update sisca_sad SET sisca_sad_name="+s1+", sisca_sad_direction="+s2+"where sisca_sad_name ~*"+s1;
 
-					String query= "Update sisca_sad SET sisca_sad_name="+s1+", sisca_sad_direction="+s2+"where sisca_sad_name ~*"+s1;
+						try {
+							dbman= new DBManager();
+							dbman.updatetDB(query);
+						} catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (ClassNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 
-					try {
-						dbman= new DBManager();
-						dbman.updatetDB(query);
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(textFieldSADName.getText()));
+						HKJ_SisCA_MainPage.frame.pack(); 
+						HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+						
 					}
 
-					HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(textFieldSADName.getText()));
-					HKJ_SisCA_MainPage.frame.pack(); 
-					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+					
 				}
 				else{
 					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You have no permission for Add New SADs");
