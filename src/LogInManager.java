@@ -26,19 +26,34 @@ import databases.DBManager;
 import net.miginfocom.swing.MigLayout;
 
 
-
+/** LogIn Manager
+ * 	Manage LogIn View and Stand By View
+ *  @author Juan Pablo Bermœdez Reyes
+ *  Last Modified: April 6, 2014
+ */
 public class LogInManager {
 	
+	/**
+	 * Fields
+	 */
 	static DBManager dbman;
 	static ArrayList<Object> result;
 	
+	/**
+	 *  Constructor
+	 */
 	LogInManager(){
 
 	}
+	
+	/** LogIn View
+	 *  Generates the LogIn View JPanel 
+	 *  @return windowPanelLogInView JPanel 
+	 */
 	static JPanel logInView(){
 
 
-		JPanel windowPanelStandBy= new JPanel();
+		JPanel windowPanelLogInView= new JPanel();
 		JPanel menuPanelAddLogIn = new JPanel();
 		JPanel mainPanel = new JPanel();
 		final JTextField textFieldUsername;
@@ -65,7 +80,7 @@ public class LogInManager {
 		
 		mainPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		mainPanel.setBackground(new Color(250,250,250));
-		windowPanelStandBy.add(mainPanel, BorderLayout.CENTER);
+		windowPanelLogInView.add(mainPanel, BorderLayout.CENTER);
 		mainPanel.setLayout(new MigLayout("", "[1238.00px]", "[][][][][][][56px][56px][56px]"));
 		
 		JPanel usernameTextField = new JPanel();
@@ -172,16 +187,19 @@ public class LogInManager {
 		/////////////////////////////////////////////////////////
 
 		//Configurations
-		windowPanelStandBy.setLayout(new BorderLayout(0, 0));
-		windowPanelStandBy.add(menuPanelAddLogIn, BorderLayout.NORTH);
-		windowPanelStandBy.add(mainPanel, BorderLayout.CENTER);
+		windowPanelLogInView.setLayout(new BorderLayout(0, 0));
+		windowPanelLogInView.add(menuPanelAddLogIn, BorderLayout.NORTH);
+		windowPanelLogInView.add(mainPanel, BorderLayout.CENTER);
 		
-		return windowPanelStandBy;
+		return windowPanelLogInView;
 
 
 	}
 
-	
+	/** Stand By View
+	 *  Generates the Stand By View JPanel 
+	 *  @return windowPanelStandBy JPanel 
+	 */
 	static JPanel standByView(){
 		
 		JPanel windowPanelStandBy= new JPanel();

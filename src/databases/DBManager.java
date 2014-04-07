@@ -133,8 +133,9 @@ public class DBManager {
 		
 		if(keyset.next()){
 			index = keyset.getInt(1);
+			System.out.println("Index: "+keyset.getInt(1)+"Name: "+keyset.getInt(2));
 		}
-		index = keyset.getInt(1);
+		
 		return index;
 		
 	}
@@ -513,23 +514,84 @@ public class DBManager {
 		return permissions;
 	}
 
+	public String[] getAllPermissionInfoFromDB(String query) throws SQLException {
+		
+		System.out.println(" Searching For Parking Information");
+		String[] queryResult = null;
+		
+		stmt = con.createStatement();
+		rs = stmt.executeQuery(query);
+	
+		if(rs.next()){
+			
+			queryResult= new String[23];
+			queryResult[0]=rs.getString(1); // Permission ID
+			queryResult[1]=rs.getString(2); // Tag Number
+			queryResult[2]=rs.getString(3); // Delivery Date
+			queryResult[3]=rs.getString(4); // Expiration Date
+			queryResult[4]=rs.getString(5); // Notification Date
+			queryResult[5]=rs.getString(6); // Status
+			queryResult[6]=rs.getString(7); // Vehicle ID
+			queryResult[7]=rs.getString(8); // Applicant ID
+			queryResult[8]=rs.getString(10); // Vehicle VIN
+			queryResult[9]=rs.getString(11); // Vehicle Plate
+			queryResult[10]=rs.getString(12); // Vehicle Country
+			queryResult[11]=rs.getString(13); // Vehicle Brand
+			queryResult[12]=rs.getString(14); // Vehicle Model
+			queryResult[13]=rs.getString(15); // Vehicle Year
+			queryResult[14]=rs.getString(16); // Vehicle Color
+			queryResult[15]=rs.getString(17); // Vehicle Owner First Name
+			queryResult[16]=rs.getString(18); // Vehicle Owner Last Name
+			queryResult[17]=rs.getString(20); // Applicant First Name
+			queryResult[18]=rs.getString(21); // Applicant Last Name
+			queryResult[19]=rs.getString(22); //  Applicant Phone
+			queryResult[20]=rs.getString(23); // Applicant Email
+			queryResult[21]=rs.getString(24); // Applicant Lisence Number
+			queryResult[22]=rs.getString(25); // Applicant Handicap?
+			
+			
+			for(String s:queryResult ){
+				System.out.println("Results from Permission:"+s);
+			}
+		}
 
-	/*///>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MAIN <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	public static void main(String[] args) throws SQLException, ClassNotFoundException, ParseException {
-		System.out.println("Comenzo el MAIN");
-		DBManager dbman = new DBManager();
+		return queryResult;
+	}
 
-		/////////DEBUG DEBUG DEBUG DEBUG 
-		//System.out.println("Query: Select * from Sisca_permission");
-		//dbman.getFromDB("Select * from sisca_permission");
-		//System.out.println("Query: Select * from Sisca_vehicle");
-		//dbman.getFromDB("Select * from sisca_vehicle");
-		//System.out.println("Query: Inner Join");
-		//dbman.getFromDB("select sisca_permission_tagnumber, sisca_authorization_type_id, sisca_authorization_type_name, sisca_authorization_type_unconditionalentry, sisca_permission_expirationdate from sisca_permission inner join sisca_authorization_type on sisca_permission.sisca_permission_authorization_type_id=sisca_authorization_type.sisca_authorization_type_id"); 
-		//System.out.println("Query: Insert new Account ");
-		//dbman.insertDB("insert into sisca_account (sisca_account_type) values ('prueba')");
-		System.out.println("QUERY: Llenar SAD parking Manager");
-		dbman.getFromDB("select * from sisca_sad where sisca_sad_active='false'");
-	}*/
+	public ArrayList getSADInfoFromDB(String query) throws SQLException {
+
+		System.out.println(" Searching For SAD Information");
+		ArrayList queryResult= new ArrayList();
+
+		stmt = con.createStatement();
+		rs = stmt.executeQuery(query);
+		
+
+		if(rs.next()){
+
+			System.out.println("RS1:"+ rs.getString(1));
+			System.out.println("RS2:"+ rs.getString(2));
+			System.out.println("RS3:"+ rs.getString(3));
+			System.out.println("RS4:"+ rs.getString(4));
+			
+			queryResult.add(rs.getString(1)); // SAD ID
+			queryResult.add(rs.getString(2)); // SAD Name
+			queryResult.add(rs.getString(3)); // SAD Direction
+			queryResult.add(rs.getString(4)); // SAD Active?
+		}
+		System.out.println(" Printing SAD Information: " +queryResult);
+	
+
+		return queryResult;
+	}
+
+	public void deleteFromDB(String query) throws SQLException {
+		stmt = con.createStatement();
+		rs = stmt.executeQuery(query);
+
+	}
+
+
+	
 }
 

@@ -38,22 +38,36 @@ import databases.DBManager;
 import net.miginfocom.swing.MigLayout;
 
 
+/** SAD Manager
+ * 	Manage SAD View, SAD Information View, Add SAD View and Edit SAD View
+ *  @author Juan Pablo Bermœdez Reyes
+ *  Last Modified: April 6, 2014
+ */
 public class SADManager {
 
+	/**
+	 * Fields
+	 */
 	static DBManager dbman;
 	static ArrayList<Object> availableSAD;
 	static DefaultListModel availableSADModelList;
 	static Boolean updateJList=true;
 	private static JList sadList;
 
+	/**
+	 * Constructor
+	 */
 	SADManager (){
 
 	}
 	//////////////////////////////////////////////////////////////////
 	//   SAD View								               	    //
 	//////////////////////////////////////////////////////////////////
-
-
+	
+	/** SAD View
+	 *  Generates the SAD View JPanel 
+	 *  @return windowPanelSAD JPanel 
+	 */
 	static JPanel sadView(){
 		/////////////////////////////////////////////////////////
 		//Menu Panel
@@ -368,6 +382,10 @@ public class SADManager {
 	//   SAD Information View								        //
 	//////////////////////////////////////////////////////////////////
 
+	/** SAD Information View
+	 *  Generates the SAD Information View JPanel 
+	 *  @return windowPanelSADInformation JPanel 
+	 */
 	private static JPanel sadInformationView(String s_Name) {
 
 		System.out.println("Printing sName:" + s_Name);
@@ -858,28 +876,15 @@ public class SADManager {
 
 		String query= "Select * from sisca_sad where sisca_sad_name='"+sadName+"'";
 		try {
-			ArrayList sadInformation= dbman.getFromDB(query);
-			//sadInformation= dbman.getAvailableSAD(sadInformation);
-			//String direction= (String) sadInformation.get(0);
-			//String active= (String) sadInformation.get(0);
+			
+			ArrayList sadInformation= new ArrayList();
+			sadInformation= dbman.getSADInfoFromDB(query);
+			
+			savedDirection=(String) sadInformation.get(2);
 
-			//sadSavedInformation[0]=sadName;
+			savedActive=(String) sadInformation.get(3);
 
-			Object result = ((List<Object>) sadInformation.get(0)).get(2);
-			Object[] keyValue;
-			keyValue = result.toString().split("/");;
-			String sadDirection= (String) keyValue[1];
-
-			savedDirection=sadDirection;
-
-
-			result = ((List<Object>) sadInformation.get(0)).get(3);
-			keyValue = result.toString().split("/");;
-			String activeStatus= (String) keyValue[1];
-
-			savedActive=activeStatus;
-
-			if(sadDirection.equals("exit")){
+			if(savedDirection.equals("exit")){
 				lblDirection.setText("Direction: Exit");
 			}
 			else{
@@ -888,22 +893,17 @@ public class SADManager {
 
 
 
-			if(activeStatus.equals("t")){
+			if(savedActive.equals("t")){
 				lblActive.setText("Is Active?: Yes ");
 			}
 			else{
 				lblActive.setText("Is Active?: No ");
 			}
 
-
-
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		} catch (ParseException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		} 
 
 
 		//
@@ -955,9 +955,34 @@ public class SADManager {
 		btnRemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (HKJ_SisCA_MainPage.getCanView()==true){
-					HKJ_SisCA_MainPage.frame.setContentPane(sadView());
-					HKJ_SisCA_MainPage.frame.pack(); 
-					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+					int sure = JOptionPane.showConfirmDialog(HKJ_SisCA_MainPage.frame, "Are You Sure?");
+					
+					if(sure==0){
+						String query= "Delete from sisca_sad where sisca_sad_name="+"'"+sadName+"'";
+						
+						
+						try {
+							dbman= new DBManager();
+							dbman.updatetDB(query);
+							
+							HKJ_SisCA_MainPage.frame.setContentPane(sadView());
+							HKJ_SisCA_MainPage.frame.pack(); 
+							HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+							
+						} catch (ClassNotFoundException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						
+					}
+					else{
+						HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(sadName));
+						HKJ_SisCA_MainPage.frame.pack(); 
+						HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+					}
 				}
 				else{
 					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You have no permission for Add New SADs");
@@ -994,6 +1019,11 @@ public class SADManager {
 	//////////////////////////////////////////////////////////////////
 	// Add SAD View								               	    //
 	//////////////////////////////////////////////////////////////////
+	
+	/** Add SAD View
+	 *  Generates the Add SAD  View JPanel 
+	 *  @return windowPanelAddSAD JPanel 
+	 */
 	private static JPanel addSADView() {
 
 		/////////////////////////////////////////////////////////
@@ -1583,6 +1613,11 @@ public class SADManager {
 	// Edit SAD View								               	//
 	//////////////////////////////////////////////////////////////////
 
+	
+	/** Edit SAD View
+	 *  Generates the Edit SAD  View JPanel 
+	 *  @return windowPanelEditSAD JPanel 
+	 */
 	private static JPanel editSADView( String sName, String direction, String active){
 
 		final String sadEditName= sName;
@@ -2103,12 +2138,14 @@ public class SADManager {
 					if(sure==0){
 						String s1= "'"+textFieldSADName.getText()+"'";
 						String s2= "'"+comboBox.getSelectedItem()+"'";
+						
+						System.out.println("Printing New Values to be edit:"+s1+", "+s2);
 
-						String query= "Update sisca_sad SET sisca_sad_name="+s1+", sisca_sad_direction="+s2+"where sisca_sad_name ~*"+s1;
+						String query= "Update sisca_sad SET sisca_sad_name="+s1+", sisca_sad_direction="+s2+"where sisca_sad_name ~*"+"'"+sadEditName+"'";
 
 						try {
 							dbman= new DBManager();
-							dbman.updatetDB(query);
+							dbman.insertDB(query);
 						} catch (SQLException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -2121,9 +2158,7 @@ public class SADManager {
 						HKJ_SisCA_MainPage.frame.pack(); 
 						HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 						
-					}
-
-					
+					}	
 				}
 				else{
 					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You have no permission for Add New SADs");

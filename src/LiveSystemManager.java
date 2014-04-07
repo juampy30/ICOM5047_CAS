@@ -27,18 +27,34 @@ import databases.DBManager;
 import net.miginfocom.swing.MigLayout;
 
 
+/** LIVE SYSTEM MANAGER
+ * 	Manage Live System View 
+ *  @author Juan Pablo Bermœdez Reyes
+ *  Last Modified: April 6, 2014
+ */
 public class LiveSystemManager {
 	
-	
+	/**
+	 * Fields
+	 */
 	private static String currentCapacity;
 	private static String currentParking;
 	private static JList parkingList;
 
-
+	
+	/**
+	 * Constructor
+	 */
 	LiveSystemManager(){
 		
 	}
 	
+	
+	
+	/** Live System View
+	 *  Generates the Live System View JPanel 
+	 *  @return windowPanelLiveSystem JPanel 
+	 */
 	static JPanel liveSystemView(){
 		JPanel windowPanelLiveSystem= new JPanel();
 		JPanel menuPanelLiveSystem = new JPanel();
@@ -242,11 +258,6 @@ public class LiveSystemManager {
 		mainPanelLiveSystem.add(panelActions, "cell 3 1,alignx center");
 		panelActions.setLayout(new MigLayout("", "[624.00,grow][]", "[][][][][][][][][56.00][][][][][]"));
 		
-		
-		
-		////////////////////////////////////////////////////////////////////////////////
-		//
-		////////////////////////////////////////////////////////////////////////////////
 
 		JLabel lblCapacity = new JLabel("Capacity\n");
 		lblCapacity.setFont(new Font("Lucida Grande", Font.BOLD, 16));

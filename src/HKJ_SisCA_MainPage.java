@@ -56,9 +56,20 @@ import com.jgoodies.forms.layout.RowSpec;
 import databases.DBManager;
 import net.miginfocom.swing.MigLayout;
 
-
+/** HKJ_SisCA_MainPage
+ * 	Manage Home View and StandBy View
+ *  @author Juan Pablo Bermœdez Reyes
+ *  Last Modified: April 6, 2014
+ */
+/**
+ * @author JuanPablo
+ *
+ */
 public class HKJ_SisCA_MainPage {
 
+	/**
+	 * Fields
+	 */
 	static JFrame frame;
 	static JPanel menuPanel;
 	static JPanel leftPanel;
@@ -73,17 +84,13 @@ public class HKJ_SisCA_MainPage {
 	private DefaultListModel availableAtzTypesModelList;
 	private DefaultListModel chosenSADModelList;
 	private DefaultListModel chosenAtzTypesModelList;
-
-
+	
 	static String loggedUsernane;
 	static String loggedUsernaneWith;
 	static Boolean canView;
 	
 	private static AccountManager accountManager= new AccountManager();
 	static AuthorizationTypeManager authorizationTypeManager = new AuthorizationTypeManager();
-
-
-
 
 	private ArrayList<Object> registerParkings;
 
@@ -98,10 +105,16 @@ public class HKJ_SisCA_MainPage {
 
 
 	// HKJ_SisCA_MainPage Constructor
+	/**
+	 * Constructor
+	 */
 	public HKJ_SisCA_MainPage(){
 
 	}
 
+	/** Method to set the Active Username
+	 * @param username Variable that store the recent logged user
+	 */
 	static void setActiveUsername(String username){
 
 		String query= "Select sisca_account_first_name, sisca_account_last_name from sisca_account where sisca_account_username="+username;
@@ -124,10 +137,16 @@ public class HKJ_SisCA_MainPage {
 		loggedUsernane= result+"\t\t";
 	}
 
+	/** Method to get Actice Username
+	 * @return loggedUsername variables that store the recent logged user
+	 */
 	public static String getActiveUsername(){
 		return loggedUsernane;
 	}
 
+	/** Method that decides if a user can view a page or not
+	 * @return canView variable that defines if a user can view or not a page
+	 */
 	public static Boolean getCanView(){
 
 		Boolean canView= false;
@@ -157,6 +176,9 @@ public class HKJ_SisCA_MainPage {
 	}
 
 
+	/**
+	 * Initialize the Main Frame
+	 */
 	static void initializae() {
 		frame= new JFrame();
 
@@ -169,6 +191,10 @@ public class HKJ_SisCA_MainPage {
 
 	}
 
+	/** Home View
+	 *  Generates the Home View JPanel 
+	 *  @return windowPanel JPanel 
+	 */
 	public static JPanel homeView(){
 
 		System.out.println("Can View?"+getCanView());
@@ -690,10 +716,13 @@ public class HKJ_SisCA_MainPage {
 	//  																														//
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	/**
+	 * Main Program
+	 * @param args
+	 */
 	public static void main (String[] args) {
 		HKJ_SisCA_MainPage  window = new HKJ_SisCA_MainPage();
 		window.initializae();
-
 
 	}
 
