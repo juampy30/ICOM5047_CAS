@@ -133,12 +133,35 @@ public class DBManager {
 		
 		if(keyset.next()){
 			index = keyset.getInt(1);
-			System.out.println("Index: "+keyset.getInt(1)+"Name: "+keyset.getInt(2));
+			//System.out.println("Index: "+keyset.getInt(1)+"Name: "+keyset.getInt(2));
 		}
 		
 		return index;
 		
 	}
+	
+	
+	
+	public int insertVehicleDB(String updateQuery) throws SQLException{
+		stmt = con.createStatement();
+		stmt.executeUpdate(updateQuery,Statement.RETURN_GENERATED_KEYS);
+		ResultSet keyset= stmt.getGeneratedKeys();
+		int index=-1;
+		
+		if(keyset.next()){
+			index = keyset.getInt(1);
+			//System.out.println("Index: "+keyset.getInt(1)+"Name: "+keyset.getInt(2));
+		}
+		
+		return index;
+		
+	}
+	
+	
+	
+	
+	
+	
 	//Update en la Base de Datos
 	public void updatetDB(String updateQuery) throws SQLException{
 		System.out.println("////////////////////UPDATE QUERY/////////////////////////");

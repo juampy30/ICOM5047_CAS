@@ -816,12 +816,41 @@ public class PermissionManager {
 				
 				
 				if(sure==0){
-					String query= "Delete from sisca_permission where sisca_permission_name="+"'"+currentTagNumber+"'";
 					
+					
+					String query2= "Select * from (sisca_permission natural join sisca_vehicle) natural join sisca_applicant"+
+							" where sisca_permission_vehicle_id= sisca_vehicle_id and sisca_permission_applicant_id=sisca_applicant_id "
+							+ " and sisca_permission_tag_number = "+"'"+currentTagNumber+"'";
+					
+					String[] availablePermission = null;
 					
 					try {
 						dbman= new DBManager();
-						dbman.updatetDB(query);
+						availablePermission=null ;
+						availablePermission= dbman.getAllPermissionInfoFromDB(query2);
+						
+					} catch (ClassNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
+					int v_id=Integer.parseInt(availablePermission[6]);
+					int a_id=Integer.parseInt(availablePermission[7]);
+					
+					
+					String queryA= "Delete from sisca_permission where sisca_permission_tag_number="+"'"+currentTagNumber+"'";
+					String queryB= "Delete from sisca_vehicle where sisca_vehicle_id="+"'"+v_id+"'";
+					String queryC= "Delete from sisca_applicant where sisca_applicant_id="+"'"+a_id+"'";
+					
+					try {
+						dbman= new DBManager();
+						
+						dbman.updatetDB(queryA);
+						dbman.updatetDB(queryB);
+						dbman.updatetDB(queryC);
 						
 						HKJ_SisCA_MainPage.frame.setContentPane(permissionView());
 						HKJ_SisCA_MainPage.frame.pack(); 
@@ -1406,7 +1435,7 @@ public class PermissionManager {
 						String query2= " INSERT INTO sisca_applicant (sisca_applicant_first_name, sisca_applicant_last_name, sisca_applicant_phone_number, sisca_applicant_email, sisca_applicant_license_number, sisca_applicant_handicap_status) VALUES ("
 								+a_first + " , "+a_last + " , "+phone + " , "+email + " , "+license + " , "+h_status + " )";
 
-						vehicle_id= dbman.insertDB(query1);
+						vehicle_id= dbman.insertVehicleDB(query1);
 						applicant_id= dbman.insertDB(query2);
 
 						String query3= " INSERT INTO sisca_permission (sisca_permission_tag_number, sisca_permission_delivery_date, sisca_permission_expiration_date, sisca_permission_notification_date, sisca_permission_status, sisca_permission_vehicle_id, sisca_permission_applicant_id) VALUES ("

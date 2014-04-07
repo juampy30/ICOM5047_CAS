@@ -91,6 +91,7 @@ public class HKJ_SisCA_MainPage {
 	
 	private static AccountManager accountManager= new AccountManager();
 	static AuthorizationTypeManager authorizationTypeManager = new AuthorizationTypeManager();
+	private static ParkingManager parkingManager= new ParkingManager();
 
 	private ArrayList<Object> registerParkings;
 
@@ -339,63 +340,63 @@ public class HKJ_SisCA_MainPage {
 
 
 
-		JLabel pName1 = new JLabel();
+		final JLabel pName1 = new JLabel();
 		if(pNameLabelsArray.size()>=1){
 			pName1.setText((String) pNameLabelsArray.get(0));
 		}
 		pName1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(ParkingManager.parkingInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(parkingManager.parkingInformationView(pName1.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		pName1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		liveSystemPanel.add(pName1, "cell 0 3,alignx left,aligny top");
 
-		JLabel pName2 = new JLabel();
+		final JLabel pName2 = new JLabel();
 		if(pNameLabelsArray.size()>=2){
 			pName2.setText((String) pNameLabelsArray.get(1));
 		}
 		pName2.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(ParkingManager.parkingInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(parkingManager.parkingInformationView(pName2.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		pName2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		liveSystemPanel.add(pName2, "cell 0 5,alignx left,aligny top");
 
-		JLabel pName3 = new JLabel();
+		final JLabel pName3 = new JLabel();
 		if(pNameLabelsArray.size()>=3){
 			pName3.setText((String) pNameLabelsArray.get(2));
 		}
 		pName3.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(ParkingManager.parkingInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(parkingManager.parkingInformationView(pName3.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		pName3.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		liveSystemPanel.add(pName3, "cell 0 7,alignx left,aligny top");
 
-		JLabel pName4 = new JLabel();
+		final JLabel pName4 = new JLabel();
 		if(pNameLabelsArray.size()>=4){
 			pName4.setText((String) pNameLabelsArray.get(3));
 		}
 		pName4.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(ParkingManager.parkingInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(parkingManager.parkingInformationView(pName4.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		pName4.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		liveSystemPanel.add(pName4, "cell 0 9,alignx left,aligny top");
 
-		JLabel pName5 = new JLabel();
+		final JLabel pName5 = new JLabel();
 		if(pNameLabelsArray.size()>=5){
 			pName5.setText((String) pNameLabelsArray.get(4));
 		}
@@ -403,13 +404,13 @@ public class HKJ_SisCA_MainPage {
 		pName5.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(ParkingManager.parkingInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(parkingManager.parkingInformationView(pName5.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		liveSystemPanel.add(pName5, "cell 0 11,alignx left,aligny top");
 
-		JLabel pName6 = new JLabel();
+		final JLabel pName6 = new JLabel();
 		if(pNameLabelsArray.size()>=6){
 			pName6.setText((String) pNameLabelsArray.get(5));
 		}
@@ -417,27 +418,27 @@ public class HKJ_SisCA_MainPage {
 		pName6.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(ParkingManager.parkingInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(parkingManager.parkingInformationView(pName6.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		liveSystemPanel.add(pName6, "cell 0 13,alignx left,aligny top");
 
-		JLabel pName7 = new JLabel();
+		final JLabel pName7 = new JLabel();
 		if(pNameLabelsArray.size()>=7){
 			pName7.setText((String) pNameLabelsArray.get(6));
 		}
 		pName7.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(ParkingManager.parkingInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(parkingManager.parkingInformationView(pName7.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		pName7.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		liveSystemPanel.add(pName7, "cell 0 15,alignx left,aligny top");
 
-		JLabel pName8 = new JLabel();
+		final JLabel pName8 = new JLabel();
 		if(pNameLabelsArray.size()>=8){
 			pName8.setText((String) pNameLabelsArray.get(7));
 		}
@@ -445,13 +446,13 @@ public class HKJ_SisCA_MainPage {
 		pName8.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(ParkingManager.parkingInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(parkingManager.parkingInformationView(pName8.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		liveSystemPanel.add(pName8, "cell 0 17,alignx left,aligny top");
 
-		JLabel pName9 = new JLabel();
+		final JLabel pName9 = new JLabel();
 		if(pNameLabelsArray.size()>=9){
 			pName9.setText((String) pNameLabelsArray.get(8));
 		}
@@ -459,20 +460,20 @@ public class HKJ_SisCA_MainPage {
 		pName9.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(ParkingManager.parkingInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(parkingManager.parkingInformationView(pName9.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
 		liveSystemPanel.add(pName9, "cell 0 19,alignx left,aligny top");
 
-		JLabel pName10 = new JLabel();
+		final JLabel pName10 = new JLabel();
 		if(pNameLabelsArray.size()>=10){
 			pName10.setText((String) pNameLabelsArray.get(9));
 		}
 		pName10.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(ParkingManager.parkingInformationView());
+				HKJ_SisCA_MainPage.frame.setContentPane(parkingManager.parkingInformationView(pName10.getText()));
 				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
@@ -526,7 +527,7 @@ public class HKJ_SisCA_MainPage {
 		panel_100.add(searchTextField);
 		searchTextField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(ParkingManager.parkingView());
+				HKJ_SisCA_MainPage.frame.setContentPane(parkingManager.parkingView());
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
 			}
@@ -541,7 +542,7 @@ public class HKJ_SisCA_MainPage {
 		JButton viewAllButton = new JButton("View All");
 		viewAllButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				HKJ_SisCA_MainPage.frame.setContentPane(ParkingManager.parkingView());
+				HKJ_SisCA_MainPage.frame.setContentPane(parkingManager.parkingView());
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 
@@ -552,7 +553,7 @@ public class HKJ_SisCA_MainPage {
 		JButton addNewButton = new JButton("Add New Parking");
 		addNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				HKJ_SisCA_MainPage.frame.setContentPane(ParkingManager.addParkingView());
+				HKJ_SisCA_MainPage.frame.setContentPane(parkingManager.addParkingView());
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 
@@ -603,7 +604,7 @@ public class HKJ_SisCA_MainPage {
 		parkingManagerIcon.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(ParkingManager.parkingView());
+				frame.setContentPane(parkingManager.parkingView());
 				frame.pack();
 				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
