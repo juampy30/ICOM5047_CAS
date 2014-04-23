@@ -97,6 +97,8 @@ public class LiveSystemManager {
 		homeLabel.setFont(new Font("Dialog", Font.BOLD, 14));
 		
 		JLabel lblLiveSystem = new JLabel("Live System");
+		lblLiveSystem.setOpaque(true);
+		lblLiveSystem.setBackground(new Color (220,220,220));
 		lblLiveSystem.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		lblLiveSystem.addMouseListener(new MouseAdapter() {
 			@Override

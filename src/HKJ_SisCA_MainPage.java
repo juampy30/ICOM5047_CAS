@@ -226,6 +226,8 @@ public class HKJ_SisCA_MainPage {
 		menuOptionsPanel.setLayout(null);
 
 		JLabel homeLabel = new JLabel(" Home");
+		homeLabel.setOpaque(true);
+		homeLabel.setBackground(new Color (220,220,220));
 		homeLabel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		homeLabel.setBounds(0, -11, 68, 53);
 		menuOptionsPanel.add(homeLabel);

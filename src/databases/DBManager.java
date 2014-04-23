@@ -231,7 +231,7 @@ public class DBManager {
 						}
 						
 					}
-					availableSAD.add(sadName.toUpperCase() +" >> "+  sadDirection);
+					availableSAD.add(sadName.toUpperCase());
 				}
 				//System.out.println("AVAILABLE SAD:" + availableSAD);
 		
@@ -536,51 +536,65 @@ public class DBManager {
 				System.out.println("Permission Available list: "+ permissions);
 		return permissions;
 	}
-
-	public String[] getAllPermissionInfoFromDB(String query) throws SQLException {
+	
+	public ArrayList<Object> getAvailableSpecialPermission(ArrayList<Object> availablePermission) {
 		
-		System.out.println(" Searching For Parking Information");
-		String[] queryResult = null;
+		ArrayList<Object> permissions = new ArrayList<Object>();
+		//[{1:A},{2:B},{3:C}]
+				for(int i=0; i<availablePermission.size(); i++){
+					//obtener el elemento i del elemento 1 (el array del array) 
+					for(int k=0 ; k<((List<Object>) availablePermission.get(i)).size(); k++){
+						//result = 1:A
+						Object result = ((List<Object>) availablePermission.get(i)).get(k);
+						//keyValue -> {1,A}
+						keyValue = result.toString().split("/");
+						if(keyValue[0].equals("sisca_special_permission_tag_number")){
+							tagNumber = (String) keyValue[1];
+						}
+					
+						
+					}
+					permissions.add(tagNumber.toUpperCase());
+				}
+				System.out.println("Permission Available list: "+ permissions);
+		return permissions;
+	}
+
+	public ArrayList<String> getAllPermissionInfoFromDB(String query) throws SQLException {
+		System.out.println(" Searching For Permission Information");
+		ArrayList<String> queryResult = new ArrayList<String>();
 		
 		stmt = con.createStatement();
 		rs = stmt.executeQuery(query);
-	
+		
+		ResultSetMetaData rsmd = rs.getMetaData();
+		int numberOfColumns = rsmd.getColumnCount();
+		
 		if(rs.next()){
-			
-			queryResult= new String[23];
-			queryResult[0]=rs.getString(1); // Permission ID
-			queryResult[1]=rs.getString(2); // Tag Number
-			queryResult[2]=rs.getString(3); // Delivery Date
-			queryResult[3]=rs.getString(4); // Expiration Date
-			queryResult[4]=rs.getString(5); // Notification Date
-			queryResult[5]=rs.getString(6); // Status
-			queryResult[6]=rs.getString(7); // Vehicle ID
-			queryResult[7]=rs.getString(8); // Applicant ID
-			queryResult[8]=rs.getString(10); // Vehicle VIN
-			queryResult[9]=rs.getString(11); // Vehicle Plate
-			queryResult[10]=rs.getString(12); // Vehicle Country
-			queryResult[11]=rs.getString(13); // Vehicle Brand
-			queryResult[12]=rs.getString(14); // Vehicle Model
-			queryResult[13]=rs.getString(15); // Vehicle Year
-			queryResult[14]=rs.getString(16); // Vehicle Color
-			queryResult[15]=rs.getString(17); // Vehicle Owner First Name
-			queryResult[16]=rs.getString(18); // Vehicle Owner Last Name
-			queryResult[17]=rs.getString(20); // Applicant First Name
-			queryResult[18]=rs.getString(21); // Applicant Last Name
-			queryResult[19]=rs.getString(22); //  Applicant Phone
-			queryResult[20]=rs.getString(23); // Applicant Email
-			queryResult[21]=rs.getString(24); // Applicant Lisence Number
-			queryResult[22]=rs.getString(25); // Applicant Handicap?
-			
-			
-			for(String s:queryResult ){
-				System.out.println("Results from Permission:"+s);
+			for(int i=0; i< numberOfColumns; i++){
+				System.out.println(rsmd.getColumnName(i+1)+"[" +i+ "]: " + rs.getString(i+1));
+				queryResult.add(rs.getString(i+1));
 			}
+			
 		}
 
 		return queryResult;
 	}
 
+	public String[] getPermissionInfoFromDB(String query) throws SQLException {
+		
+		System.out.println(" Searching For Permission Information");
+		String[] queryResult = null;
+		
+		stmt = con.createStatement();
+		rs = stmt.executeQuery(query);
+		if(rs.next()){
+			queryResult= new String[1];
+			queryResult[0]=rs.getString(1); // Permission ID
+		}
+
+		return queryResult;
+	}
 	public ArrayList getSADInfoFromDB(String query) throws SQLException {
 
 		System.out.println(" Searching For SAD Information");
@@ -590,21 +604,17 @@ public class DBManager {
 		rs = stmt.executeQuery(query);
 		
 
+		ResultSetMetaData rsmd = rs.getMetaData();
+		int numberOfColumns = rsmd.getColumnCount();
+		
 		if(rs.next()){
-
-			System.out.println("RS1:"+ rs.getString(1));
-			System.out.println("RS2:"+ rs.getString(2));
-			System.out.println("RS3:"+ rs.getString(3));
-			System.out.println("RS4:"+ rs.getString(4));
+			for(int i=0; i< numberOfColumns; i++){
+				System.out.println(rsmd.getColumnName(i+1)+"[" +i+ "]: " + rs.getString(i+1));
+				queryResult.add(rs.getString(i+1));
+			}
 			
-			queryResult.add(rs.getString(1)); // SAD ID
-			queryResult.add(rs.getString(2)); // SAD Name
-			queryResult.add(rs.getString(3)); // SAD Direction
-			queryResult.add(rs.getString(4)); // SAD Active?
 		}
-		System.out.println(" Printing SAD Information: " +queryResult);
-	
-
+		
 		return queryResult;
 	}
 

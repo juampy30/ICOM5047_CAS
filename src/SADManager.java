@@ -10,8 +10,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.lang.model.element.Element;
@@ -116,6 +119,8 @@ public class SADManager {
 		SADManagerLabel.setFont(new Font("Dialog", Font.BOLD, 14));
 		SADManagerLabel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		SADManagerLabel.setBounds(66, -11, 109, 53);
+		SADManagerLabel.setOpaque(true);
+		SADManagerLabel.setBackground(new Color (220,220,220));
 		menuOptionsPanel.add(SADManagerLabel);
 
 		JPanel logOutPanel = new JPanel();
@@ -311,16 +316,14 @@ public class SADManager {
 		if (updateJList== true){
 			availableSAD= new ArrayList<Object>();
 			availableSADModelList= new DefaultListModel();
-			String query= "Select * from sisca_sad ORDER BY sisca_sad_name";
+			String query= "Select * from sisca_sad where sisca_sad_active= 'true' ORDER BY sisca_sad_name";
 			try {
 				dbman= new DBManager();
 
 				availableSAD= dbman.getFromDB(query);
-				//System.out.println("Available SAD:"+availableSAD);
 				availableSAD= dbman.getAvailableSAD(availableSAD);
 
-				// System.out.println("Available SAD:"+availableSAD);
-
+			
 				for(int i=0; i<availableSAD.size(); i++){
 					availableSADModelList.addElement(availableSAD.get(i));
 				}
@@ -352,7 +355,7 @@ public class SADManager {
 					/////////////////////////
 
 					String selectedValue=(String) sadList.getSelectedValue();
-					String[] selectedValueArray= selectedValue.split(" >>");
+					String[] selectedValueArray= selectedValue.split("_");
 					selectedValue= selectedValueArray[0];
 
 					HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(selectedValue)); 
@@ -443,6 +446,8 @@ public class SADManager {
 		menuOptionsPanel.add(SADManagerLabel);
 
 		JLabel listSADLabel = new JLabel("SAD Information");
+		listSADLabel.setOpaque(true);
+		listSADLabel.setBackground(new Color (220,220,220));
 		listSADLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -533,14 +538,13 @@ public class SADManager {
 
 
 		////////////////////////////////////////////////////////////////////////////////////////////////
-		// Query for get Parking Names for the Labels
+		// Query for get SAD Names for the Labels
 		////////////////////////////////////////////////////////////////////////////////////
 		ArrayList sNameLabelsArray = new ArrayList() ;
 		try {
 			dbman= new DBManager();
 
 			sNameLabelsArray=dbman.getFromDB("Select * from sisca_sad ORDER BY sisca_sad_name");
-			//System.out.println("Before Test:"+pNameLabelsArray);
 			sNameLabelsArray= dbman.getAvailableSADOnlyName(sNameLabelsArray);
 
 
@@ -861,7 +865,6 @@ public class SADManager {
 		centerPanel.add(SADid, "cell 0 0,alignx center,aligny top");
 
 
-
 		JLabel lblDirection = new JLabel("Direction: ");
 		lblDirection.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		centerPanel.add(lblDirection, "cell 0 3,alignx left,aligny top");
@@ -874,15 +877,15 @@ public class SADManager {
 		String savedActive = null;
 
 
-		String query= "Select * from sisca_sad where sisca_sad_name='"+sadName+"'";
+		
 		try {
-			
+			String query= "Select * from sisca_sad where sisca_sad_name='"+sadName+"'";
 			ArrayList sadInformation= new ArrayList();
 			sadInformation= dbman.getSADInfoFromDB(query);
 			
 			savedDirection=(String) sadInformation.get(2);
 
-			savedActive=(String) sadInformation.get(3);
+			savedActive=(String) sadInformation.get(4);
 
 			if(savedDirection.equals("exit")){
 				lblDirection.setText("Direction: Exit");
@@ -912,20 +915,6 @@ public class SADManager {
 		//
 		JSeparator separator_13 = new JSeparator();
 		centerPanel.add(separator_13, "cell 0 6,growx,aligny top");
-		//
-		//		JLabel days = new JLabel("Operation Days: ");
-		//		days.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
-		//		centerPanel.add(days, "cell 0 7,growx,aligny top");
-		//
-		//		JSeparator separator_14 = new JSeparator();
-		//		centerPanel.add(separator_14, "cell 0 8,growx,aligny top");
-		//
-		//		JLabel hours = new JLabel("Operation Hours: ");
-		//		hours.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
-		//		centerPanel.add(hours, "cell 0 9,growx,aligny top");
-		//
-		//		JSeparator separator_15 = new JSeparator();
-		//		centerPanel.add(separator_15, "cell 0 10,growx,aligny top");
 
 		JPanel editAndRemovePanel = new JPanel();
 		editAndRemovePanel.setBackground(new Color(250,250,250));
@@ -958,7 +947,15 @@ public class SADManager {
 					int sure = JOptionPane.showConfirmDialog(HKJ_SisCA_MainPage.frame, "Are You Sure?");
 					
 					if(sure==0){
-						String query= "Delete from sisca_sad where sisca_sad_name="+"'"+sadName+"'";
+						
+						DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+						Calendar cal = Calendar.getInstance();
+		
+						String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
+						String createdBy= "'"+HKJ_SisCA_MainPage.getActiveUsername()+"'";
+						
+						String query= "Update sisca_sad SET sisca_sad_active= 'false' , sisca_sad_deletedby= "+createdBy+" , sisca_sad_deletedate="+creationDate
+								+ "where sisca_sad_name="+"'"+sadName+"'";
 						
 						
 						try {
@@ -1076,6 +1073,8 @@ public class SADManager {
 		menuOptionsPanel.add(SADManagerLabel);
 
 		JLabel addSADLabel = new JLabel("Add SAD");
+		addSADLabel.setOpaque(true);
+		addSADLabel.setBackground(new Color (220,220,220));
 		addSADLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -1161,11 +1160,6 @@ public class SADManager {
 		liveSystemPanel.setLayout(new MigLayout("", "[347.00px]", "[50px][28px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][29px]"));
 
 
-
-
-
-
-
 		//LeftPanel Labels
 		JLabel LSystemLabel = new JLabel("SAD LIST");
 		liveSystemPanel.add(LSystemLabel, "cell 0 0,alignx center,aligny top");
@@ -1176,14 +1170,13 @@ public class SADManager {
 
 
 		////////////////////////////////////////////////////////////////////////////////////////////////
-		//Query for get Parking Names for the Labels
+		//Query for get SAD Names for the Labels
 		////////////////////////////////////////////////////////////////////////////////////
 		ArrayList sNameLabelsArray = new ArrayList() ;
 		try {
 			dbman= new DBManager();
 
 			sNameLabelsArray=dbman.getFromDB("Select * from sisca_sad ORDER BY sisca_sad_name");
-			//System.out.println("Before Test:"+pNameLabelsArray);
 			sNameLabelsArray= dbman.getAvailableSADOnlyName(sNameLabelsArray);
 
 
@@ -1543,23 +1536,35 @@ public class SADManager {
 					//////////////////////////////////////////////////////
 					// Query for Add Values of the new SAD in the DB
 					//////////////////////////////////////////////////////
-
-					String sadNameFromTextField= "'"+textFieldSADName.getText()+"'";
-					String sadDirectionFromComboBox= "'"+directionComboBox.getSelectedItem()+"'";
-
-					System.out.println("SAD Name:"+sadNameFromTextField+" Direction:"+sadDirectionFromComboBox );
-
-					String query= "Insert into sisca_sad (sisca_sad_name,sisca_sad_direction,sisca_sad_active) VALUES ("+sadNameFromTextField+","+sadDirectionFromComboBox+",'false')";
-					try {
-						dbman.insertDB(query);
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					if(textFieldSADName.getText().isEmpty() ){
+						JOptionPane.showMessageDialog(null,"Invalid or incomplete input data! Please, verify your informtion.");
 					}
-
-					HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(textFieldSADName.getText()));
-					HKJ_SisCA_MainPage.frame.pack(); 
-					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+					else{
+						DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+						Calendar cal = Calendar.getInstance();
+						String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
+						String createdBy= "'"+HKJ_SisCA_MainPage.getActiveUsername()+"'";
+						String sadNameFromTextField= "'"+textFieldSADName.getText()+"'";
+						String sadDirectionFromComboBox= "'"+directionComboBox.getSelectedItem()+"'";
+						
+						String query= "INSERT INTO sisca_sad (sisca_sad_name,sisca_sad_direction,sisca_sad_active, sisca_sad_creationdate, sisca_sad_createdby, sisca_sad_used) "
+								+ "VALUES ("+sadNameFromTextField+","+sadDirectionFromComboBox+",'true', "+creationDate+","+createdBy+", 'false')";
+						
+						try {
+							
+							dbman.insertDB(query);
+							
+						} catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							JOptionPane.showMessageDialog(null,"Invalid or incomplete input data! Please, verify your informtion.");    
+							//JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid or incomplete input data! Please, verify your informtion.", "", 1);
+						} 
+						HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(textFieldSADName.getText()));
+						HKJ_SisCA_MainPage.frame.pack(); 
+						HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
+					}
+				
 
 				}
 				
@@ -1578,20 +1583,6 @@ public class SADManager {
 			}
 		});
 		AddCancelPanel.add(cancelBtn, "cell 26 0");
-
-
-		//		JPanel parkingPanel = new JPanel();
-		//		parkingPanel.setBackground((java.awt.Color) null);
-		//		centerPanel.add(parkingPanel, "cell 0 3,grow");
-		//		parkingPanel.setLayout(new MigLayout("", "[59.00px][343.00px,grow][118.00][-79.00px][161px]", "[21px][29px]"));
-		//
-		//		JLabel parkingInfoLabel = new JLabel("Parking:");
-		//		parkingInfoLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		//		parkingInfoLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
-		//		parkingPanel.add(parkingInfoLabel, "cell 0 0,alignx left,growy");
-		//
-		//		JComboBox comboBox = new JComboBox();
-		//		parkingPanel.add(comboBox, "cell 1 0,growx,aligny center");
 
 
 		////////////////////////////////////////////////////////
@@ -1674,6 +1665,8 @@ public class SADManager {
 		menuOptionsPanel.add(SADManagerLabel);
 
 		JLabel editSADLabel = new JLabel("Edit SAD");
+		editSADLabel.setOpaque(true);
+		editSADLabel.setBackground(new Color (220,220,220));
 		editSADLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -1752,9 +1745,6 @@ public class SADManager {
 		//SAD Name Labels & MouseCliked Event 
 
 		liveSystemPanel.setLayout(new MigLayout("", "[347.00px]", "[50px][28px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][16px][12px][29px]"));
-
-
-
 
 
 
@@ -2136,27 +2126,38 @@ public class SADManager {
 					
 					int sure = JOptionPane.showConfirmDialog(HKJ_SisCA_MainPage.frame, "Are You Sure?");
 					if(sure==0){
-						String s1= "'"+textFieldSADName.getText()+"'";
-						String s2= "'"+comboBox.getSelectedItem()+"'";
 						
-						System.out.println("Printing New Values to be edit:"+s1+", "+s2);
-
-						String query= "Update sisca_sad SET sisca_sad_name="+s1+", sisca_sad_direction="+s2+"where sisca_sad_name ~*"+"'"+sadEditName+"'";
-
-						try {
-							dbman= new DBManager();
-							dbman.insertDB(query);
-						} catch (SQLException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (ClassNotFoundException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+						if(textFieldSADName.getText().isEmpty() ){
+							JOptionPane.showMessageDialog(null,"Invalid or incomplete input data! Please, verify your informtion.");
 						}
+						else{
+							String s1= "'"+textFieldSADName.getText()+"'";
+							String s2= "'"+comboBox.getSelectedItem()+"'";
+							
+							DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+							Calendar cal = Calendar.getInstance();
+							String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
+							String createdBy= "'"+HKJ_SisCA_MainPage.getActiveUsername()+"'";
 
-						HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(textFieldSADName.getText()));
-						HKJ_SisCA_MainPage.frame.pack(); 
-						HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+							String query= "Update sisca_sad SET sisca_sad_name="+s1+", sisca_sad_direction="+s2+ ", sisca_sad_editdate="+creationDate+", sisca_sad_editedby="+createdBy
+									+"where sisca_sad_name ~*"+"'"+sadEditName+"'";
+
+							try {
+								dbman= new DBManager();
+								dbman.insertDB(query);
+							} catch (SQLException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+								JOptionPane.showMessageDialog(null,"Invalid or incomplete input data! Please, verify your informtion.");
+							} catch (ClassNotFoundException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+
+							HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(textFieldSADName.getText()));
+							HKJ_SisCA_MainPage.frame.pack(); 
+							HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+						}
 						
 					}	
 				}
@@ -2181,18 +2182,7 @@ public class SADManager {
 
 		editCancelPanel.add(cancelBtn, "cell 26 0");
 
-		//		JPanel parkingPanel = new JPanel();
-		//		parkingPanel.setBackground((java.awt.Color) null);
-		//		centerPanel.add(parkingPanel, "cell 0 3,grow");
-		//		parkingPanel.setLayout(new MigLayout("", "[59.00px][343.00px,grow][118.00][-79.00px][161px]", "[21px][29px]"));
-		//
-		//		JLabel parkingInfoLabel = new JLabel("Parking:");
-		//		parkingInfoLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		//		parkingInfoLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
-		//		parkingPanel.add(parkingInfoLabel, "cell 0 0,alignx left,growy");
-		//
-		//		JComboBox comboBox = new JComboBox();
-		//		parkingPanel.add(comboBox, "cell 1 0,growx,aligny center");
+		
 
 
 		////////////////////////////////////////////////////////
