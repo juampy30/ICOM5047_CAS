@@ -11,8 +11,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Array;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.AbstractListModel;
@@ -36,7 +39,11 @@ import javax.swing.border.EtchedBorder;
 
 import databases.DBManager;
 import net.miginfocom.swing.MigLayout;
-
+/**
+ * 
+ * @author Keishla Ortiz
+ *
+ */
 
 public class AccountManager {
 
@@ -44,7 +51,15 @@ public class AccountManager {
 	private String accountSelectedByUserFromAccountView;
 	private ArrayList<Object> userInformationToEdit;
 	private String userNameToRemove;
+	private String currentUser;
+	private JLabel userName;
 
+	/**
+	 * Get the current date YYYY/MMM/DD
+	 */
+	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+	Calendar cal = Calendar.getInstance();
+	String currentDate = dateFormat.format(cal.getTime());
 
 	AccountManager(){
 
@@ -54,6 +69,7 @@ public class AccountManager {
 	//   Account View								            	//
 	//////////////////////////////////////////////////////////////////
 	public JPanel accountView(){
+		currentUser = HKJ_SisCA_MainPage.loggedUsernaneWith;
 		/////////////////////////////////////////////////////////
 		//Menu Panel
 		/////////////////////////////////////////////////////////
@@ -98,6 +114,8 @@ public class AccountManager {
 		AccountManagerLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		AccountManagerLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		AccountManagerLabel.setForeground((java.awt.Color) null);
+		AccountManagerLabel.setBackground(new Color(220,220,220));
+		AccountManagerLabel.setOpaque(true);
 		AccountManagerLabel.setFont(new Font("Dialog", Font.BOLD, 14));
 		AccountManagerLabel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		AccountManagerLabel.setBounds(66, -11, 109, 53);
@@ -116,7 +134,6 @@ public class AccountManager {
 				HKJ_SisCA_MainPage.frame.setContentPane(LogInManager.standByView());
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-
 			}
 		});
 		logOutLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -182,48 +199,130 @@ public class AccountManager {
 		centerPanel.add(searchAndAddPanel, "cell 0 0,grow");
 		searchAndAddPanel.setLayout(new MigLayout("", "[48px][289px][34.00px][][][][][][][][][][][][][][][][][][][][][][][]", "[29px]"));
 
-		JLabel searchLabel = new JLabel("Search:");
+		JLabel searchLabel = new JLabel("Search by username: ");
 		searchAndAddPanel.add(searchLabel, "cell 0 0,alignx left,aligny center");
 		searchLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+
+		/**
+		 * Active Users List View
+		 */
+		final DefaultListModel userActiveListView = new DefaultListModel();
 
 		final JTextField textFieldSearch = new JTextField();
 		textFieldSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(accountView());
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
+				String searchUsername = textFieldSearch.getText();
+				userActiveListView.clear();
+				try {
+					dbman = new DBManager();
+					ArrayList<Object> activeAccountArrayListQuery = dbman.getFromDB("select * from sisca_account where sisca_account_active='true' and sisca_account_username ~* '"+searchUsername +"' order by sisca_account_type");
+					/**
+					 * userActiveListView : 
+					 */
+					String[] keyValue;
+					String username = null;
+					String accountType = null;
+
+					//[{1:A},{2:B},{3:C}]
+					for(int i=0; i< activeAccountArrayListQuery.size(); i++){
+						//obtener el elemento i del elemento 1 (el array del array) 
+						for(int k=0 ; k<((List<Object>) activeAccountArrayListQuery.get(i)).size(); k++){
+							//result = 1:A 
+							Object result = ((List<Object>) activeAccountArrayListQuery.get(i)).get(k);
+							//keyValue -> {1,A}
+							keyValue = result.toString().split("/");
+							if(keyValue[0].equals("sisca_account_username")){
+								username = (String) keyValue[1];
+							}
+							if(keyValue[0].equals("sisca_account_type")){
+								accountType = (String) keyValue[1];
+							}
+						}
+						userActiveListView.addElement(username +  " >> " + accountType.toUpperCase());
+					}		
+
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				//HKJ_SisCA_MainPage.frame.setContentPane(accountView());
+				//HKJ_SisCA_MainPage.frame.pack(); 
+				//HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
 			}
 		});
 
-
-
-		final DefaultListModel userActiveListView = new DefaultListModel();
-
-		searchAndAddPanel.add(textFieldSearch, "cell 1 0,growx,aligny top");
+		searchAndAddPanel.add(textFieldSearch, "cell 1 0,growx,aligny center");
 		textFieldSearch.setColumns(10);
 		JButton goButton = new JButton("GO");
 		goButton.addMouseListener(new MouseAdapter() {
-			private DefaultListModel searchUserActiveListView = new DefaultListModel();
-
 			@Override
 			public void mouseClicked(MouseEvent e) {
-
 				String searchUsername = textFieldSearch.getText();
-				HKJ_SisCA_MainPage.frame.setContentPane(accountView());
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				userActiveListView.clear();
+				try {
+					dbman = new DBManager();
+					ArrayList<Object> activeAccountArrayListQuery = dbman.getFromDB("select * from sisca_account where sisca_account_active='true' and sisca_account_username ~* '"+searchUsername +"' order by sisca_account_type");
+					/**
+					 * userActiveListView : 
+					 */
+					String[] keyValue;
+					String username = null;
+					String accountType = null;
+
+					//[{1:A},{2:B},{3:C}]
+					for(int i=0; i< activeAccountArrayListQuery.size(); i++){
+						//obtener el elemento i del elemento 1 (el array del array) 
+						for(int k=0 ; k<((List<Object>) activeAccountArrayListQuery.get(i)).size(); k++){
+							//result = 1:A 
+							Object result = ((List<Object>) activeAccountArrayListQuery.get(i)).get(k);
+							//keyValue -> {1,A}
+							keyValue = result.toString().split("/");
+							if(keyValue[0].equals("sisca_account_username")){
+								username = (String) keyValue[1];
+							}
+							if(keyValue[0].equals("sisca_account_type")){
+								accountType = (String) keyValue[1];
+							}
+						}
+						userActiveListView.addElement(username +  " >> " + accountType.toUpperCase());
+					}		
+
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				//HKJ_SisCA_MainPage.frame.setContentPane(accountView());
+				//HKJ_SisCA_MainPage.frame.pack(); 
+				//HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
 		});
-		goButton.setPreferredSize(new Dimension(10, 29));
+		goButton.setPreferredSize(new Dimension(10, 20));
 		searchAndAddPanel.add(goButton, "cell 2 0");
 
 		JButton addNewAccountBtn = new JButton("Add New Account");
 		addNewAccountBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				HKJ_SisCA_MainPage.frame.setContentPane(addAccountView());
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 
+				if (HKJ_SisCA_MainPage.getCanView()==true){
+					HKJ_SisCA_MainPage.frame.setContentPane(addAccountView());
+					HKJ_SisCA_MainPage.frame.pack(); 
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				}
+				else{
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You have no permission to Add a New Account");
+				}
 			}
 		});
 		searchAndAddPanel.add(addNewAccountBtn, "cell 25 0,alignx left,aligny top");
@@ -237,10 +336,11 @@ public class AccountManager {
 
 		/**
 		 * dbman : connect to DBManager to run the required querys 
+		 * Select from the DB all the register account
 		 */
 		try {
 			dbman = new DBManager();
-			ArrayList<Object> activeAccountArrayListQuery = dbman.getFromDB("select * from sisca_account order by sisca_account_type");
+			ArrayList<Object> activeAccountArrayListQuery = dbman.getFromDB("select * from sisca_account where sisca_account_active='true' order by sisca_account_type");
 			/**
 			 * userActiveListView : 
 			 */
@@ -277,11 +377,10 @@ public class AccountManager {
 			e1.printStackTrace();
 		}
 
-		final JList activeAccountList = new JList(userActiveListView); 
 		/**
 		 * activeAccountList : Display the list of all account register in the system
 		 */
-		//	JList activeAccountList = new JList(userActiveListView); 
+		final JList activeAccountList = new JList(userActiveListView); 
 
 		activeAccountList.setSelectionForeground(UIManager.getColor("Button.darkShadow"));
 		activeAccountList.setSelectionBackground(UIManager.getColor("Button.background"));
@@ -326,7 +425,7 @@ public class AccountManager {
 	//////////////////////////////////////////////////////////////////
 
 
-	private JPanel accountInformationView(String Username){
+	private JPanel accountInformationView(final String Username){
 
 		/////////////////////////////////////////////////////////
 		//Menu Panel
@@ -392,6 +491,8 @@ public class AccountManager {
 		listAccountLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		listAccountLabel.setForeground((java.awt.Color) null);
 		listAccountLabel.setFont(new Font("Dialog", Font.BOLD, 14));
+		listAccountLabel.setBackground(new Color(220,220,220));
+		listAccountLabel.setOpaque(true);
 		listAccountLabel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		listAccountLabel.setBounds(159, -11, 166, 53);
 		menuOptionsPanel.add(listAccountLabel);
@@ -409,7 +510,6 @@ public class AccountManager {
 				HKJ_SisCA_MainPage.frame.setContentPane(LogInManager.standByView());
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-
 			}
 		});
 		logOutLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -471,7 +571,7 @@ public class AccountManager {
 		LSystemLabel.setFont(new Font("Lucida Grande", Font.BOLD, 16));
 
 		/**
-		 * 
+		 * Fill the left Panel
 		 */
 		ArrayList<Object> accountUsernameListView = getAccountList();
 		int position = 1;
@@ -490,10 +590,11 @@ public class AccountManager {
 			liveSystemPanel.add(userName, "cell 0 "+ position +" ,alignx left,aligny top");
 		}
 
-
 		//Separators
 		JSeparator separator = new JSeparator();
-		liveSystemPanel.add(separator, "cell 0 4,growx,aligny top");
+		liveSystemPanel.add(separator, "cell 0 4,g" +
+				"" +
+				"rowx,aligny top");
 
 		JSeparator separator_1 = new JSeparator();
 		liveSystemPanel.add(separator_1, "cell 0 6,growx,aligny top");
@@ -510,11 +611,11 @@ public class AccountManager {
 		JSeparator separator_5 = new JSeparator();
 		liveSystemPanel.add(separator_5, "cell 0 14,growx,aligny top");
 
+		JSeparator separator_6 = new JSeparator();
+		liveSystemPanel.add(separator_6, "cell 0 16,growx,aligny top");		
+
 		JSeparator separator_7 = new JSeparator();
 		liveSystemPanel.add(separator_7, "cell 0 18,growx,aligny top");
-
-		JSeparator separator_6 = new JSeparator();
-		liveSystemPanel.add(separator_6, "cell 0 16,growx,aligny top");
 
 		JSeparator separator_8 = new JSeparator();
 		liveSystemPanel.add(separator_8, "cell 0 20,growx,aligny top");
@@ -527,23 +628,23 @@ public class AccountManager {
 
 		JPanel panel_100 = new JPanel();
 		panel_100.setBackground(new Color(245,245,245));
-		liveSystemPanel.add(panel_100, "cell 0 1,growx,aligny top");
+		liveSystemPanel.add(panel_100, "cell 0 1,growx,aligny center");
 		panel_100.setLayout(new BoxLayout(panel_100, BoxLayout.X_AXIS));
 
-		JLabel searchLabel = new JLabel("Search:");
+		JLabel searchLabel = new JLabel("Search: ");
 		panel_100.add(searchLabel);
 		searchLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
 
 		final JTextField searchTextField = new JTextField();
-		/**
-		 * CODIDO DE LA BARRA DE SEARCH
-		 */
 		searchTextField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//TODO
-				HKJ_SisCA_MainPage.frame.setContentPane(accountView());
+
+				String text = searchTextField.getText();
+
+				HKJ_SisCA_MainPage.frame.setContentPane(accountView(text));
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
+
 			}
 		});
 		panel_100.add(searchTextField);
@@ -567,9 +668,15 @@ public class AccountManager {
 		JButton addNewButton = new JButton("Add New Account");
 		addNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				HKJ_SisCA_MainPage.frame.setContentPane(addAccountView());
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+				if (HKJ_SisCA_MainPage.getCanView()==true){
+					HKJ_SisCA_MainPage.frame.setContentPane(addAccountView());
+					HKJ_SisCA_MainPage.frame.pack(); 
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				}
+				else{
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You have no permission to Add New Account");
+				}
 			}
 		});
 		viewAndAddBynPanel.add(addNewButton);
@@ -616,7 +723,7 @@ public class AccountManager {
 		centerPanel.setLayout(new MigLayout("", "[849.00px]", "[50px][][12px][19px][12px][19px][12px][19px][12px][65px]"));
 
 		/**
-		 * Get real Name 
+		 * Get First Name and Last Name (User Information) 
 		 */
 
 		final String[] userName = Username.split(" >>"); //userName[0] : username
@@ -624,11 +731,11 @@ public class AccountManager {
 		String accountFirstnameDB = null, accountLastnameDB = null;
 		String accountUsernameDB=null;
 		String accountTypeDB=null;
-		int accountIdDB = 999999999;
+		int accountIdDB = -1;
 
 		try {
-			ArrayList<Object> userInformation = dbman.getFromDB("select * from sisca_account where sisca_account_username='"+ userName[0]+ "'");
-			userInformationToEdit = dbman.getFromDB("select * from sisca_account where sisca_account_username='"+ userName[0]+ "'");
+			ArrayList<Object> userInformation = dbman.getFromDB("select * from sisca_account where sisca_account_active='true' and sisca_account_username='"+ userName[0]+ "'");
+			userInformationToEdit = dbman.getFromDB("select * from sisca_account where sisca_account_active='true' and sisca_account_username='"+ userName[0]+ "'");
 			for(int i=0; i<userInformation.size(); i++){
 				//obtener el elemento i del elemento 1 (el array del array) 
 				for(int k=0 ; k<((List<Object>) userInformation.get(i)).size(); k++){
@@ -682,16 +789,6 @@ public class AccountManager {
 		accountType.setFont(new Font("Lucida Grande", Font.BOLD, 15));
 		centerPanel.add(accountType, "cell 0 3,alignx left,aligny top");
 
-		/*	JLabel password = new JLabel("Password: ");
-		password.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
-		centerPanel.add(password, "cell 0 5,alignx left,aligny baseline");
-
-		JSeparator separator_12 = new JSeparator();
-		centerPanel.add(separator_12, "cell 0 4,growx,aligny top"); 
-
-		JSeparator separator_13 = new JSeparator();
-		centerPanel.add(separator_13, "cell 0 6,growx,aligny top"); */
-
 		JPanel editAndRemovePanel = new JPanel();
 		editAndRemovePanel.setBackground(new Color(250,250,250));
 		centerPanel.add(editAndRemovePanel, "cell 0 7,grow");
@@ -700,9 +797,15 @@ public class AccountManager {
 		JButton editButton = new JButton("Edit");
 		editButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				HKJ_SisCA_MainPage.frame.setContentPane(editAccountView());
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+				if (HKJ_SisCA_MainPage.getCanView()==true){
+					HKJ_SisCA_MainPage.frame.setContentPane(editAccountView());
+					HKJ_SisCA_MainPage.frame.pack(); 
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				}
+				else{
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You have no permission to Edit a Account");
+				}
 			}
 		});
 		editAndRemovePanel.add(editButton, "cell 0 0");
@@ -711,54 +814,58 @@ public class AccountManager {
 		btnRemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 
-				int sure = JOptionPane.showConfirmDialog(HKJ_SisCA_MainPage.frame, "Are You Sure?");
-				//System.out.println("SURE: " + sure);
-				String accountUsername = userNameToRemove;
-				if(sure==0){
-					/**
-					 * 
-					 */
-					String[] keyValue;
-					//String accountUsername = userNameToRemove;
-					ArrayList<Object> userInformationRemove = null;
-					try {
-						userInformationRemove = dbman.getFromDB("select * from sisca_account where sisca_account_username='"+ accountUsername + "'");
-					} catch (SQLException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (ParseException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-					//TODO ARE YOU SURE YOU WANT TO REMOVE?
-					for(int i=0; i<userInformationRemove.size(); i++){
-						//obtener el elemento i del elemento 1 (el array del array) 
-						for(int k=0 ; k<((List<Object>) userInformationRemove.get(i)).size(); k++){
-							//result = 1:A
-							Object result = ((List<Object>) userInformationRemove.get(i)).get(k);
-							//keyValue -> {1,A}
-							keyValue = result.toString().split("/");
-							if(keyValue[0].equals("sisca_account_username")){
-								accountUsername = (String) keyValue[1];
+				if (HKJ_SisCA_MainPage.getCanView()==true){
+					int sure = JOptionPane.showConfirmDialog(HKJ_SisCA_MainPage.frame, "Are you sure you want remove this user?");
+					String accountUsername = userNameToRemove;
+
+					if(sure==0){
+						/**
+						 * 
+						 */
+						String[] keyValue;
+						ArrayList<Object> userInformationRemove = null;
+						try {
+							userInformationRemove = dbman.getFromDB("select * from sisca_account where sisca_account_active='true' and sisca_account_username='"+ accountUsername + "'");
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (ParseException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+
+						for(int i=0; i<userInformationRemove.size(); i++){
+							//obtener el elemento i del elemento 1 (el array del array) 
+							for(int k=0 ; k<((List<Object>) userInformationRemove.get(i)).size(); k++){
+								//result = 1:A
+								Object result = ((List<Object>) userInformationRemove.get(i)).get(k);
+								//keyValue -> {1,A}
+								keyValue = result.toString().split("/");
+								if(keyValue[0].equals("sisca_account_username")){
+									accountUsername = (String) keyValue[1];
+								}
 							}
 						}
-					}
+						try {
+							dbman.updatetDB("update sisca_account set sisca_account_active='false', sisca_account_deletedBy="+currentUser+", sisca_account_deleteDate='"+currentDate+"' where sisca_account_username='" +accountUsername+"'");
 
-					try {
-						dbman.updatetDB("delete from sisca_account where sisca_account_username='" +accountUsername+"'");
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+						} catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 
-					HKJ_SisCA_MainPage.frame.setContentPane(accountView());
-					HKJ_SisCA_MainPage.frame.pack(); 
-					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+						HKJ_SisCA_MainPage.frame.setContentPane(accountView());
+						HKJ_SisCA_MainPage.frame.pack(); 
+						HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+					}
+					else{
+						HKJ_SisCA_MainPage.frame.setContentPane(accountInformationView(accountUsername));
+						HKJ_SisCA_MainPage.frame.pack(); 
+						HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+					}
 				}
 				else{
-					HKJ_SisCA_MainPage.frame.setContentPane(accountInformationView(accountUsername));
-					HKJ_SisCA_MainPage.frame.pack(); 
-					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You have no permission to Remove a Account");
 				}
 			}
 		});
@@ -799,7 +906,36 @@ public class AccountManager {
 	private ArrayList<Object> getAccountList() {
 		ArrayList<Object> usernameActiveFromDB = new ArrayList<Object>();
 		try {
-			ArrayList<Object> accountListFromDB = dbman.getFromDB("select * from sisca_account order by sisca_account_username");
+			ArrayList<Object> accountListFromDB = dbman.getFromDB("select * from sisca_account where sisca_account_active='true' order by sisca_account_username");
+			String[] keyValue;
+			String userName = null;
+			for(int i=0; i<accountListFromDB.size(); i++){
+				//obtener el elemento i del elemento 1 (el array del array) 
+				for(int k=0 ; k<((List<Object>) accountListFromDB.get(i)).size(); k++){
+					//result = 1:A
+					Object result = ((List<Object>) accountListFromDB.get(i)).get(k);
+					//keyValue -> {1,A}
+					keyValue = result.toString().split("/");
+					if(keyValue[0].equals("sisca_account_username")){
+						userName = (String) keyValue[1];
+					}
+				}
+				usernameActiveFromDB.add(userName);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return usernameActiveFromDB;
+	}
+
+	private ArrayList<Object> getAccountListSearchLeftPanel(String searchingFor) {
+		ArrayList<Object> usernameActiveFromDB = new ArrayList<Object>();
+		try {
+			ArrayList<Object> accountListFromDB = dbman.getFromDB("select * from sisca_account where sisca_account_active='true' and sisca_account_username ~* '"+searchingFor+"' order by sisca_account_username");
 			String[] keyValue;
 			String userName = null;
 			for(int i=0; i<accountListFromDB.size(); i++){
@@ -889,6 +1025,8 @@ public class AccountManager {
 		addAccountLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		addAccountLabel.setForeground((java.awt.Color) null);
 		addAccountLabel.setFont(new Font("Dialog", Font.BOLD, 14));
+		addAccountLabel.setBackground(new Color(220,220,220));
+		addAccountLabel.setOpaque(true);
 		addAccountLabel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		addAccountLabel.setBounds(148, -11, 111, 53);
 		menuOptionsPanel.add(addAccountLabel);
@@ -906,7 +1044,6 @@ public class AccountManager {
 				HKJ_SisCA_MainPage.frame.setContentPane(LogInManager.standByView());
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-
 			}
 		});
 		logOutLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -940,7 +1077,7 @@ public class AccountManager {
 		leftPanelAddAccount.setPreferredSize(new Dimension(390, 10));
 		leftPanelAddAccount.setLayout(new BorderLayout(0, 0));
 
-		JPanel liveSystemPanel = new JPanel();
+		final JPanel liveSystemPanel = new JPanel();
 		liveSystemPanel.setBackground(new Color(245,245,245));
 
 		JScrollPane scrollPane = new JScrollPane();
@@ -966,13 +1103,39 @@ public class AccountManager {
 		LSystemLabel.setFont(new Font("Lucida Grande", Font.BOLD, 16));
 
 		/**
-		 * 
+		 * Search Bar
+		 */
+		JPanel searchPanel = new JPanel();
+		searchPanel.setBackground(new Color(245,245,245));
+		liveSystemPanel.add(searchPanel, "cell 0 1,growx,aligny center");
+		searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.X_AXIS));
+
+		JLabel searchLabel = new JLabel("Search: ");
+		searchPanel.add(searchLabel);
+		searchLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+
+		final JTextField searchTextField = new JTextField();
+		searchTextField.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String text = searchTextField.getText();
+
+				HKJ_SisCA_MainPage.frame.setContentPane(accountView(text));
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
+
+			}
+		});
+		searchPanel.add(searchTextField);
+		searchTextField.setColumns(10);
+
+		/**
+		 * Display Active Users
 		 */
 		ArrayList<Object> accountUsernameListView = getAccountList();
 		int position = 1;
 		for(int i=0; i<accountUsernameListView.size() && i<10 ; i++){
 			position = position+2;
-			final JLabel userName = new JLabel(accountUsernameListView.get(i).toString());
+			userName = new JLabel(accountUsernameListView.get(i).toString());
 			userName.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
@@ -1020,25 +1183,6 @@ public class AccountManager {
 		liveSystemPanel.add(separator_10, "cell 0 2,growx,aligny top");
 
 
-		JPanel searchPanel = new JPanel();
-		searchPanel.setBackground(new Color(245,245,245));
-		liveSystemPanel.add(searchPanel, "cell 0 1,growx,aligny top");
-		searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.X_AXIS));
-
-		JLabel searchLabel = new JLabel("Search:");
-		searchPanel.add(searchLabel);
-		searchLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
-
-		JTextField searchTextField = new JTextField();
-		searchTextField.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(accountView());
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
-			}
-		});
-		searchPanel.add(searchTextField);
-		searchTextField.setColumns(10);
 
 		JPanel viewAndAddBynPanel = new JPanel();
 		viewAndAddBynPanel.setBackground(new Color(245,245,245));
@@ -1056,6 +1200,7 @@ public class AccountManager {
 		});
 		viewAndAddBynPanel.add(viewAllButton);
 
+		/*
 		JButton addNewButton = new JButton("Add New Account");
 		addNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -1065,7 +1210,7 @@ public class AccountManager {
 
 			}
 		});
-		viewAndAddBynPanel.add(addNewButton);
+		viewAndAddBynPanel.add(addNewButton);*/
 
 
 
@@ -1107,6 +1252,7 @@ public class AccountManager {
 		centerPanel.setPreferredSize(new Dimension(1000, 1000));
 		mainPanelAddAccount.add(centerPanel, BorderLayout.CENTER);
 		centerPanel.setLayout(new MigLayout("", "[854px,grow]", "[37px][60px][61px][42.00px][65px][84.00,grow]"));
+
 
 		JLabel addAccountLabelPanel = new JLabel("Add New Account");
 		addAccountLabelPanel.setPreferredSize(new Dimension(100, 50));
@@ -1182,35 +1328,39 @@ public class AccountManager {
 		AccountPanel.add(AccountInfoLabel, "cell 0 0,alignx left,growy");
 
 		final JComboBox createAccountTypeSelector = new JComboBox();
-		createAccountTypeSelector.setModel(new DefaultComboBoxModel(new String[] {"regular", "administrator"}));
+		createAccountTypeSelector.setModel(new DefaultComboBoxModel(new String[] {"Regular", "Administrator"}));
 		AccountPanel.add(createAccountTypeSelector, "cell 1 0,alignx left,aligny center");
 
 		JButton addAccountBtn = new JButton("Add Account");
 		addAccountBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//TODO THE USERNAME IS ALREADY USED!
+
+				//
 				String createAccountFirstname = textFieldFirstName.getText();
 				String createAccountLastname = textFieldLastName.getText();
-				String createAccountPassword = passwordField.getText();
 				String createAccountUsername = textFieldUsername.getText();
+				String createAccountPassword = passwordField.getText();
 				String createRepeatPassword = repeatPasswordField.getText();
 				String createAccountType = (String) createAccountTypeSelector.getSelectedItem();
 
+				//TODO  NOMBRE DEL CURRENT USER
 				/**
 				 * Verificar que el userName no exista
 				 */
 				ArrayList<Object> unavailableUsernamesDB;
 				boolean alreadyExist=false;
 				boolean passwordConflict = false;
+				boolean invalidPassword = false;
 				try {
-					unavailableUsernamesDB = dbman.getFromDB("select sisca_account_username from sisca_account");
+					unavailableUsernamesDB = dbman.getFromDB("select * from sisca_account");
 					ArrayList<Object> unavailableUsernames = new ArrayList<Object>();
 					String[] keyValue;
-					String username = null,password = null;
-
+					String username = null;
+					String password = null;
 					for(int i=0; i<unavailableUsernamesDB.size(); i++){
 						//obtener el elemento i del elemento 1 (el array del array) 
 						for(int k=0 ; k<((List<Object>) unavailableUsernamesDB.get(i)).size(); k++){
+
 							//result = 1:A
 							Object result = ((List<Object>) unavailableUsernamesDB.get(i)).get(k);
 							//keyValue -> {1,A}
@@ -1222,15 +1372,19 @@ public class AccountManager {
 								password = (String) keyValue[1];
 							}			
 						}
-						unavailableUsernames.add(username);
+						unavailableUsernames.add(username.toLowerCase());
+						System.out.println(username);
 					}
 					/**
 					 * Verificar UserName
 					 */
 					for(int i=0 ; i<unavailableUsernames.size(); i++){
-						if(createAccountUsername.toLowerCase().equals(unavailableUsernames.get(i).toString().toLowerCase())){
+						if(createAccountUsername.toLowerCase().equals(unavailableUsernames.get(i))){
 							alreadyExist=true;
 						}
+					}
+					if(createAccountPassword.length()<6 || createRepeatPassword.length()<6){
+						invalidPassword = true;
 					}
 					if(!createAccountPassword.equals(createRepeatPassword)){
 						passwordConflict = true;
@@ -1248,14 +1402,21 @@ public class AccountManager {
 				 * 
 				 */
 				if(alreadyExist){
-					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "The USERNAME already exist.");
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid Username.","ERROR", 0);
 				}
 				else if(passwordConflict){
-					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Password Conflict");
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Password Conflict.", "ERROR", 0);
+				}
+				else if(createAccountFirstname.isEmpty()||createAccountLastname.isEmpty()||createAccountPassword.isEmpty()
+						||createAccountType.isEmpty()||createAccountUsername.isEmpty()||createRepeatPassword.isEmpty()){
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Some fields are empty.", "ERROR", 0);
+				}
+				else if(invalidPassword){
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Password must have at least 6 characters.", "ERROR", 0);
 				}
 				else{
 					try {
-						dbman.updatetDB("insert into sisca_account (sisca_account_first_name,sisca_account_last_name,sisca_account_username,sisca_account_password,sisca_account_type) values('"+createAccountFirstname+"','"+createAccountLastname+"','"+createAccountUsername+"','"+createAccountPassword+"','"+createAccountType+"')");
+						dbman.updatetDB("insert into sisca_account (sisca_account_first_name,sisca_account_last_name,sisca_account_username,sisca_account_password,sisca_account_type, sisca_account_active, sisca_account_creationDate, sisca_account_createdBy) values('"+createAccountFirstname+"','"+createAccountLastname+"','"+createAccountUsername+"','"+createAccountPassword+"','"+createAccountType+"','true','"+currentDate+"',"+currentUser+")");
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -1370,6 +1531,8 @@ public class AccountManager {
 		editAccountLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		editAccountLabel.setForeground((java.awt.Color) null);
 		editAccountLabel.setFont(new Font("Dialog", Font.BOLD, 14));
+		editAccountLabel.setBackground(new Color(220,220,220));
+		editAccountLabel.setOpaque(true);
 		editAccountLabel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		editAccountLabel.setBounds(148, -11, 111, 53);
 		menuOptionsPanel.add(editAccountLabel);
@@ -1387,7 +1550,6 @@ public class AccountManager {
 				HKJ_SisCA_MainPage.frame.setContentPane(LogInManager.standByView());
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-
 			}
 		});
 		logOutLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -1446,150 +1608,6 @@ public class AccountManager {
 		LSystemLabel.setForeground(java.awt.Color.BLACK);
 		LSystemLabel.setFont(new Font("Lucida Grande", Font.BOLD, 16));
 
-		/*JLabel aName1 = new JLabel("New label");
-		aName1.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(accountInformationView(null));
-				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		aName1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(aName1, "cell 0 3,alignx left,aligny top");
-
-		JLabel aName2 = new JLabel("New label");
-		aName2.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(accountInformationView(null));
-				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		aName2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(aName2, "cell 0 5,alignx left,aligny top");
-
-		JLabel aName3 = new JLabel("New label");
-		aName3.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(accountInformationView(null));
-				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		aName3.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(aName3, "cell 0 7,alignx left,aligny top");
-
-		JLabel aName4 = new JLabel("New label");
-		aName4.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(accountInformationView(null));
-				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		aName4.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(aName4, "cell 0 9,alignx left,aligny top");
-
-		JLabel aName5 = new JLabel("New label");
-		aName5.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		aName5.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(accountInformationView(null));
-				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-
-		JSeparator separator_3 = new JSeparator();
-		liveSystemPanel.add(separator_3, "cell 0 11,growx,aligny top");
-		liveSystemPanel.add(aName5, "cell 0 12,alignx left,aligny top");
-
-		JLabel aName6 = new JLabel("New label");
-		aName6.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		aName6.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(accountInformationView(null));
-				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		liveSystemPanel.add(aName6, "cell 0 14,alignx left,aligny top");
-
-		JLabel aName7 = new JLabel("New label");
-		aName7.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(accountInformationView(null));
-				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		aName7.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(aName7, "cell 0 16,alignx left,aligny top");
-
-		JLabel aName8 = new JLabel("New label");
-		aName8.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		aName8.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(accountInformationView(null));
-				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		liveSystemPanel.add(aName8, "cell 0 18,alignx left,aligny top");
-
-		JLabel aName9 = new JLabel("New label");
-		aName9.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		aName9.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(accountInformationView(null));
-				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		liveSystemPanel.add(aName9, "cell 0 20,alignx left,aligny top");
-
-		JLabel aName10 = new JLabel("New label");
-		aName10.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(accountInformationView(null));
-				HKJ_SisCA_MainPage.frame.pack(); HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-			}
-		});
-		aName10.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		liveSystemPanel.add(aName10, "cell 0 22,alignx left,aligny top");
-
-		//Separators
-		JSeparator separator = new JSeparator();
-		liveSystemPanel.add(separator, "cell 0 4,growx,aligny top");
-
-		JSeparator separator_1 = new JSeparator();
-		liveSystemPanel.add(separator_1, "cell 0 6,growx,aligny top");
-
-		JSeparator separator_2 = new JSeparator();
-		liveSystemPanel.add(separator_2, "cell 0 8,growx,aligny top");
-
-		JSeparator separator_4 = new JSeparator();
-		liveSystemPanel.add(separator_4, "cell 0 13,growx,aligny top");
-
-		JSeparator separator_5 = new JSeparator();
-		liveSystemPanel.add(separator_5, "cell 0 15,growx,aligny top");
-
-		JSeparator separator_7 = new JSeparator();
-		liveSystemPanel.add(separator_7, "cell 0 19,growx,aligny top");
-
-		JSeparator separator_6 = new JSeparator();
-		liveSystemPanel.add(separator_6, "cell 0 17,growx,aligny top");
-
-		JSeparator separator_8 = new JSeparator();
-		liveSystemPanel.add(separator_8, "cell 0 21,growx,aligny top");
-
-		JSeparator separator_9 = new JSeparator();
-		liveSystemPanel.add(separator_9, "cell 0 23,growx,aligny top");
-
-		JSeparator separator_10 = new JSeparator();
-		liveSystemPanel.add(separator_10, "cell 0 2,growx,aligny top");*/
-
 		/**
 		 * 
 		 */
@@ -1612,7 +1630,9 @@ public class AccountManager {
 
 		//Separators
 		JSeparator separator = new JSeparator();
-		liveSystemPanel.add(separator, "cell 0 4,growx,aligny top");
+		liveSystemPanel.add(separator, "cell 0 4,g" +
+				"" +
+				"rowx,aligny top");
 
 		JSeparator separator_1 = new JSeparator();
 		liveSystemPanel.add(separator_1, "cell 0 6,growx,aligny top");
@@ -1630,7 +1650,7 @@ public class AccountManager {
 		liveSystemPanel.add(separator_5, "cell 0 14,growx,aligny top");
 
 		JSeparator separator_6 = new JSeparator();
-		liveSystemPanel.add(separator_6, "cell 0 16,growx,aligny top");
+		liveSystemPanel.add(separator_6, "cell 0 16,growx,aligny top");		
 
 		JSeparator separator_7 = new JSeparator();
 		liveSystemPanel.add(separator_7, "cell 0 18,growx,aligny top");
@@ -1646,17 +1666,18 @@ public class AccountManager {
 
 		JPanel searchPanel = new JPanel();
 		searchPanel.setBackground(new Color(245,245,245));
-		liveSystemPanel.add(searchPanel, "cell 0 1,growx,aligny top");
+		liveSystemPanel.add(searchPanel, "cell 0 1,growx,aligny center");
 		searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.X_AXIS));
 
-		JLabel searchLabel = new JLabel("Search:");
+		JLabel searchLabel = new JLabel("Search: ");
 		searchPanel.add(searchLabel);
 		searchLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
 
-		JTextField searchTextField = new JTextField();
+		final JTextField searchTextField = new JTextField();
 		searchTextField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(accountView());
+				String text = searchTextField.getText();
+				HKJ_SisCA_MainPage.frame.setContentPane(accountView(text));
 				HKJ_SisCA_MainPage.frame.pack(); 
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
 			}
@@ -1752,7 +1773,7 @@ public class AccountManager {
 		AccountIDPanel.setLayout(new MigLayout("", "[57.00px][371.00px]", "[28px]"));
 
 		/**
-		 * 
+		 * Get Info to Edit
 		 */
 		String[] keyValue;
 		String accountFirstnameToEdit=null, accountLastnameToEdit=null, 
@@ -1811,6 +1832,7 @@ public class AccountManager {
 		directionPanel.setBackground((java.awt.Color) null);
 		centerPanel.add(directionPanel, "cell 0 2,grow");
 		directionPanel.setLayout(new MigLayout("", "[81px][292.00px][][][212.00,grow]", "[28px]"));
+
 		/**
 		 * 
 		 */
@@ -1830,16 +1852,15 @@ public class AccountManager {
 
 		final JPasswordField passwordField = new JPasswordField();
 		passwordField.setPreferredSize(new Dimension(500, 28));
-		directionPanel.add(passwordField, "cell 4 0,growx");
+		directionPanel.add(passwordField, "cell 4 0,growx");		
 
 		JLabel repeatPasswordLabel = new JLabel("Repeat Password: ");
 		repeatPasswordLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		directionPanel.add(repeatPasswordLabel, "cell 5 0,alignx trailing");
 
-		JPasswordField repeatPasswordField = new JPasswordField();
+		final JPasswordField repeatPasswordField = new JPasswordField();
 		repeatPasswordField.setPreferredSize(new Dimension(500, 28));
 		directionPanel.add(repeatPasswordField, "cell 6 0,growx");
-
 
 		JPanel AccountPanel = new JPanel();
 		AccountPanel.setBackground((java.awt.Color) null);
@@ -1852,33 +1873,40 @@ public class AccountManager {
 		AccountPanel.add(AccountInfoLabel, "cell 0 0,alignx left,growy");
 
 		final JComboBox accountTypeSelector = new JComboBox();		
-		accountTypeSelector.setModel(new DefaultComboBoxModel(new String[] {"regular", "administrator"}));
+		accountTypeSelector.setModel(new DefaultComboBoxModel(new String[] {"Regular", "Administrator"}));
 		AccountPanel.add(accountTypeSelector, "cell 1 0,alignx left,aligny center");
-
-
-
 
 		JButton editAccountBtn = new JButton("OK");
 		editAccountBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-
 				String newAccountFirstname = textFieldFirstname.getText().toString();
 				String newAccountLastname =  textFieldLastname.getText();
 				String newAccountUsername = textFieldUsername.getText();
 				String newAccountPassword = passwordField.getText();
+				String newAccountRepeatPassword = repeatPasswordField.getText();
 				String newAccountType = (String) accountTypeSelector.getSelectedItem();
-
-				try {
-					dbman.insertDB("update sisca_account set sisca_account_first_name='"+newAccountFirstname+ "', sisca_account_last_name='" +newAccountLastname+ "', sisca_account_password='"+ newAccountPassword+"', sisca_account_type='"+newAccountType +"' where sisca_account_username='"+newAccountUsername+"'" );
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				/**
+				 * Text Fields cann't be null
+				 */
+				if(newAccountPassword.isEmpty() || newAccountFirstname.isEmpty() || newAccountLastname.isEmpty() || newAccountType.isEmpty()){
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Some Fields Are Empty.", "ERROR", 0);		
 				}
-
-				HKJ_SisCA_MainPage.frame.setContentPane(accountInformationView(newAccountUsername));
-				HKJ_SisCA_MainPage.frame.pack(); 
-				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-
+				else if(!newAccountPassword.equals(newAccountRepeatPassword)){
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Password Conflict", "ERROR", 0);
+				}
+				else if(newAccountPassword.length()<6 || newAccountRepeatPassword.length()<6){
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Password must have at least 6 characters.", "ERROR", 0);
+				}
+				else{
+					try {
+						dbman.updatetDB("update sisca_account set sisca_account_first_name='"+newAccountFirstname+ "', sisca_account_last_name='" +newAccountLastname+ "', sisca_account_password='"+ newAccountPassword+"', sisca_account_type='"+newAccountType+"', sisca_account_editedBy="+currentUser+ ", sisca_account_editDate='"+currentDate+"' where sisca_account_username='"+newAccountUsername+"'" );
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+					HKJ_SisCA_MainPage.frame.setContentPane(accountInformationView(newAccountUsername));
+					HKJ_SisCA_MainPage.frame.pack(); 
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				}
 			}
 		});
 		AddCancelPanel.add(editAccountBtn, "cell 0 0");
@@ -1909,6 +1937,347 @@ public class AccountManager {
 		windowPanelEditAccount.add(mainPanelEditAccount, BorderLayout.CENTER);
 
 		return windowPanelEditAccount;
+
+	}
+
+	public JPanel accountView(String searchUser){
+		/////////////////////////////////////////////////////////
+		//Menu Panel
+		/////////////////////////////////////////////////////////
+
+		//Configurations 
+		JPanel menuPanelAccount = new JPanel();
+		menuPanelAccount.setBackground(new Color(255,239,80));
+		menuPanelAccount.setPreferredSize(new Dimension(10, 30));
+		menuPanelAccount.setLayout(new BorderLayout(0, 0));
+
+		JPanel menuOptionsPanel = new JPanel();
+		menuOptionsPanel.setPreferredSize(new Dimension(250, 10));
+		menuPanelAccount.add(menuOptionsPanel, BorderLayout.WEST);
+		menuOptionsPanel.setLayout(null);
+
+		JLabel homeLabel = new JLabel(" Home");
+		homeLabel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		homeLabel.setBounds(0, -11, 68, 53);
+		menuOptionsPanel.add(homeLabel);
+		homeLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(HKJ_SisCA_MainPage.windowPanel); // Wrong Way! =S
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		homeLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		homeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		homeLabel.setForeground((java.awt.Color) null);
+		homeLabel.setFont(new Font("Dialog", Font.BOLD, 14));
+
+		JLabel AccountManagerLabel = new JLabel("Account");
+		AccountManagerLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.frame.setContentPane(accountView());
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		AccountManagerLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		AccountManagerLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		AccountManagerLabel.setForeground((java.awt.Color) null);
+		AccountManagerLabel.setBackground(new Color(220,220,220));
+		AccountManagerLabel.setOpaque(true);
+		AccountManagerLabel.setFont(new Font("Dialog", Font.BOLD, 14));
+		AccountManagerLabel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		AccountManagerLabel.setBounds(66, -11, 109, 53);
+		menuOptionsPanel.add(AccountManagerLabel);
+
+		JPanel logOutPanel = new JPanel();
+		logOutPanel.setPreferredSize(new Dimension(75, 10));
+		menuPanelAccount.add(logOutPanel, BorderLayout.EAST);
+		logOutPanel.setLayout(null);
+
+		JLabel logOutLabel = new JLabel("LogOut");
+		logOutLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				HKJ_SisCA_MainPage.setActiveUsername(null);
+				HKJ_SisCA_MainPage.frame.setContentPane(LogInManager.standByView());
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		logOutLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		logOutLabel.setBounds(0, -11, 75, 52);
+		logOutLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		logOutLabel.setForeground((java.awt.Color) null);
+		logOutLabel.setFont(new Font("Dialog", Font.BOLD, 14));
+		logOutLabel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		logOutPanel.add(logOutLabel);
+
+		JPanel userNamePanel = new JPanel();
+		menuPanelAccount.add(userNamePanel, BorderLayout.CENTER);
+		userNamePanel.setLayout(new BorderLayout(0, 0));
+
+		JLabel userNameLabel = new JLabel(HKJ_SisCA_MainPage.getActiveUsername());
+		userNamePanel.add(userNameLabel, BorderLayout.EAST);
+		userNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		userNameLabel.setForeground((java.awt.Color) null);
+		userNameLabel.setFont(new Font("Dialog", Font.BOLD, 14));
+
+
+
+		/////////////////////////////////////////////////////////
+		//Main Panel
+		/////////////////////////////////////////////////////////
+
+		//Configurations
+		JPanel mainPanelAccount = new JPanel();
+		mainPanelAccount.setLayout(new BorderLayout(0, 0));
+
+
+		//Main Panel Layout Division
+		JPanel northPanel = new JPanel();
+		northPanel.setPreferredSize(new Dimension(0, 100));
+		northPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		northPanel.setBackground(new Color(247,247,247));
+		mainPanelAccount.add(northPanel, BorderLayout.NORTH);
+		northPanel.setLayout(null);
+
+		JPanel southPanel = new JPanel();
+		southPanel.setPreferredSize(new Dimension(10, 100));
+		southPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		southPanel.setBackground(new Color(247,247,247));
+		mainPanelAccount.add(southPanel, BorderLayout.SOUTH);
+
+		JPanel westPanel = new JPanel();
+		westPanel.setPreferredSize(new Dimension(0, 10));
+		mainPanelAccount.add(westPanel, BorderLayout.WEST);
+
+		JPanel eastPanel = new JPanel();
+		eastPanel.setPreferredSize(new Dimension(0, 10));
+		mainPanelAccount.add(eastPanel, BorderLayout.EAST);
+
+		JPanel centerPanel = new JPanel();
+		centerPanel.setBackground(new Color(250,250,250));
+		centerPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		centerPanel.setPreferredSize(new Dimension(1000, 1000));
+		mainPanelAccount.add(centerPanel, BorderLayout.CENTER);
+		centerPanel.setLayout(new MigLayout("", "[1242px]", "[61px][372px]"));
+
+		JPanel searchAndAddPanel = new JPanel();
+		searchAndAddPanel.setBackground(new Color(250,250,250));
+		centerPanel.add(searchAndAddPanel, "cell 0 0,grow");
+		searchAndAddPanel.setLayout(new MigLayout("", "[48px][289px][34.00px][][][][][][][][][][][][][][][][][][][][][][][]", "[29px]"));
+
+		JLabel searchLabel = new JLabel("Search by username: ");
+		searchAndAddPanel.add(searchLabel, "cell 0 0,alignx left,aligny center");
+		searchLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+
+		/**
+		 * Active Users List View
+		 */
+		final DefaultListModel userActiveListView = new DefaultListModel();
+
+		final JTextField textFieldSearch = new JTextField();
+		textFieldSearch.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String searchUsername = textFieldSearch.getText();
+				userActiveListView.clear();
+				try {
+					dbman = new DBManager();
+					ArrayList<Object> activeAccountArrayListQuery = dbman.getFromDB("select * from sisca_account where sisca_account_active='true' and sisca_account_username ~* '"+searchUsername +"' order by sisca_account_type");
+					/**
+					 * userActiveListView : 
+					 */
+					String[] keyValue;
+					String username = null;
+					String accountType = null;
+
+					//[{1:A},{2:B},{3:C}]
+					for(int i=0; i< activeAccountArrayListQuery.size(); i++){
+						//obtener el elemento i del elemento 1 (el array del array) 
+						for(int k=0 ; k<((List<Object>) activeAccountArrayListQuery.get(i)).size(); k++){
+							//result = 1:A 
+							Object result = ((List<Object>) activeAccountArrayListQuery.get(i)).get(k);
+							//keyValue -> {1,A}
+							keyValue = result.toString().split("/");
+							if(keyValue[0].equals("sisca_account_username")){
+								username = (String) keyValue[1];
+							}
+							if(keyValue[0].equals("sisca_account_type")){
+								accountType = (String) keyValue[1];
+							}
+						}
+						userActiveListView.addElement(username +  " >> " + accountType.toUpperCase());
+					}		
+
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				//HKJ_SisCA_MainPage.frame.setContentPane(accountView());
+				//HKJ_SisCA_MainPage.frame.pack(); 
+				//HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
+			}
+		});
+
+		searchAndAddPanel.add(textFieldSearch, "cell 1 0,growx,aligny center");
+		textFieldSearch.setColumns(10);
+		JButton goButton = new JButton("GO");
+		goButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				String searchUsername = textFieldSearch.getText();
+				userActiveListView.clear();
+				try {
+					dbman = new DBManager();
+					ArrayList<Object> activeAccountArrayListQuery = dbman.getFromDB("select * from sisca_account where sisca_account_active='true' and sisca_account_username ~* '"+searchUsername +"' order by sisca_account_type");
+					/**
+					 * userActiveListView : 
+					 */
+					String[] keyValue;
+					String username = null;
+					String accountType = null;
+
+					//[{1:A},{2:B},{3:C}]
+					for(int i=0; i< activeAccountArrayListQuery.size(); i++){
+						//obtener el elemento i del elemento 1 (el array del array) 
+						for(int k=0 ; k<((List<Object>) activeAccountArrayListQuery.get(i)).size(); k++){
+							//result = 1:A 
+							Object result = ((List<Object>) activeAccountArrayListQuery.get(i)).get(k);
+							//keyValue -> {1,A}
+							keyValue = result.toString().split("/");
+							if(keyValue[0].equals("sisca_account_username")){
+								username = (String) keyValue[1];
+							}
+							if(keyValue[0].equals("sisca_account_type")){
+								accountType = (String) keyValue[1];
+							}
+						}
+						userActiveListView.addElement(username +  " >> " + accountType.toUpperCase());
+					}		
+
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				//HKJ_SisCA_MainPage.frame.setContentPane(accountView());
+				//HKJ_SisCA_MainPage.frame.pack(); 
+				//HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+			}
+		});
+		goButton.setPreferredSize(new Dimension(10, 20));
+		searchAndAddPanel.add(goButton, "cell 2 0");
+
+		JButton addNewAccountBtn = new JButton("Add New Account");
+		addNewAccountBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				HKJ_SisCA_MainPage.frame.setContentPane(addAccountView());
+				HKJ_SisCA_MainPage.frame.pack(); 
+				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+			}
+		});
+		searchAndAddPanel.add(addNewAccountBtn, "cell 25 0,alignx left,aligny top");
+		JPanel AccountListPanel = new JPanel();
+		AccountListPanel.setBackground(new Color(250,250,250));
+
+		centerPanel.add(AccountListPanel, "cell 0 1,alignx center,growy");
+		AccountListPanel.setLayout(new MigLayout("", "[724px]", "[360px]"));
+		JScrollPane scrollPane = new JScrollPane();
+		AccountListPanel.add(scrollPane, "cell 0 0,grow");
+
+		/**
+		 * dbman : connect to DBManager to run the required querys 
+		 * Select from the DB all the register account
+		 */
+		System.out.println("@@@ " + searchUser);
+		try {
+			dbman = new DBManager();
+			ArrayList<Object> activeAccountArrayListQuery = dbman.getFromDB("select * from sisca_account where sisca_account_active='true' and sisca_account_username~* '"+searchUser+"' order by sisca_account_type");
+			/**
+			 * userActiveListView : 
+			 */
+			String[] keyValue;
+			String username = null;
+			String accountType = null;
+
+			//[{1:A},{2:B},{3:C}]
+			for(int i=0; i< activeAccountArrayListQuery.size(); i++){
+				//obtener el elemento i del elemento 1 (el array del array) 
+				for(int k=0 ; k<((List<Object>) activeAccountArrayListQuery.get(i)).size(); k++){
+					//result = 1:A 
+					Object result = ((List<Object>) activeAccountArrayListQuery.get(i)).get(k);
+					//keyValue -> {1,A}
+					keyValue = result.toString().split("/");
+					if(keyValue[0].equals("sisca_account_username")){
+						username = (String) keyValue[1];
+					}
+					if(keyValue[0].equals("sisca_account_type")){
+						accountType = (String) keyValue[1];
+					}
+				}
+				userActiveListView.addElement(username +  " >> " + accountType.toUpperCase());
+			}		
+
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		/**
+		 * activeAccountList : Display the list of all account register in the system
+		 */
+		final JList activeAccountList = new JList(userActiveListView); 
+
+		activeAccountList.setSelectionForeground(UIManager.getColor("Button.darkShadow"));
+		activeAccountList.setSelectionBackground(UIManager.getColor("Button.background"));
+		activeAccountList.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2){
+
+					accountSelectedByUserFromAccountView = (String) activeAccountList.getSelectedValue();
+
+					HKJ_SisCA_MainPage.frame.setContentPane(accountInformationView(accountSelectedByUserFromAccountView)); // Wrong Way! =S
+					HKJ_SisCA_MainPage.frame.pack();
+					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+				}
+			}
+		});
+		scrollPane.setViewportView(activeAccountList);
+
+		////////////////////////////////////////////////////////
+		//Window Panel
+		/////////////////////////////////////////////////////////
+
+		//Configurations
+		JPanel windowPanelAccount= new JPanel();
+		windowPanelAccount.setLayout(new BorderLayout(0, 0));
+		windowPanelAccount.add(menuPanelAccount, BorderLayout.NORTH);
+		windowPanelAccount.add(mainPanelAccount, BorderLayout.CENTER);
+
+		return windowPanelAccount;
 
 	}
 }

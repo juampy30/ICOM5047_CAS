@@ -30,6 +30,7 @@ import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
+import net.miginfocom.swing.MigLayout;
 import databases.DBManager;
 
 
@@ -99,14 +100,14 @@ public class HKJ_SisCAWizard {
 		lblCompanyName.setHorizontalTextPosition(SwingConstants.LEADING);
 		lblCompanyName.setBounds(6, 125, 135, 16);
 		mainPanel.add(lblCompanyName);
-		JLabel lblNewLabel = new JLabel("Welcome to the setup wizard for SisCA ");
+		JLabel lblNewLabel = new JLabel("Welcome to the installation wizard for SisCA ");
 		lblNewLabel.setFont(new Font("Lucida Grande", Font.BOLD, 15));
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel.setBounds(6, 34, 427, 16);
 		mainPanel.add(lblNewLabel);
 		txtpnTheInstallationWizard.setBackground(new Color(242, 242, 242));
 		txtpnTheInstallationWizard.setEditable(false);
-		txtpnTheInstallationWizard.setText("     The setup wizard will install the Central Administrator\n     Software on your computer. To continue, please, \n     fill the blanks and click NEXT. \r\n");
+		txtpnTheInstallationWizard.setText("     The installation wizard will install the Central Administrator\n     Software on your computer. To continue, please, \n     fill the blanks and click NEXT. \r\n");
 		txtpnTheInstallationWizard.setBounds(6, 62, 427, 51);
 		mainPanel.add(txtpnTheInstallationWizard);
 
@@ -162,30 +163,23 @@ public class HKJ_SisCAWizard {
 		// SetUp Status Panel Configuration
 		setUpStatusPanel.setBackground(new Color(232,232,232));
 		setUpStatusPanel.setBounds(0, 0, 163, 428);
-		setUpStatusPanel.setLayout(null);
 		setUpStatusPanel.setBorder(null);
+		setUpStatusPanel.setLayout(new MigLayout("", "[136px]", "[110.00][125][125][125][400]"));
 
 		JLabel lblNewLabel_1 = new JLabel("Welcome");
-		lblNewLabel_1.setBounds(8, 43, 136, 16);
 		lblNewLabel_1.setFont(new Font("Lucida Grande", Font.BOLD, 13));
-		setUpStatusPanel.add(lblNewLabel_1);
+		setUpStatusPanel.add(lblNewLabel_1, "cell 0 1,growx,aligny center");
 
 		JLabel lblNewLabel_2 = new JLabel("Configuration");
-		lblNewLabel_2.setBounds(8, 64, 136, 16);
-		setUpStatusPanel.add(lblNewLabel_2);
+		setUpStatusPanel.add(lblNewLabel_2, "cell 0 2,growx,aligny center");
 
-		JLabel lblNewLabel_3 = new JLabel("Installing");
-		lblNewLabel_3.setBounds(8, 85, 136, 16);
-		setUpStatusPanel.add(lblNewLabel_3);
+		JLabel lblNewLabel_4 = new JLabel("Complete");
 
-		JLabel lblNewLabel_4 = new JLabel("Complete Setup");
-		lblNewLabel_4.setBounds(8, 106, 136, 16);
-		setUpStatusPanel.add(lblNewLabel_4);
+		setUpStatusPanel.add(lblNewLabel_4, "cell 0 3,growx,aligny center");
 
 		JLabel lblNewLabel_5 = new JLabel("");
-		lblNewLabel_5.setBounds(8, 298, 136, 116);
 		lblNewLabel_5.setIcon(image1);
-		setUpStatusPanel.add(lblNewLabel_5);
+		setUpStatusPanel.add(lblNewLabel_5, "cell 0 4,growx,aligny bottom");
 
 		// Main Window Add's
 		mainWindow.add(mainPanel);
@@ -295,41 +289,30 @@ public class HKJ_SisCAWizard {
 		});
 		serverConfigurationMainPanel.add(btnBackButton_2);
 
+		// SetUp Status Panel Configuration
+		JPanel setUpStatusPanelServer = new JPanel();
+		setUpStatusPanelServer.setBackground(new Color(232,232,232));
+		setUpStatusPanelServer.setBounds(0, 0, 163, 428);
+		setUpStatusPanelServer.setBorder(null);
+		setUpStatusPanelServer.setLayout(new MigLayout("", "[136px]", "[110.00][125][125][125][400]"));
 
-		// Server Configuration Setup Panel 
+		JLabel lblNewLabel_11 = new JLabel("Welcome");
+		setUpStatusPanelServer.add(lblNewLabel_11, "cell 0 1,growx,aligny center");
 
-		// Configuration
-		serverConfigurationSetupPanel.setBackground(new Color(232,232,232));
-		serverConfigurationSetupPanel.setBounds(0, 0, 163, 428);
-		serverConfigurationSetupPanel.setLayout(null);
-		serverConfigurationSetupPanel.setBorder(null);
+		JLabel lblNewLabel_21 = new JLabel("Configuration");
+		lblNewLabel_21.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+		setUpStatusPanelServer.add(lblNewLabel_21, "cell 0 2,growx,aligny center");
 
-		// Content
-		JLabel lblNewLabel_1 = new JLabel("Welcome");
-		lblNewLabel_1.setBounds(8, 43, 136, 16);
-		serverConfigurationSetupPanel.add(lblNewLabel_1);
+		JLabel lblNewLabel_41 = new JLabel("Complete");
+		setUpStatusPanelServer.add(lblNewLabel_41, "cell 0 3,growx,aligny center");
 
-		JLabel lblNewLabel_2 = new JLabel("Configuration");
-		lblNewLabel_2.setBounds(8, 64, 136, 16);
-		lblNewLabel_2.setFont(new Font("Lucida Grande", Font.BOLD, 13));
-		serverConfigurationSetupPanel.add(lblNewLabel_2);
-
-		JLabel lblNewLabel_3 = new JLabel("Installing");
-		lblNewLabel_3.setBounds(8, 85, 136, 16);
-		serverConfigurationSetupPanel.add(lblNewLabel_3);
-
-		JLabel lblNewLabel_4 = new JLabel("Complete Setup");
-		lblNewLabel_4.setBounds(8, 106, 136, 16);
-		serverConfigurationSetupPanel.add(lblNewLabel_4);
-
-		JLabel lblNewLabel_5 = new JLabel("");
-		lblNewLabel_5.setBounds(8, 298, 136, 116);
-		lblNewLabel_5.setIcon(image1);
-		serverConfigurationSetupPanel.add(lblNewLabel_5);
+		JLabel lblNewLabel_51 = new JLabel("");
+		lblNewLabel_51.setIcon(image1);
+		setUpStatusPanelServer.add(lblNewLabel_51, "cell 0 4,growx,aligny bottom");
 
 		// Window Panel Add's
 		serverConfigurationWindow.add(serverConfigurationMainPanel);
-		serverConfigurationWindow.add(serverConfigurationSetupPanel);
+		serverConfigurationWindow.add(setUpStatusPanelServer);
 
 
 		return serverConfigurationWindow;
@@ -943,10 +926,11 @@ public class HKJ_SisCAWizard {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+					frame.setContentPane(completeConfigurationWindow());
 				}
 
 
-				frame.setContentPane(completeConfigurationWindow());
+
 			}
 		});
 		accountADMINConfigurationMainPanel.add(btnAddMore);
@@ -984,9 +968,49 @@ public class HKJ_SisCAWizard {
 				}
 				else{
 
+					try {
+						dbman= new DBManager();
 
+						String firstName= "'"+ textFieldFirstName.getText()+ "'";
+						String lastName= "'"+ textFieldLastName.getText()+ "'";
+						String username= "'"+ textFieldUsername.getText()+ "'";
+						String password= "'"+ passwordField.getText()+ "'";
+
+						DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+						Calendar cal = Calendar.getInstance();
+						String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
+						String createdBy= "'INITIAL CONFIGURATION'";
+
+						String query= "INSERT INTO sisca_account (sisca_account_first_name, "
+								+ "sisca_account_last_name, "
+								+ "sisca_account_username, "
+								+ "sisca_account_password, "
+								+ "sisca_account_type, "
+								+ "sisca_account_creationdate, "
+								+ "sisca_account_createdby, "
+								+ "sisca_account_active) "
+								+ "VALUES( "+ firstName
+								+", "+lastName
+								+", "+username
+								+", "+password
+								+", 'administrator' "
+								+", "+creationDate
+								+", "+createdBy
+								+", 'true')";
+						dbman.insertDB(query);
+
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+
+					frame.setContentPane(accountConfigurationWindow());
 				}
-				frame.setContentPane(accountConfigurationWindow());
+
 			}
 		});
 		accountADMINConfigurationMainPanel.add(btnNextButton_1);
@@ -1002,36 +1026,29 @@ public class HKJ_SisCAWizard {
 
 
 		// SetUp Status Panel Configuration
-		accountADMINConfigurationSetupPanel.setBackground(new Color(232,232,232));
-		accountADMINConfigurationSetupPanel.setBounds(0, 0, 163, 428);
-		accountADMINConfigurationSetupPanel.setLayout(null);
-		accountADMINConfigurationSetupPanel.setBorder(null);
-		JLabel lblNewLabel_1 = new JLabel("Welcome");
-		lblNewLabel_1.setBounds(8, 43, 136, 16);
-		lblNewLabel_1.setFont(new Font("Lucida Grande", Font.PLAIN, 13));
-		accountADMINConfigurationSetupPanel.add(lblNewLabel_1);
+		JPanel setUpStatusPaneldAminAccount = new JPanel();
+		setUpStatusPaneldAminAccount.setBackground(new Color(232,232,232));
+		setUpStatusPaneldAminAccount.setBounds(0, 0, 163, 428);
+		setUpStatusPaneldAminAccount.setBorder(null);
+		setUpStatusPaneldAminAccount.setLayout(new MigLayout("", "[136px]", "[110.00][125][125][125][400]"));
 
-		JLabel lblNewLabel_2 = new JLabel("Configuration");
-		lblNewLabel_2.setFont(new Font("Lucida Grande", Font.BOLD, 13));
-		lblNewLabel_2.setBounds(8, 64, 136, 16);
-		accountADMINConfigurationSetupPanel.add(lblNewLabel_2);
+		JLabel lblNewLabel_11 = new JLabel("Welcome");
+		setUpStatusPaneldAminAccount.add(lblNewLabel_11, "cell 0 1,growx,aligny center");
 
-		JLabel lblNewLabel_3 = new JLabel("Installing");
-		lblNewLabel_3.setBounds(8, 85, 136, 16);
-		accountADMINConfigurationSetupPanel.add(lblNewLabel_3);
+		JLabel lblNewLabel_21 = new JLabel("Configuration");
+		lblNewLabel_21.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+		setUpStatusPaneldAminAccount.add(lblNewLabel_21, "cell 0 2,growx,aligny center");
 
-		JLabel lblNewLabel_4 = new JLabel("Complete Setup");
-		lblNewLabel_4.setBounds(8, 106, 136, 16);
-		accountADMINConfigurationSetupPanel.add(lblNewLabel_4);
+		JLabel lblNewLabel_41 = new JLabel("Complete");
+		setUpStatusPaneldAminAccount.add(lblNewLabel_41, "cell 0 3,growx,aligny center");
 
-		JLabel lblNewLabel_5 = new JLabel("");
-		lblNewLabel_5.setBounds(8, 298, 136, 116);
-		lblNewLabel_5.setIcon(image1);
-		accountADMINConfigurationSetupPanel.add(lblNewLabel_5);
+		JLabel lblNewLabel_51 = new JLabel("");
+		lblNewLabel_51.setIcon(image1);
+		setUpStatusPaneldAminAccount.add(lblNewLabel_51, "cell 0 4,growx,aligny bottom");
 
 		// Main Window Add's
 		accountADMINConfigurationWindow.add(accountADMINConfigurationMainPanel);
-		accountADMINConfigurationWindow.add(accountADMINConfigurationSetupPanel);
+		accountADMINConfigurationWindow.add(setUpStatusPaneldAminAccount);
 
 		return accountADMINConfigurationWindow;
 
@@ -1039,80 +1056,107 @@ public class HKJ_SisCAWizard {
 	}
 
 	protected JPanel completeConfigurationWindow() {
-		JPanel completeConfigurationWindow= new JPanel();
-		JPanel completeConfigurationMainPanel= new JPanel();
-		JPanel completeConfigurationSetupPanel= new JPanel();
+		JPanel mainPanel= new JPanel();
+		JPanel setUpStatusPanel= new JPanel();
+		JTextPane txtpnTheInstallationWizard = new JTextPane();
+		ImageIcon image1=  new ImageIcon("/Users/JuanPablo/Documents/HKJ_SisCA/GUI/Icons/logo5.png");
+		JPanel mainWindow= new JPanel();
 
+		// Main Window Configuration
 
-		// Window Configuration
+		mainWindow.setBackground(new Color(245, 245, 245));
+		mainWindow.setBounds(0, 0, 600, 450);
+		mainWindow.setLayout(null);
 
-		completeConfigurationWindow.setBackground(new Color(245, 245, 245));
-		completeConfigurationWindow.setBounds(0, 0, 600, 428);
-		completeConfigurationWindow.setLayout(null);
-
-
-		completeConfigurationMainPanel.setBackground(new Color(242,242,242));
-		completeConfigurationMainPanel.setBounds(161, 0, 439, 428);
-		completeConfigurationMainPanel.setLayout(null);
-		completeConfigurationMainPanel.setBorder(null);
-		JLabel lblNewLabel = new JLabel("Installing...");
+		// Main Panel Configuration
+		mainPanel.setBackground(new Color(242,242,242));
+		mainPanel.setBounds(161, 0, 439, 428);
+		mainPanel.setLayout(null);
+		mainPanel.setBorder(null);
+		JLabel lblNewLabel = new JLabel("SisCA installation wizard completed! ");
 		lblNewLabel.setFont(new Font("Lucida Grande", Font.BOLD, 15));
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel.setBounds(6, 123, 427, 16);
-		completeConfigurationMainPanel.add(lblNewLabel);
-		
-		// OJO
-		JProgressBar progressBar= new JProgressBar();
-		progressBar.setValue(25);
-		progressBar.setStringPainted(true);
-		Border border = BorderFactory.createTitledBorder("Reading...");
-		progressBar.setBorder(border);
-		completeConfigurationMainPanel.add(progressBar);
+		lblNewLabel.setBounds(6, 34, 427, 16);
+		mainPanel.add(lblNewLabel);
+		txtpnTheInstallationWizard.setBackground(new Color(242, 242, 242));
+		txtpnTheInstallationWizard.setEditable(false);
+		txtpnTheInstallationWizard.setText("     The installation wizard for SisCA has succesfully  installed.\n     Click finish to exit the wizard.");
+		txtpnTheInstallationWizard.setBounds(6, 75, 427, 51);
+		mainPanel.add(txtpnTheInstallationWizard);
+
+		JButton btnCancelButton = new JButton("Finish");
+		btnCancelButton.setBounds(316, 393, 117, 29);
+		btnCancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				try {
+					dbman= new DBManager();
+
+					String cName= "'"+ companyName+ "'";
+					String pKey= "'"+ productKey+ "'";
+					String serverIP= "'"+ serverIPAddress+ "'";
+
+
+					DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+					Calendar cal = Calendar.getInstance();
+					String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
+
+					String query= "INSERT INTO sisca_configuration_information (sisca_configuration_information_company_name, "
+							+ " sisca_configuration_informatione_product_key, "
+							+ "sisca_configuration_information_server_ip_address, "
+							+ "sisca_configuration_information_active, "
+							+ "sisca_configuration_information_installed_date)  "
+
+							+ "VALUES( "+ cName
+							+", "+pKey
+							+", "+serverIP
+							+", 'true' "
+							+", "+creationDate+")";
+					dbman.insertDB(query);
+					frame.setVisible(false);
+
+					HKJ_SisCA_MainPage  window = new HKJ_SisCA_MainPage();
+					window.initializae();
+
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+
+			}
+		});
+		mainPanel.add(btnCancelButton);
+
 
 		// SetUp Status Panel Configuration
-		completeConfigurationSetupPanel.setBackground(new Color(232,232,232));
-		completeConfigurationSetupPanel.setBounds(0, 0, 163, 428);
-		completeConfigurationSetupPanel.setLayout(null);
-		completeConfigurationSetupPanel.setBorder(null);
+		JPanel setUpStatusPaneldComplete = new JPanel();
+		setUpStatusPaneldComplete.setBackground(new Color(232,232,232));
+		setUpStatusPaneldComplete.setBounds(0, 0, 163, 428);
+		setUpStatusPaneldComplete.setBorder(null);
+		setUpStatusPaneldComplete.setLayout(new MigLayout("", "[136px]", "[110.00][125][125][125][400]"));
 
-		JLabel lblNewLabel_5 = new JLabel("");
-		lblNewLabel_5.setBounds(8, 298, 136, 116);
-		lblNewLabel_5.setIcon(image1);
-		completeConfigurationSetupPanel.add(lblNewLabel_5);
-
-		// SetUp Status Panel Configuration
-		completeConfigurationSetupPanel.setBackground(new Color(232,232,232));
-		completeConfigurationSetupPanel.setBounds(0, 0, 163, 428);
-		completeConfigurationSetupPanel.setLayout(null);
-		completeConfigurationSetupPanel.setBorder(null);
 		JLabel lblNewLabel_11 = new JLabel("Welcome");
-		lblNewLabel_11.setBounds(8, 43, 136, 16);
-		lblNewLabel_11.setFont(new Font("Lucida Grande", Font.PLAIN, 13));
-		completeConfigurationSetupPanel.add(lblNewLabel_11);
+		setUpStatusPaneldComplete.add(lblNewLabel_11, "cell 0 1,growx,aligny center");
 
 		JLabel lblNewLabel_21 = new JLabel("Configuration");
-		lblNewLabel_21.setFont(new Font("Lucida Grande", Font.PLAIN, 13));
-		lblNewLabel_21.setBounds(8, 64, 136, 16);
-		completeConfigurationSetupPanel.add(lblNewLabel_21);
+		setUpStatusPaneldComplete.add(lblNewLabel_21, "cell 0 2,growx,aligny center");
 
-		JLabel lblNewLabel_31 = new JLabel("Installing");
-		lblNewLabel_31.setFont(new Font("Lucida Grande", Font.BOLD, 13));
-		lblNewLabel_31.setBounds(8, 85, 136, 16);
-		completeConfigurationSetupPanel.add(lblNewLabel_31);
-
-		JLabel lblNewLabel_41 = new JLabel("Complete Setup");
-		lblNewLabel_41.setBounds(8, 106, 136, 16);
-		completeConfigurationSetupPanel.add(lblNewLabel_41);
+		JLabel lblNewLabel_41 = new JLabel("Complete");
+		lblNewLabel_41.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+		setUpStatusPaneldComplete.add(lblNewLabel_41, "cell 0 3,growx,aligny center");
 
 		JLabel lblNewLabel_51 = new JLabel("");
-		lblNewLabel_51.setBounds(8, 298, 136, 116);
 		lblNewLabel_51.setIcon(image1);
-		completeConfigurationSetupPanel.add(lblNewLabel_51);
+		setUpStatusPaneldComplete.add(lblNewLabel_51, "cell 0 4,growx,aligny bottom");
 
 		// Main Window Add's
-		completeConfigurationWindow.add(completeConfigurationMainPanel);
-		completeConfigurationWindow.add(completeConfigurationSetupPanel);
-		return completeConfigurationWindow;
+		mainWindow.add(mainPanel);
+		mainWindow.add(setUpStatusPaneldComplete);
+		return mainWindow;
 	}
 
 	protected JPanel accountConfigurationWindow() {
@@ -1366,36 +1410,31 @@ public class HKJ_SisCAWizard {
 		accountConfigurationMainPanel.add(lblAccountType);
 
 		// SetUp Status Panel Configuration
-		accountConfigurationSetupPanel.setBackground(new Color(232,232,232));
-		accountConfigurationSetupPanel.setBounds(0, 0, 163, 428);
-		accountConfigurationSetupPanel.setLayout(null);
-		accountConfigurationSetupPanel.setBorder(null);
+		JPanel setUpStatusPaneldAccount = new JPanel();
+		setUpStatusPaneldAccount.setBackground(new Color(232,232,232));
+		setUpStatusPaneldAccount.setBounds(0, 0, 163, 428);
+		setUpStatusPaneldAccount.setBorder(null);
+		setUpStatusPaneldAccount.setLayout(new MigLayout("", "[136px]", "[110.00][125][125][125][400]"));
+
 		JLabel lblNewLabel_11 = new JLabel("Welcome");
-		lblNewLabel_11.setBounds(8, 43, 136, 16);
-		lblNewLabel_11.setFont(new Font("Lucida Grande", Font.PLAIN, 13));
-		accountConfigurationSetupPanel.add(lblNewLabel_11);
+		setUpStatusPaneldAccount.add(lblNewLabel_11, "cell 0 1,growx,aligny center");
 
 		JLabel lblNewLabel_21 = new JLabel("Configuration");
 		lblNewLabel_21.setFont(new Font("Lucida Grande", Font.BOLD, 13));
-		lblNewLabel_21.setBounds(8, 64, 136, 16);
-		accountConfigurationSetupPanel.add(lblNewLabel_21);
+		setUpStatusPaneldAccount.add(lblNewLabel_21, "cell 0 2,growx,aligny center");
 
-		JLabel lblNewLabel_31 = new JLabel("Installing");
-		lblNewLabel_31.setBounds(8, 85, 136, 16);
-		accountConfigurationSetupPanel.add(lblNewLabel_31);
-
-		JLabel lblNewLabel_41 = new JLabel("Complete Setup");
-		lblNewLabel_41.setBounds(8, 106, 136, 16);
-		accountConfigurationSetupPanel.add(lblNewLabel_41);
+		JLabel lblNewLabel_41 = new JLabel("Complete");
+		setUpStatusPaneldAccount.add(lblNewLabel_41, "cell 0 3,growx,aligny center");
 
 		JLabel lblNewLabel_51 = new JLabel("");
-		lblNewLabel_51.setBounds(8, 298, 136, 116);
 		lblNewLabel_51.setIcon(image1);
-		accountConfigurationSetupPanel.add(lblNewLabel_51);
+		setUpStatusPaneldAccount.add(lblNewLabel_51, "cell 0 4,growx,aligny bottom");
+
+
 
 		// Main Window Add's
 		accountConfigurationWindow.add(accountConfigurationMainPanel);
-		accountConfigurationWindow.add(accountConfigurationSetupPanel);
+		accountConfigurationWindow.add(setUpStatusPaneldAccount);
 
 		return accountConfigurationWindow;
 	}

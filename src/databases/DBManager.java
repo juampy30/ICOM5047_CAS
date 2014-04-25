@@ -617,6 +617,30 @@ public class DBManager {
 		
 		return queryResult;
 	}
+	
+	public ArrayList<Object> getNotificationsInformation( String query) throws SQLException{
+		
+		System.out.println("GET Notifications From DB");
+		stmt = con.createStatement();
+		rs = stmt.executeQuery(query);
+		rows = new ArrayList<Object>(); 
+		arrayOfRows = new ArrayList<Object>(); 
+
+		ResultSetMetaData rsmd = rs.getMetaData();
+		numberOfColumns = rsmd.getColumnCount();
+		int i=1;
+
+		// Leyendo de la Base de datos
+		while(i < numberOfColumns && rs.next()){
+			for(int k=1; k<=numberOfColumns; k++){
+				rows.add( rs.getString(k));	
+			}
+		}	
+		subListas(rows);
+		stmt.close();
+		return arrayOfRows;
+		
+	}
 
 	public void deleteFromDB(String query) throws SQLException {
 		stmt = con.createStatement();
@@ -624,7 +648,28 @@ public class DBManager {
 
 	}
 
+	public int getIndex(String getIndexQuery) throws SQLException{
+		stmt = con.createStatement();
+		rs = stmt.executeQuery(getIndexQuery);
+		rows = new ArrayList<Object>(); 
+		arrayOfRows = new ArrayList<Object>(); 
 
+		ResultSetMetaData rsmd = rs.getMetaData();
+		numberOfColumns = rsmd.getColumnCount();
+		int i=0;
+		int requiredId=-1;
+		
+		// Leyendo de la Base de datos
+		while(i <numberOfColumns && rs.next()){
+			for(int k=1; k<=numberOfColumns; k++){
+				//Guardado de la forma: {columnName:Value}
+				requiredId = Integer.valueOf(rs.getString(k));
+			}
+		}
+		stmt.close();
+		System.out.println("@@@ " + requiredId);
+		return requiredId;
+	}
 	
 }
 

@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 
+import javax.mail.MessagingException;
 import javax.swing.AbstractListModel;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -157,7 +158,7 @@ public class HKJ_SisCA_MainPage {
 		try {
 			dbman= new DBManager();
 			result= dbman.getAccountTypeFromDB(query);
-
+			result.toUpperCase();
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -166,9 +167,9 @@ public class HKJ_SisCA_MainPage {
 			e.printStackTrace();
 		}
 		System.out.println(loggedUsernaneWith+"Result Account Type"+ result);
-		System.out.println("result==administrator"+ (result=="administrator"));
+		System.out.println("result==ADMINISTRATOR"+ (result=="ADMINISTRATOR"));
 
-		if(result.equals("administrator")){
+		if(result.toUpperCase().equals("ADMINISTRATOR")){
 			canView= true;
 		}
 
@@ -323,7 +324,7 @@ public class HKJ_SisCA_MainPage {
 		try {
 			dbman= new DBManager();
 
-			pNameLabelsArray=dbman.getFromDB("Select * from sisca_parking ORDER BY sisca_parking_name");
+			pNameLabelsArray=dbman.getFromDB("Select * from sisca_parking where sisca_parking_active='true' ORDER BY sisca_parking_name");
 			//System.out.println("Before Test:"+pNameLabelsArray);
 			pNameLabelsArray= dbman.getRegisterParkingsLiveSystem(pNameLabelsArray);
 			//System.out.println("After Test:"+pNameLabelsArray.toString());
@@ -561,7 +562,7 @@ public class HKJ_SisCA_MainPage {
 
 			}
 		});
-		viewAndAddBynPanel.add(addNewButton);
+		//viewAndAddBynPanel.add(addNewButton);
 
 
 		/////////////////////////////////////////////////////////
@@ -722,10 +723,43 @@ public class HKJ_SisCA_MainPage {
 	/**
 	 * Main Program
 	 * @param args
+	 * @throws MessagingException 
 	 */
-	public static void main (String[] args) {
-		HKJ_SisCA_MainPage  window = new HKJ_SisCA_MainPage();
-		window.initializae();
+	public static void main (String[] args) throws MessagingException {
+		Boolean empty= false;
+		ArrayList result= new ArrayList();
+		try {
+			dbman= new DBManager();
+			String query= "Select * from  sisca_configuration_information";
+			
+			result= dbman.getAllPermissionInfoFromDB(query);
+			
+			if (result.isEmpty()){
+				empty= true;
+			}
+
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
+		if(empty.equals(true)){
+			
+			HKJ_SisCAWizard wizardWindow = new HKJ_SisCAWizard();
+			wizardWindow.setVisible();
+		}
+		else{
+			HKJ_SisCA_MainPage  mainWindow = new HKJ_SisCA_MainPage();
+			mainWindow.initializae();
+			
+			NotificationManager notificationsManager= new NotificationManager();
+			notificationsManager.getNotifications();
+			notificationsManager.sendNotifications();
+		}
 
 	}
 

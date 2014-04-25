@@ -952,7 +952,7 @@ public class SADManager {
 						Calendar cal = Calendar.getInstance();
 		
 						String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
-						String createdBy= "'"+HKJ_SisCA_MainPage.getActiveUsername()+"'";
+						String createdBy= "'"+HKJ_SisCA_MainPage.loggedUsernaneWith+"'";
 						
 						String query= "Update sisca_sad SET sisca_sad_active= 'false' , sisca_sad_deletedby= "+createdBy+" , sisca_sad_deletedate="+creationDate
 								+ "where sisca_sad_name="+"'"+sadName+"'";
@@ -1441,7 +1441,7 @@ public class SADManager {
 				}
 			}
 		});
-		viewAndAddBynPanel.add(addNewButton);
+		//viewAndAddBynPanel.add(addNewButton);
 
 
 
@@ -1522,7 +1522,7 @@ public class SADManager {
 		directionLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 
 		final JComboBox directionComboBox = new JComboBox();
-		directionComboBox.setModel(new DefaultComboBoxModel(new String[] {"entry", "exit"}));
+		directionComboBox.setModel(new DefaultComboBoxModel(new String[] {"Entry", "Exit"}));
 		directionComboBox.setBounds(92, 94, 285, 27);
 		directionPanel.add(directionComboBox, "cell 1 0");
 
@@ -1543,7 +1543,7 @@ public class SADManager {
 						DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 						Calendar cal = Calendar.getInstance();
 						String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
-						String createdBy= "'"+HKJ_SisCA_MainPage.getActiveUsername()+"'";
+						String createdBy= "'"+HKJ_SisCA_MainPage.loggedUsernaneWith+"'";
 						String sadNameFromTextField= "'"+textFieldSADName.getText()+"'";
 						String sadDirectionFromComboBox= "'"+directionComboBox.getSelectedItem()+"'";
 						
@@ -2137,7 +2137,7 @@ public class SADManager {
 							DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 							Calendar cal = Calendar.getInstance();
 							String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
-							String createdBy= "'"+HKJ_SisCA_MainPage.getActiveUsername()+"'";
+							String createdBy= "'"+HKJ_SisCA_MainPage.loggedUsernaneWith+"'";
 
 							String query= "Update sisca_sad SET sisca_sad_name="+s1+", sisca_sad_direction="+s2+ ", sisca_sad_editdate="+creationDate+", sisca_sad_editedby="+createdBy
 									+"where sisca_sad_name ~*"+"'"+sadEditName+"'";

@@ -361,7 +361,7 @@ public class LiveSystemManager {
 		ArrayList<Object> availableParking= new ArrayList<Object>();
 		final DBManager dbman;
 		
-		String query= "Select * from sisca_parking";
+		String query= "Select * from sisca_parking where sisca_parking_active='true'";
 		try {
 			dbman= new DBManager();
 			availableParking=dbman.getFromDB(query);
