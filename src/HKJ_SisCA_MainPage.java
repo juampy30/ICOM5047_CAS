@@ -756,9 +756,7 @@ public class HKJ_SisCA_MainPage {
 			HKJ_SisCA_MainPage  mainWindow = new HKJ_SisCA_MainPage();
 			mainWindow.initializae();
 			
-			NotificationManager notificationsManager= new NotificationManager();
-			notificationsManager.getNotifications();
-			notificationsManager.sendNotifications();
+
 		}
 
 	}

@@ -1,4 +1,4 @@
-package databases;
+package hkj.sisca.auxiliary;
 
 public class Authorization {
 	
@@ -13,9 +13,10 @@ public class Authorization {
 		
 	}
 	
-	public static Authorization getInstanceFromString() {
-		//TODO: Complete this method
-		return null;
+	public static Authorization getInstanceFromString(String auth) {
+		auth = auth.substring(1, auth.length()-2);
+		String[] authData = auth.split(",");
+		return new Authorization(Integer.parseInt(authData[0]), authData[1], Boolean.getBoolean(authData[2]));
 	}
 	
 	public int getAuthorizationID() {
@@ -40,6 +41,6 @@ public class Authorization {
 	
 	@Override
 	public boolean equals(Object anotherObject) {
-		return this.authorizationID == ((Authorization) anotherObject).getAuthorizationID() && this.authorizationName.equals(((Authorization) anotherObject).getAuthorizationName());
+		return this.authorizationID == ((Authorization) anotherObject).getAuthorizationID();
 	}
 }

@@ -18,8 +18,8 @@ public class NotificationManager {
 	
 	public NotificationManager(){
 		
-		String username = "juan.bermudez1@upr.edu";
-		String password = "Juampy30";
+		String username = "hkjsisca2014";
+		String password = "sisca2014";
 		String incomingHost = "pop.gmail.com";
 		String outgoingHost = "smtp.gmail.com";
 
@@ -27,7 +27,7 @@ public class NotificationManager {
 		
 	}
 	
-	public void getNotifications(){
+	public void setNotifications(){
 		
 		try {
 			
@@ -42,7 +42,7 @@ public class NotificationManager {
 					+ "where sisca_applicant_id= sisca_permission_applicant_id "
 					+ "and sisca_notification_id= sisca_permission_notification_id  "
 					+ "and sisca_permission_status='true' "
-					+ "and where sisca_notification_date="+ currentDate;
+					+ "and sisca_notification_date="+ currentDate;
 			dbman= new DBManager();
 			notificationsList= dbman.getNotificationsInformation(query);
 			
@@ -71,13 +71,20 @@ public class NotificationManager {
 			//System.out.println("email: "+ email);
 			
 			String messageContents= "Saludos "+applicantName+ ": " +
-					"\n\nEl permiso de estacionamiento, con la numeraci—n "+tagNumber+", ha expirado el d’a "+expirtationDate+"."+
-					"\n\nFavor de pasar por la Ooicina de Tr‡nsito para la renovaci—n de su permiso.";
+					"\n\nEl permiso de estacionamiento, con la numeracion "+tagNumber+", ha expirado el dia "+expirtationDate+"."+
+					"\n\nFavor de pasar por la Oficina de Transito para la renovacion de su permiso.";
 			
 			emailServer.sendMessage(email,"Notificacion de Permiso para Estacionamiento", messageContents);
 			
 		}
 		
+	}
+	
+	public static void main (String[] args) throws MessagingException {
+		
+		NotificationManager notificationsManager= new NotificationManager();
+		notificationsManager.setNotifications();
+		notificationsManager.sendNotifications();
 	}
 
 }

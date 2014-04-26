@@ -1,3 +1,5 @@
+import hkj.sisca.auxiliary.Tag;
+import java.sql.Date;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -10,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -40,6 +43,7 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 
+import hkj.sisca.auxiliary.Authorization;
 import databases.DBManager;
 import net.miginfocom.swing.MigLayout;
 
@@ -237,7 +241,7 @@ public class PermissionManager {
 				String searchField="'"+textFieldSearch.getText()+"'";
 
 				System.out.println("text field"+textFieldSearch.getText());
-				String query= "Select * from sisca_permission where sisca_permission_tag_number ~*"+searchField;
+				String query= "Select * from sisca_permission where sisca_permission_active= 'true' and sisca_permission_tag_number ~*"+searchField;
 				try {
 					dbman= new DBManager();
 					availablePermission= dbman.getFromDB(query);
@@ -277,7 +281,7 @@ public class PermissionManager {
 				String searchField="'"+textFieldSearch.getText()+"'";
 
 				System.out.println("text field"+textFieldSearch.getText());
-				String query= "Select * from sisca_permission where sisca_permission_tag_number ~*"+searchField;
+				String query= "Select * from sisca_permission where sisca_permission_active= 'true' and sisca_permission_tag_number ~*"+searchField;
 				try {
 					dbman= new DBManager();
 					availablePermission= dbman.getFromDB(query);
@@ -337,7 +341,7 @@ public class PermissionManager {
 				String searchField="'"+specialPermissiontextField.getText()+"'";
 
 				System.out.println("text field"+specialPermissiontextField.getText());
-				String query= "Select * from sisca_special_permission where sisca_special_permission_tag_number ~*"+searchField;
+				String query= "Select * from sisca_special_permission where sisca_special_permission_active= 'true' and sisca_special_permission_tag_number ~*"+searchField;
 				try {
 					dbman= new DBManager();
 					availableSpecialPermission= dbman.getFromDB(query);
@@ -377,7 +381,7 @@ public class PermissionManager {
 				String searchField="'"+specialPermissiontextField.getText()+"'";
 
 				System.out.println("text field"+specialPermissiontextField.getText());
-				String query= "Select * from sisca_special_permission where sisca_special_permission_tag_number ~*"+searchField;
+				String query= "Select * from sisca_special_permission where sisca_special_permission_active= 'true' and sisca_special_permission_tag_number ~*"+searchField;
 				try {
 					dbman= new DBManager();
 					availableSpecialPermission= dbman.getFromDB(query);
@@ -820,7 +824,7 @@ public class PermissionManager {
 				availablePermissionModelList.clear();
 
 				String searchField="'"+searchTextField.getText()+"'";
-				String query= "Select * from sisca_permission where sisca_permission_tag_number ~*"+searchField;
+				String query= "Select * from sisca_permission where sisca_permission_active= 'true' and sisca_permission_tag_number ~*"+searchField;
 				try {
 					dbman= new DBManager();
 					availablePermission= dbman.getFromDB(query);
@@ -1066,8 +1070,7 @@ public class PermissionManager {
 					Calendar cal = Calendar.getInstance();
 
 					String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
-					String createdBy= "'"+HKJ_SisCA_MainPage.getActiveUsername()+"'";
-
+					String createdBy= ""+HKJ_SisCA_MainPage.loggedUsernaneWith+"";
 					String queryA= "Update sisca_permission SET sisca_permission_active= 'false', sisca_permission_deletedby= "+createdBy+" , sisca_permission_deletedate="+creationDate
 							+ " where sisca_permission_id="+"'"+currentTagID+"'";
 					String queryB= "Update sisca_vehicle SET sisca_vehicle_active= 'false', sisca_vehicle_deletedby= "+createdBy+" , sisca_vehicle_deletedate="+creationDate
@@ -1254,7 +1257,7 @@ public class PermissionManager {
 
 
 		/////////////////////////////////////////////////////////
-		//Left Panel
+		//cretedBy
 		/////////////////////////////////////////////////////////
 
 		//Configurations 
@@ -1539,8 +1542,7 @@ public class PermissionManager {
 					Calendar cal = Calendar.getInstance();
 
 					String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
-					String createdBy= "'"+HKJ_SisCA_MainPage.getActiveUsername()+"'";
-
+					String createdBy= ""+HKJ_SisCA_MainPage.loggedUsernaneWith+"";
 					String queryA= "Update sisca_special_permission SET sisca_special_permission_active= 'false', sisca_special_permission_deletedby= "+createdBy+" , sisca_special_permission_deletedate="+creationDate
 							+ " where sisca_special_permission_id="+"'"+currentTagID+"'";
 
@@ -1857,7 +1859,7 @@ public class PermissionManager {
 				availablePermissionModelList.clear();
 
 				String searchField="'"+searchTextField.getText()+"'";
-				String query= "Select * from sisca_permission where sisca_permission_tag_number ~*"+searchField;
+				String query= "Select * from sisca_permission where sisca_permission_active= 'true' and sisca_permission_tag_number ~*"+searchField;
 				try {
 					dbman= new DBManager();
 					availablePermission= dbman.getFromDB(query);
@@ -2263,8 +2265,7 @@ public class PermissionManager {
 						String tag_number= "'"+textFieldTagNumber.getText()+"'";
 						String expiration= "'"+textFieldExpirationDate.getText()+"'";
 						String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
-						String createdBy= "'"+HKJ_SisCA_MainPage.getActiveUsername()+"'";
-						String authorizationType= "'"+authirizationTypesComboBox.getSelectedItem()+"'";
+						String createdBy= ""+HKJ_SisCA_MainPage.loggedUsernaneWith+"";						String authorizationType= "'"+authirizationTypesComboBox.getSelectedItem()+"'";
 
 						String query1= " INSERT INTO sisca_special_permission (sisca_special_permission_tag_number, sisca_special_permission_expiration_date, sisca_special_permission_authorization_type, "
 								+ "sisca_special_permission_active, sisca_special_permission_creationdate, sisca_special_permission_createdby) "
@@ -2297,7 +2298,14 @@ public class PermissionManager {
 								textFieldAFirstName.getText().isEmpty()||textFieldALastName.getText().isEmpty()||textFieldPhone.getText().isEmpty()||
 								textFieldEmail.getText().isEmpty()||textFieldLicenseNumber.getText().isEmpty()||textFieldTagNumber.getText().isEmpty()||
 								textFieldExpirationDate.getText().isEmpty()||textFieldNotificationDate.getText().isEmpty()){
+							
+							
+							JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid or incomplete input data! Please, verify your informtion.", "", 1);
 
+
+
+						}
+						else{
 							/////////////////////////////////////////////////
 							// Query for insert Parking Information
 							/////////////////////////////////////////////////
@@ -2349,8 +2357,7 @@ public class PermissionManager {
 
 							// Other Information
 							String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
-							String createdBy= "'"+HKJ_SisCA_MainPage.getActiveUsername()+"'";
-
+							String createdBy= ""+HKJ_SisCA_MainPage.loggedUsernaneWith+"";
 							try {
 								String query1= " INSERT INTO sisca_vehicle (sisca_vehicle_vin, sisca_vehicle_plate, sisca_vehicle_country, sisca_vehicle_brand, sisca_vehicle_model, sisca_vehicle_year, "+
 										"sisca_vehicle_color, sisca_vehicle_owner_first_name, sisca_vehicle_owner_last_name, sisca_vehicle_creationdate, sisca_vehicle_createdby, sisca_vehicle_active) VALUES (" +vin + " , "+plate + " , "+country + " , "+brand + " , "+model + " , "+year + " , "+color + " , "+o_first + " , "+o_last + " , "+creationDate + " , "+createdBy +" , 'true' " + " )";
@@ -2363,12 +2370,31 @@ public class PermissionManager {
 
 								vehicle_id= dbman.insertVehicleDB(query1);
 								applicant_id= dbman.insertDB(query2);
-								notification_id= dbman.insertDB(query4);
+								
+								if(rdbtnYes.isSelected()){
+									notification_id= dbman.insertDB(query4);
+								}
+								
+								
 
 								String query3= " INSERT INTO sisca_permission (sisca_permission_notification_id, sisca_permission_tag_number, sisca_permission_expiration_date, sisca_permission_status, sisca_permission_vehicle_id, sisca_permission_applicant_id, sisca_permission_creationdate, sisca_permission_createdby, sisca_permission_active, sisca_permission_authorization_type) VALUES ("
 										+notification_id+", "+tag_number + " , "+expiration + " , 'true', "+vehicle_id + " , "+applicant_id + " , "+creationDate + " , "+createdBy +" , 'true' " + " , "+authorizationType +" )";
 
 								permission_id= dbman.insertDB(query3);
+								
+								/////////////////////////////////////
+								// SEND TO TO BE WRITTEN TO ALL SADS
+								////////////////////////////////////
+								
+
+//								int authorization_id= dbman.getFromDB(getQuery)
+//								
+//								SimpleDateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd"); //"mm.dd.yy"
+//								Date date = (Date) dateFormat1.parse(expiration);
+//								
+//								Authorization authorization= new Authorization(tag_number,authorization,date);
+//								Tag tagToBeSend= new Tag(tag_number,authorization,date);
+								
 
 							} catch (SQLException e) {
 								// TODO Auto-generated catch block
@@ -2381,9 +2407,7 @@ public class PermissionManager {
 							HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 
 
-						}
-						else{
-							JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid or incomplete input data! Please, verify your informtion.", "", 1);
+
 						}
 
 					}
@@ -3092,8 +3116,7 @@ public class PermissionManager {
 					Calendar cal = Calendar.getInstance();
 
 					String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
-					String createdBy= "'"+HKJ_SisCA_MainPage.getActiveUsername()+"'";
-
+					String createdBy= ""+HKJ_SisCA_MainPage.loggedUsernaneWith+"";
 
 					String query1= "UPDATE sisca_notification SET sisca_notification_date="+notificationDate + ", sisca_notification_editedby= "+createdBy+" , sisca_notification_editdate="+creationDate
 							+" where sisca_notification_id='"+currentPermissionInfo.get(46)+"'";
@@ -3616,8 +3639,7 @@ public class PermissionManager {
 						Calendar cal = Calendar.getInstance();
 
 						String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
-						String createdBy= "'"+HKJ_SisCA_MainPage.getActiveUsername()+"'";
-
+						String createdBy= ""+HKJ_SisCA_MainPage.loggedUsernaneWith+"";
 
 						String query1= "UPDATE sisca_special_permission SET sisca_special_permission_expiration_date="+expirationnDate 
 								+ ", sisca_special_permission_tag_number= "+tagNumber

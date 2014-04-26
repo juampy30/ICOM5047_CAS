@@ -220,7 +220,7 @@ public class SADManager {
 				availableSADModelList.clear();
 
 				String searchField="'"+textFieldSearch.getText()+"'";
-				String query= "Select * from sisca_sad where sisca_sad_name ~*"+searchField;
+				String query= "Select * from sisca_sad where sisca_sad_active= 'true' and sisca_sad_name ~*"+searchField;
 				try {
 					dbman= new DBManager();
 					availableSAD= dbman.getFromDB(query);
@@ -255,7 +255,7 @@ public class SADManager {
 				availableSADModelList.clear();
 
 				String searchField="'"+textFieldSearch.getText()+"'";
-				String query= "Select * from sisca_sad where sisca_sad_name ~*"+searchField;
+				String query= "Select * from sisca_sad where  sisca_sad_active= 'true' and sisca_sad_name ~*"+searchField;
 				try {
 					dbman= new DBManager();
 					availableSAD= dbman.getFromDB(query);
@@ -504,7 +504,8 @@ public class SADManager {
 
 
 		/////////////////////////////////////////////////////////
-		//Left Panel
+		//
+
 		/////////////////////////////////////////////////////////
 
 		//Configurations 
@@ -544,7 +545,7 @@ public class SADManager {
 		try {
 			dbman= new DBManager();
 
-			sNameLabelsArray=dbman.getFromDB("Select * from sisca_sad ORDER BY sisca_sad_name");
+			sNameLabelsArray=dbman.getFromDB("Select * from sisca_sad where sisca_sad_active= 'true' ORDER BY sisca_sad_name");
 			sNameLabelsArray= dbman.getAvailableSADOnlyName(sNameLabelsArray);
 
 
@@ -753,7 +754,7 @@ public class SADManager {
 				availableSADModelList.clear();
 
 				String searchField="'"+searchTextField.getText()+"'";
-				String query= "Select * from sisca_sad where sisca_sad_name ~*"+searchField;
+				String query= "Select * from sisca_sad where sisca_sad_active= 'true' and  sisca_sad_name ~*"+searchField;
 				try {
 					dbman= new DBManager();
 					availableSAD= dbman.getFromDB(query);
@@ -952,7 +953,7 @@ public class SADManager {
 						Calendar cal = Calendar.getInstance();
 		
 						String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
-						String createdBy= "'"+HKJ_SisCA_MainPage.loggedUsernaneWith+"'";
+						String createdBy= ""+HKJ_SisCA_MainPage.loggedUsernaneWith+"";
 						
 						String query= "Update sisca_sad SET sisca_sad_active= 'false' , sisca_sad_deletedby= "+createdBy+" , sisca_sad_deletedate="+creationDate
 								+ "where sisca_sad_name="+"'"+sadName+"'";
@@ -1176,7 +1177,7 @@ public class SADManager {
 		try {
 			dbman= new DBManager();
 
-			sNameLabelsArray=dbman.getFromDB("Select * from sisca_sad ORDER BY sisca_sad_name");
+			sNameLabelsArray=dbman.getFromDB("Select * from sisca_sad where sisca_sad_active= 'true' ORDER BY sisca_sad_name");
 			sNameLabelsArray= dbman.getAvailableSADOnlyName(sNameLabelsArray);
 
 
@@ -1387,7 +1388,7 @@ public class SADManager {
 				availableSADModelList.clear();
 
 				String searchField="'"+searchTextField.getText()+"'";
-				String query= "Select * from sisca_sad where sisca_sad_name ~*"+searchField;
+				String query= "Select * from sisca_sad  where sisca_sad_active= 'true' and sisca_sad_name ~*"+searchField;
 				try {
 					dbman= new DBManager();
 					availableSAD= dbman.getFromDB(query);
@@ -1543,7 +1544,7 @@ public class SADManager {
 						DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 						Calendar cal = Calendar.getInstance();
 						String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
-						String createdBy= "'"+HKJ_SisCA_MainPage.loggedUsernaneWith+"'";
+						String createdBy= ""+HKJ_SisCA_MainPage.loggedUsernaneWith+"";
 						String sadNameFromTextField= "'"+textFieldSADName.getText()+"'";
 						String sadDirectionFromComboBox= "'"+directionComboBox.getSelectedItem()+"'";
 						
@@ -1763,9 +1764,10 @@ public class SADManager {
 		////////////////////////////////////////////////////////////////////////////////////
 		ArrayList sNameLabelsArray = new ArrayList() ;
 		try {
+			
 			dbman= new DBManager();
 
-			sNameLabelsArray=dbman.getFromDB("Select * from sisca_sad ORDER BY sisca_sad_name");
+			sNameLabelsArray=dbman.getFromDB("Select * from sisca_sad where sisca_sad_active= 'true' ORDER BY sisca_sad_name");
 			//System.out.println("Before Test:"+pNameLabelsArray);
 			sNameLabelsArray= dbman.getAvailableSADOnlyName(sNameLabelsArray);
 
@@ -1976,7 +1978,7 @@ public class SADManager {
 				availableSADModelList.clear();
 
 				String searchField="'"+searchTextField.getText()+"'";
-				String query= "Select * from sisca_sad where sisca_sad_name ~*"+searchField;
+				String query= "Select * from sisca_sad where sisca_sad_active= 'true' and sisca_sad_name ~*"+searchField;
 				try {
 					dbman= new DBManager();
 					availableSAD= dbman.getFromDB(query);
@@ -2137,7 +2139,7 @@ public class SADManager {
 							DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 							Calendar cal = Calendar.getInstance();
 							String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
-							String createdBy= "'"+HKJ_SisCA_MainPage.loggedUsernaneWith+"'";
+							String createdBy= ""+HKJ_SisCA_MainPage.loggedUsernaneWith+"";
 
 							String query= "Update sisca_sad SET sisca_sad_name="+s1+", sisca_sad_direction="+s2+ ", sisca_sad_editdate="+creationDate+", sisca_sad_editedby="+createdBy
 									+"where sisca_sad_name ~*"+"'"+sadEditName+"'";
