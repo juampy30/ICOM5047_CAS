@@ -43,7 +43,7 @@ public class CommunicationManagerCAS {
 	 * @author hfranqui
 	 *
 	 */
-	public class TagListUpdateContainer {
+	public static class TagListUpdateContainer {
 		private hkj.sisca.auxiliary.Tag receivedTag;
 		private TagUpdateType tagUpdateType;
 		private TagUpdateListName tagUpdateListName;

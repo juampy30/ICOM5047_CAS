@@ -1,8 +1,14 @@
+import hkj.sisca.auxiliary.Authorization;
 import hkj.sisca.auxiliary.Tag;
-import java.sql.Date;
+import hkj.sisca.cas.communication.manager.CommunicationManagerCAS;
+import hkj.sisca.cas.communication.manager.CommunicationManagerCAS.TagListUpdateContainer;
+import hkj.sisca.cas.communication.manager.CommunicationManagerCAS.TagUpdateListName;
+import hkj.sisca.cas.communication.manager.CommunicationManagerCAS.TagUpdateType;
+import hkj.sisca.cas.communication.manager.CommunicationManagerConstants.ClientType;
+import hkj.sisca.utilities.ClientSocket;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -12,6 +18,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.net.UnknownHostException;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -22,13 +30,10 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import javax.swing.AbstractListModel;
 import javax.swing.BoxLayout;
-import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -43,9 +48,8 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 
-import hkj.sisca.auxiliary.Authorization;
-import databases.DBManager;
 import net.miginfocom.swing.MigLayout;
+import databases.DBManager;
 
 
 /** Permission Manager
@@ -2353,7 +2357,7 @@ public class PermissionManager {
 							//String delivery= "'"+dateFormat.format(cal.getTime())+"'";
 							String expiration= "'"+textFieldExpirationDate.getText()+"'";
 							String notification= "'"+textFieldNotificationDate.getText()+"'";
-							String authorizationType= "'"+authirizationTypesComboBox.getSelectedItem()+"'";
+							String authorizationName= "'"+authirizationTypesComboBox.getSelectedItem()+"'";
 
 							// Other Information
 							String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
@@ -2378,28 +2382,93 @@ public class PermissionManager {
 								
 
 								String query3= " INSERT INTO sisca_permission (sisca_permission_notification_id, sisca_permission_tag_number, sisca_permission_expiration_date, sisca_permission_status, sisca_permission_vehicle_id, sisca_permission_applicant_id, sisca_permission_creationdate, sisca_permission_createdby, sisca_permission_active, sisca_permission_authorization_type) VALUES ("
-										+notification_id+", "+tag_number + " , "+expiration + " , 'true', "+vehicle_id + " , "+applicant_id + " , "+creationDate + " , "+createdBy +" , 'true' " + " , "+authorizationType +" )";
+										+notification_id+", "+tag_number + " , "+expiration + " , 'true', "+vehicle_id + " , "+applicant_id + " , "+creationDate + " , "+createdBy +" , 'true' " + " , "+authorizationName +" )";
 
 								permission_id= dbman.insertDB(query3);
 								
-								/////////////////////////////////////
-								// SEND TO TO BE WRITTEN TO ALL SADS
-								////////////////////////////////////
+								//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+								// SEND TAG TO BE WRITTEN TO ALL SADS
+								//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 								
-
-//								int authorization_id= dbman.getFromDB(getQuery)
-//								
-//								SimpleDateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd"); //"mm.dd.yy"
-//								Date date = (Date) dateFormat1.parse(expiration);
-//								
-//								Authorization authorization= new Authorization(tag_number,authorization,date);
-//								Tag tagToBeSend= new Tag(tag_number,authorization,date);
+								String query5= "Select sisca_authorization_id, sisca_authorization_uncondtional_entry from sisca_authorization where sisca_authorization_name="+authorizationName;
+								String query6= "Select sisca_configuration_information_device_id from sisca_configuration_information where sisca_configuration_information_id='0'"; // cafre, esto no es as’
+										
+										
+								ArrayList result= new ArrayList();
+								ArrayList result2= new ArrayList();
+								result= dbman.getFromDB(query5);
+								result2= dbman.getFromDB(query6);
 								
+								int authorization_id= Integer.parseInt((String)result.get(0));
+								String casID= (String)result2.get(0);
+								
+								Boolean uncoditionalEntry=false;
+								
+								if(result.get(1).equals("t")){
+									uncoditionalEntry=true;
+								}
+								
+								SimpleDateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd"); //"mm.dd.yy"
+								Date date = (Date) dateFormat1.parse(textFieldExpirationDate.getText());
+								
+								Authorization authorization= new Authorization(authorization_id, (String)authirizationTypesComboBox.getSelectedItem(),uncoditionalEntry);
+								Tag tagToBeSend= new Tag((String) textFieldTagNumber.getText(),authorization,date);
+								
+								
+								String ipAddress= "127.0.0.1";
+								int port= 5000;
+								
+								TagListUpdateContainer tluc = new TagListUpdateContainer(tagToBeSend, TagUpdateType.AddUpdate, TagUpdateListName.NewTagsList);
+								ClientSocket clientSocket= new ClientSocket(ipAddress,port);
+								
+								CommunicationManagerCAS cmcas= new CommunicationManagerCAS(clientSocket,ClientType.CAS,casID);
+								
+//								String sadQuery= "Select sisca_authorization_name, sisca_sad_name, sisca_parking_name, sisca_sad_direction, sisca_sad_id "
+//										+ "from (((sisca_sad natural join sisca_sad_parking_list) natural join sisca_parking) natural join sisca_authorization_parking_list) "
+//										+ "natural join sisca_authorization"
+//										+ " where sisca_sad.sisca_sad_id=sisca_sad_parking_list.sisca_sad_id and sisca_sad_parking_active='true' "
+//										+ "and sisca_parking.sisca_parking_id= sisca_sad_parking_list.sisca_parking_id "
+//										+ "and sisca_parking.sisca_parking_id= sisca_authorization_parking_list.sisca_parking_id "
+//										+ "and sisca_authorization_parking_active= 'true' "
+//										+ "and sisca_authorization.sisca_authorization_id= sisca_authorization_parking_list.sisca_authorization_id"
+//										+ "and sisca_authorization_id="+"'"+authorization_id+"'";
+								
+								String sadQuery= "Select sisca_sad_name "
+										+ "from (((sisca_sad natural join sisca_sad_parking_list) natural join sisca_parking) natural join sisca_authorization_parking_list) "
+										+ "natural join sisca_authorization"
+										+ " where sisca_sad.sisca_sad_id=sisca_sad_parking_list.sisca_sad_id and sisca_sad_parking_active='true' "
+										+ "and sisca_parking.sisca_parking_id= sisca_sad_parking_list.sisca_parking_id "
+										+ "and sisca_parking.sisca_parking_id= sisca_authorization_parking_list.sisca_parking_id "
+										+ "and sisca_authorization_parking_active= 'true' "
+										+ "and sisca_authorization.sisca_authorization_id= sisca_authorization_parking_list.sisca_authorization_id"
+										+ "and sisca_authorization_id="+"'"+authorization_id+"'";
+								
+								ArrayList sadList= new ArrayList();
+								
+								sadList= dbman.getNotificationsInformation(sadQuery);
+								
+								for(int i=0; i<sadList.size();i++){
+									String sadID= ""+((List<Object>) sadList.get(i)).get(0);
+									cmcas.sendTagListUpdate(sadID,tluc);
+								}
+								
+								
+							
+						
 
 							} catch (SQLException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 								JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid or incomplete input data! Please, verify your informtion.", "", 1);
+							} catch (ParseException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (UnknownHostException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}	
 
 							HKJ_SisCA_MainPage.frame.setContentPane(permissionInformationView(textFieldTagNumber.getText(),permission_id));

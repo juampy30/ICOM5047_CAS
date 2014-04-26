@@ -25,7 +25,7 @@ public class ClientSocket {
 	 * @throws UnknownHostException
 	 * @throws IOException
 	 */
-	private ClientSocket(String host, int port) throws UnknownHostException, IOException {
+	public ClientSocket(String host, int port) throws UnknownHostException, IOException {
 			socket = new Socket(host, port);
 			input = new DataInputStream(socket.getInputStream());
 			output = new DataOutputStream(socket.getOutputStream());	

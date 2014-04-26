@@ -1,3 +1,5 @@
+import hkj.sisca.utilities.AuthenticationManager;
+
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
@@ -52,6 +54,8 @@ public class HKJ_SisCAWizard {
 	String serverIPAddress;
 	String productKey;
 	String companyName;
+	Long authenticationID;
+	AuthenticationManager aManager;
 
 
 	public static void main(String[] args) {
@@ -150,6 +154,11 @@ public class HKJ_SisCAWizard {
 					JOptionPane.showMessageDialog(null,"Invalid or incomplete input data! Please, verify your informtion.");
 				}
 				else{
+					// Generate ClientType
+					
+					aManager= new AuthenticationManager();
+					
+					authenticationID= aManager.generateAuthenticationID();
 					companyName= textFieldCompanyName.getText();
 					productKey= textFieldProductKey.getText();
 					frame.setContentPane(serverConfigurationWindow());
@@ -925,6 +934,7 @@ public class HKJ_SisCAWizard {
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+						JOptionPane.showMessageDialog(null,"Invalid or incomplete input data! Please, verify your informtion or complete installation.");
 					}
 					frame.setContentPane(completeConfigurationWindow());
 				}
@@ -1095,6 +1105,7 @@ public class HKJ_SisCAWizard {
 					String cName= "'"+ companyName+ "'";
 					String pKey= "'"+ productKey+ "'";
 					String serverIP= "'"+ serverIPAddress+ "'";
+					String aID= "'"+ authenticationID+ "'";
 
 
 					DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
@@ -1105,13 +1116,15 @@ public class HKJ_SisCAWizard {
 							+ " sisca_configuration_informatione_product_key, "
 							+ "sisca_configuration_information_server_ip_address, "
 							+ "sisca_configuration_information_active, "
-							+ "sisca_configuration_information_installed_date)  "
+							+ "sisca_configuration_information_installed_date,  "
+							+ "sisca_configuration_information_device_id)  "
 
 							+ "VALUES( "+ cName
 							+", "+pKey
 							+", "+serverIP
 							+", 'true' "
-							+", "+creationDate+")";
+							+", "+creationDate
+					        +", "+aID+")";
 					dbman.insertDB(query);
 					frame.setVisible(false);
 
