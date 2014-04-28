@@ -15,11 +15,11 @@ public class Tag {
 
 	private String tagID;
 	private Authorization authorizationType;
-	private Date expirationDate;
+	private String expirationDate;
 	private boolean isTagActive;
 	private GivenAccessType tagAccessType;
 
-	public Tag(String tagID, Authorization type, Date expDate) {
+	public Tag(String tagID, Authorization type, String expDate) {
 		this.tagID = tagID;
 		this.authorizationType = type;
 		this.expirationDate = expDate;
@@ -27,7 +27,7 @@ public class Tag {
 		this.tagAccessType = GivenAccessType.AsNormal;
 	}
 
-	public Tag(String tagID, Authorization type, Date expDate, GivenAccessType accessType) {
+	public Tag(String tagID, Authorization type, String expDate, GivenAccessType accessType) {
 		this.tagID = tagID;
 		this.authorizationType = type;
 		this.expirationDate = expDate;
@@ -43,11 +43,11 @@ public class Tag {
 		this.authorizationType = authorizationType;
 	}
 
-	public Date getExpirationDate() {
+	public String getExpirationDate() {
 		return expirationDate;
 	}
 
-	public void setExpirationDate(Date expirationDate) {
+	public void setExpirationDate(String expirationDate) {
 		this.expirationDate = expirationDate;
 	}
 
@@ -77,7 +77,7 @@ public class Tag {
 			if (tagDataNP.getBytes("ISO-8859-1").length > 24) {
 				tagDataNP = new String(data.getTag().epcBytes());
 				String[] tagData = tagDataNP.split(",");
-				Date tagDate = Date.valueOf(tagData[2]);
+				String tagDate = tagData[2];
 				Authorization tagAuth = new Authorization(Integer.parseInt(tagData[1]), "", false);
 				return new Tag(tagData[0], tagAuth, tagDate);
 			}

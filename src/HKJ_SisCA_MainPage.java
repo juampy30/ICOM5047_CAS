@@ -1,3 +1,7 @@
+import hkj.sisca.cas.communication.manager.CommunicationManagerCAS;
+import hkj.sisca.cas.communication.manager.CommunicationManagerConstants.ClientType;
+import hkj.sisca.utilities.ClientSocket;
+import java.util.List;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -7,7 +11,6 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 import java.awt.Insets;
-import java.awt.List;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -85,6 +88,9 @@ public class HKJ_SisCA_MainPage {
 	private DefaultListModel availableAtzTypesModelList;
 	private DefaultListModel chosenSADModelList;
 	private DefaultListModel chosenAtzTypesModelList;
+	
+	static ClientSocket clientSocket;
+	public static CommunicationManagerCAS cmcas;
 	
 	static String loggedUsernane;
 	static String loggedUsernaneWith;
@@ -731,7 +737,6 @@ public class HKJ_SisCA_MainPage {
 		try {
 			dbman= new DBManager();
 			String query= "Select * from  sisca_configuration_information";
-			
 			result= dbman.getAllPermissionInfoFromDB(query);
 			
 			if (result.isEmpty()){
@@ -753,7 +758,30 @@ public class HKJ_SisCA_MainPage {
 			wizardWindow.setVisible();
 		}
 		else{
+			
 			HKJ_SisCA_MainPage  mainWindow = new HKJ_SisCA_MainPage();
+			
+			
+			String ipAddress= "127.0.0.1";
+			int port= 5000;
+			
+			String query6= "Select * from sisca_configuration_information";
+			ArrayList result2= new ArrayList();
+			
+			try {
+				result2= dbman.getNotificationsInformation(query6);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
+			Object num2 = ((List<Object>) result2.get(0)).get(6);
+			String casID= (String) num2;
+			
+			clientSocket= ClientSocket.getInstance(ipAddress, port);
+	
+			cmcas= new CommunicationManagerCAS(clientSocket,ClientType.CAS,casID);
+			cmcas.performASRegistration();
+			
 			mainWindow.initializae();
 			
 

@@ -633,6 +633,7 @@ public class DBManager {
 		rows = new ArrayList<Object>(); 
 		arrayOfRows = new ArrayList<Object>(); 
 
+		
 		ResultSetMetaData rsmd = rs.getMetaData();
 		numberOfColumns = rsmd.getColumnCount();
 		int i=1;

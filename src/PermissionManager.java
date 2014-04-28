@@ -2390,69 +2390,62 @@ public class PermissionManager {
 								// SEND TAG TO BE WRITTEN TO ALL SADS
 								//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 								
-								String query5= "Select sisca_authorization_id, sisca_authorization_uncondtional_entry from sisca_authorization where sisca_authorization_name="+authorizationName;
-								String query6= "Select sisca_configuration_information_device_id from sisca_configuration_information where sisca_configuration_information_id='0'"; // cafre, esto no es as’
-										
+								String query5= "Select sisca_authorization_id, sisca_authorization_uncondtional_entry from sisca_authorization where sisca_authorization_name ~* "+authorizationName;
+																		
 										
 								ArrayList result= new ArrayList();
-								ArrayList result2= new ArrayList();
-								result= dbman.getFromDB(query5);
-								result2= dbman.getFromDB(query6);
+								result= dbman.getNotificationsInformation(query5);
 								
-								int authorization_id= Integer.parseInt((String)result.get(0));
-								String casID= (String)result2.get(0);
+								System.out.println("RESULT: "+result);
+								
+								Object num = ((List) result.get(0)).get(0);
+								Object num3 = ((List) result.get(0)).get(1);
+								
+								String unconditional= (String) num3;
+								int authorization_id= Integer.parseInt((String) num);
+
 								
 								Boolean uncoditionalEntry=false;
 								
-								if(result.get(1).equals("t")){
+								if(unconditional.equals("t")){
 									uncoditionalEntry=true;
 								}
 								
 								SimpleDateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd"); //"mm.dd.yy"
-								Date date = (Date) dateFormat1.parse(textFieldExpirationDate.getText());
+								String expDate = textFieldExpirationDate.getText();
+								//Date date = (java.sql.Date) dateFormat1.parse(expDate);
+							
+								
+								//	dateFormat1.format(date);
+							//	String expDate2 = dateFormat1.format(date);
+								
+								//Date date = (Date) dateFormat1.parse(textFieldExpirationDate.getText());
 								
 								Authorization authorization= new Authorization(authorization_id, (String)authirizationTypesComboBox.getSelectedItem(),uncoditionalEntry);
-								Tag tagToBeSend= new Tag((String) textFieldTagNumber.getText(),authorization,date);
-								
-								
-								String ipAddress= "127.0.0.1";
-								int port= 5000;
-								
+								Tag tagToBeSend= new Tag((String) textFieldTagNumber.getText(),authorization, textFieldExpirationDate.getText());
 								TagListUpdateContainer tluc = new TagListUpdateContainer(tagToBeSend, TagUpdateType.AddUpdate, TagUpdateListName.NewTagsList);
-								ClientSocket clientSocket= new ClientSocket(ipAddress,port);
 								
-								CommunicationManagerCAS cmcas= new CommunicationManagerCAS(clientSocket,ClientType.CAS,casID);
 								
-//								String sadQuery= "Select sisca_authorization_name, sisca_sad_name, sisca_parking_name, sisca_sad_direction, sisca_sad_id "
-//										+ "from (((sisca_sad natural join sisca_sad_parking_list) natural join sisca_parking) natural join sisca_authorization_parking_list) "
-//										+ "natural join sisca_authorization"
-//										+ " where sisca_sad.sisca_sad_id=sisca_sad_parking_list.sisca_sad_id and sisca_sad_parking_active='true' "
-//										+ "and sisca_parking.sisca_parking_id= sisca_sad_parking_list.sisca_parking_id "
-//										+ "and sisca_parking.sisca_parking_id= sisca_authorization_parking_list.sisca_parking_id "
-//										+ "and sisca_authorization_parking_active= 'true' "
-//										+ "and sisca_authorization.sisca_authorization_id= sisca_authorization_parking_list.sisca_authorization_id"
-//										+ "and sisca_authorization_id="+"'"+authorization_id+"'";
+								String query= "Select sisca_sad_name, sisca_sad_direction, sisca_parking_name from (((sisca_sad natural join sisca_sad_parking_list) natural join sisca_parking) natural join sisca_authorization_parking_list) natural join sisca_authorization where sisca_sad_active='true' and  sisca_sad.sisca_sad_id=sisca_sad_parking_list.sisca_sad_id and sisca_sad_parking_active='true' and sisca_parking.sisca_parking_id= sisca_sad_parking_list.sisca_parking_id and sisca_parking.sisca_parking_id= sisca_authorization_parking_list.sisca_parking_id and sisca_authorization_parking_active= 'true' and sisca_authorization.sisca_authorization_id= sisca_authorization_parking_list.sisca_authorization_id and sisca_authorization_id = '"+authorization_id+"'";
 								
-								String sadQuery= "Select sisca_sad_name "
-										+ "from (((sisca_sad natural join sisca_sad_parking_list) natural join sisca_parking) natural join sisca_authorization_parking_list) "
-										+ "natural join sisca_authorization"
-										+ " where sisca_sad.sisca_sad_id=sisca_sad_parking_list.sisca_sad_id and sisca_sad_parking_active='true' "
-										+ "and sisca_parking.sisca_parking_id= sisca_sad_parking_list.sisca_parking_id "
-										+ "and sisca_parking.sisca_parking_id= sisca_authorization_parking_list.sisca_parking_id "
-										+ "and sisca_authorization_parking_active= 'true' "
-										+ "and sisca_authorization.sisca_authorization_id= sisca_authorization_parking_list.sisca_authorization_id"
-										+ "and sisca_authorization_id="+"'"+authorization_id+"'";
+								//System.out.println(query);
 								
 								ArrayList sadList= new ArrayList();
 								
-								sadList= dbman.getNotificationsInformation(sadQuery);
+								sadList= dbman.getNotificationsInformation(query);
+								//System.out.println("SAD LIST: "+ sadList+ " Size: "+sadList.size());
+								
+								System.out.println(" TAG INFORMATION \n");
+								System.out.println("TagListUpdateContainer: TAG-> Expiration Date["+tluc.getReceivedTag().getExpirationDate()+"] Tag Number["+tluc.getReceivedTag().getTagID()+"] Authorizatio Name: ["+tluc.getReceivedTag().getAuthorizationType().getAuthorizationName()
+										+"] \n Update List Name:"+tluc.getTagUpdateListName().toString()+" \n Tag Update Type:"+tluc.getTagUpdateType().toString());
 								
 								for(int i=0; i<sadList.size();i++){
 									String sadID= ""+((List<Object>) sadList.get(i)).get(0);
-									cmcas.sendTagListUpdate(sadID,tluc);
+									System.out.println("Adding TAG to sad: '"+sadID + "'");
+									HKJ_SisCA_MainPage.cmcas.sendTagListUpdate(sadID,tluc);
 								}
 								
-								
+								JOptionPane.showMessageDialog(null, "Tag sent to SAD's successfully.");
 							
 						
 
@@ -2460,15 +2453,6 @@ public class PermissionManager {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 								JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid or incomplete input data! Please, verify your informtion.", "", 1);
-							} catch (ParseException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (UnknownHostException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
 							}	
 
 							HKJ_SisCA_MainPage.frame.setContentPane(permissionInformationView(textFieldTagNumber.getText(),permission_id));

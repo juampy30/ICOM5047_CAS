@@ -9,7 +9,6 @@ import hkj.sisca.cas.communication.manager.CommunicationManagerConstants.Registr
 import hkj.sisca.utilities.AuthenticationManager;
 import hkj.sisca.utilities.ClientSocket;
 
-import java.sql.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -178,7 +177,7 @@ public class CommunicationManagerCAS {
 			}
 			
 			this.endCommunication(this.getLastConnectedSADID(), true, false);
-			return new Tag(messageData[1], Authorization.getInstanceFromString(messageData[2]), Date.valueOf(messageData[3]), type);
+			return new Tag(messageData[1], Authorization.getInstanceFromString(messageData[2]), messageData[3], type);
 		}
 		
 		this.endCommunication(this.getLastConnectedSADID(), true, true);
@@ -236,6 +235,9 @@ public class CommunicationManagerCAS {
 		}
 
 		if (this.performAuthentication(true, destID)) {
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {}
 			this.sendMessage(ClientType.SAD, destID, CommunicationManagerConstants.SEND_TO_SAD_MESSAGE, CommunicationManagerConstants.MESSAGE_BEGIN_TAG_LIST_UPDATE
 					+ CommunicationManagerConstants.SEPARATOR
 					+ (container.tagUpdateType == TagUpdateType.AddUpdate ? CommunicationManagerConstants.MESSAGE_BEGIN_ADD : CommunicationManagerConstants.MESSAGE_BEGIN_REMOVE)
