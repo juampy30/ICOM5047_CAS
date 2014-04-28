@@ -1,64 +1,46 @@
+import hkj.sisca.auxiliary.Tag;
 import hkj.sisca.cas.communication.manager.CommunicationManagerCAS;
+import hkj.sisca.cas.communication.manager.CommunicationManagerCAS.TagListUpdateContainer;
+import hkj.sisca.cas.communication.manager.CommunicationManagerCAS.TagUpdateListName;
+import hkj.sisca.cas.communication.manager.CommunicationManagerCAS.TagUpdateType;
 import hkj.sisca.cas.communication.manager.CommunicationManagerConstants.ClientType;
 import hkj.sisca.utilities.ClientSocket;
-import java.util.List;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.color.CMMException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.PreparedStatement;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.mail.MessagingException;
-import javax.swing.AbstractListModel;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
-import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.ListModel;
-import javax.swing.ListSelectionModel;
-import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
-import javax.swing.table.DefaultTableModel;
 
-import com.jgoodies.forms.factories.FormFactory;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.RowSpec;
-
-import databases.DBManager;
 import net.miginfocom.swing.MigLayout;
+import databases.DBManager;
 
 /** HKJ_SisCA_MainPage
  * 	Manage Home View and StandBy View
@@ -70,6 +52,123 @@ import net.miginfocom.swing.MigLayout;
  *
  */
 public class HKJ_SisCA_MainPage {
+
+	public static class CMRunnable implements Runnable {
+
+		private boolean isAlive;
+
+		public CMRunnable() {
+			isAlive = true;
+		}
+
+		@Override
+		public void run() {
+			while (isAlive) {
+				System.out.println("Waiting for communication...");
+				while (!cmcas.hasCommunicationArrived());
+				Tag receivedTag = cmcas.manageReceivedTagInfo();
+				System.out.println(receivedTag);
+				System.out.println("Last connected SAD ID: " + cmcas.getLastConnectedSADID());
+
+				String parkingQueryString = "Select sisca_sad_name, sisca_sad_direction, sisca_parking_name "
+						+ "from (sisca_sad natural join sisca_sad_parking_list) natural join sisca_parking "
+						+ "where sisca_sad_active='true' " 
+						+ "and sisca_sad_parking_list.sisca_sad_id=sisca_sad.sisca_sad_id " 
+						+ "and sisca_sad_parking_active='true' "
+						+ "and sisca_parking.sisca_parking_id= sisca_sad_parking_list.sisca_parking_id "
+						+ "and sisca_sad_name='" + cmcas.getLastConnectedSADID() + "';";
+
+				boolean isSendingSADEntry = true;
+
+				ArrayList<Object> parkingQuery = new ArrayList<Object>();
+				try {
+					parkingQuery = dbman.getNotificationsInformation(parkingQueryString);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+
+				String parkingName = (String) ((List<Object>) parkingQuery.get(0)).get(2);
+				if (((String) ((List<Object>) parkingQuery.get(0)).get(1)).equals("exit"))
+					isSendingSADEntry = false;
+				System.out.println("Parking name: " + parkingName);
+				
+				String sadListQueryString = "Select sisca_sad_name, sisca_sad_direction, sisca_parking_name "
+						+ "from (sisca_sad natural join sisca_sad_parking_list) natural join sisca_parking "
+						+ "where sisca_sad_active='true' " 
+						+ "and sisca_sad_parking_list.sisca_sad_id=sisca_sad.sisca_sad_id " 
+						+ "and sisca_sad_parking_active='true' "
+						+ "and sisca_parking.sisca_parking_id= sisca_sad_parking_list.sisca_parking_id "
+						+ "and sisca_parking_name~*'" + parkingName + "';";
+
+				ArrayList<Object> sadListQuery = new ArrayList<Object>();
+				try {
+					sadListQuery = dbman.getNotificationsInformation(sadListQueryString);
+				} catch (SQLException e) {}
+
+				System.out.println(sadListQuery.size());
+				for (int i = 0; i < sadListQuery.size(); i++) {
+					String sadID = (String) ((List<Object>) sadListQuery.get(i)).get(0);
+					if (isSendingSADEntry) {
+						if (((String) ((List<Object>) sadListQuery.get(i)).get(1)).equals("exit")) {
+							TagListUpdateContainer container = new TagListUpdateContainer(receivedTag, TagUpdateType.AddUpdate, TagUpdateListName.EntryTagsList);
+							System.out.println("Adding to SAD " + sadID + " as exit at parking " + parkingName);
+							cmcas.sendTagListUpdate(sadID, container);
+						}
+					}
+					else {
+						if (((String) ((List<Object>) sadListQuery.get(i)).get(1)).equals("entry")) {
+							TagListUpdateContainer container = new TagListUpdateContainer(receivedTag, TagUpdateType.RemoveUpdate, TagUpdateListName.EntryTagsList);
+							System.out.println("Removing to SAD " + sadID + " as entry at parking " + parkingName);
+							cmcas.sendTagListUpdate(sadID, container);
+						}
+					}
+				}
+			}
+
+		}
+
+	}
+	
+	public static class NMRunnable implements Runnable {
+		
+		private Date tempDate;
+		private boolean isAlive;
+		
+		public NMRunnable() {
+			this.tempDate = new Date(System.currentTimeMillis());
+			this.isAlive = false;
+		}
+
+		@Override
+		public void run() {
+			
+			while (isAlive) {
+				Date currentTime = new Date(System.currentTimeMillis());
+				if (currentTime.after(tempDate)) {
+					tempDate = currentTime;
+					notificationsManager.setNotifications();
+					try {
+						notificationsManager.sendNotifications();
+					} catch (MessagingException e) {
+						System.out.println("Error sending notifications.");
+						e.printStackTrace();
+					}
+				}
+				else {
+					try {
+						// Sleep for one hour
+						Thread.sleep(3600000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			
+		}
+		
+		
+	}
+
 
 	/**
 	 * Fields
@@ -88,14 +187,16 @@ public class HKJ_SisCA_MainPage {
 	private DefaultListModel availableAtzTypesModelList;
 	private DefaultListModel chosenSADModelList;
 	private DefaultListModel chosenAtzTypesModelList;
-	
+
 	static ClientSocket clientSocket;
 	public static CommunicationManagerCAS cmcas;
 	
+	private static NotificationManager notificationsManager;
+
 	static String loggedUsernane;
 	static String loggedUsernaneWith;
 	static Boolean canView;
-	
+
 	private static AccountManager accountManager= new AccountManager();
 	static AuthorizationTypeManager authorizationTypeManager = new AuthorizationTypeManager();
 	private static ParkingManager parkingManager= new ParkingManager();
@@ -106,10 +207,6 @@ public class HKJ_SisCA_MainPage {
 	private String[] availableAtzTypeList;
 
 	private DefaultListModel registerParkingsList;
-
-
-
-
 
 
 	// HKJ_SisCA_MainPage Constructor
@@ -715,11 +812,6 @@ public class HKJ_SisCA_MainPage {
 	}
 
 
-
-
-
-
-
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//   																													    //
 	//                                                   MAIN                                                                   //
@@ -738,7 +830,7 @@ public class HKJ_SisCA_MainPage {
 			dbman= new DBManager();
 			String query= "Select * from  sisca_configuration_information";
 			result= dbman.getAllPermissionInfoFromDB(query);
-			
+
 			if (result.isEmpty()){
 				empty= true;
 			}
@@ -751,45 +843,48 @@ public class HKJ_SisCA_MainPage {
 			e.printStackTrace();
 		}
 
-		
+
 		if(empty.equals(true)){
-			
+
 			HKJ_SisCAWizard wizardWindow = new HKJ_SisCAWizard();
 			wizardWindow.setVisible();
 		}
 		else{
-			
+
 			HKJ_SisCA_MainPage  mainWindow = new HKJ_SisCA_MainPage();
-			
-			
+
+			// Initialize communication manager
 			String ipAddress= "127.0.0.1";
 			int port= 5000;
-			
+
 			String query6= "Select * from sisca_configuration_information";
 			ArrayList result2= new ArrayList();
-			
+
 			try {
 				result2= dbman.getNotificationsInformation(query6);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			
+
 			Object num2 = ((List<Object>) result2.get(0)).get(6);
 			String casID= (String) num2;
-			
+
 			clientSocket= ClientSocket.getInstance(ipAddress, port);
-	
+
 			cmcas= new CommunicationManagerCAS(clientSocket,ClientType.CAS,casID);
 			cmcas.performASRegistration();
-			
-			mainWindow.initializae();
-			
 
+			Thread communicationManagerThread = new Thread(new CMRunnable());
+			communicationManagerThread.start();
+
+			// Initialize Notifications Manager
+			notificationsManager = new NotificationManager();
+
+			Thread notificationManagerThread = new Thread(new NMRunnable());
+			notificationManagerThread.start();
+			
+			initializae();
 		}
 
 	}
-
-
-
-
 }
