@@ -1260,16 +1260,22 @@ public class AccountManager {
 		addAccountLabelPanel.setForeground(java.awt.Color.BLACK);
 		addAccountLabelPanel.setFont(new Font("Lucida Grande", Font.BOLD, 16));
 		centerPanel.add(addAccountLabelPanel, "cell 0 0,alignx center,growy");
-
+		
+		JLabel warningLabel = new JLabel("IMPORTANT: Characters ! @ # $ % ^ & * ( ) are not valid for any field!");
+		centerPanel.add(warningLabel, "cell 0 1,alignx center,aligny top");
+		warningLabel.setFont(new Font("Lucida Grande", Font.PLAIN , 12));
+		
 		JPanel AddCancelPanel = new JPanel();
 		AddCancelPanel.setBackground(new Color(250,250,250));
-		centerPanel.add(AddCancelPanel, "cell 0 4,grow");
+		centerPanel.add(AddCancelPanel, "cell 0 5,grow");
 		AddCancelPanel.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][][][][][][][]", "[][]"));
 
 		JPanel AccountIDPanel = new JPanel();
 		AccountIDPanel.setBackground((java.awt.Color) null);
-		centerPanel.add(AccountIDPanel, "cell 0 1,growx,aligny top");
+		centerPanel.add(AccountIDPanel, "cell 0 2,growx,aligny top");
 		AccountIDPanel.setLayout(new MigLayout("", "[57.00px][371.00px]", "[28px]"));
+		
+	
 
 		JLabel firstNameLabel = new JLabel("First Name:");
 		AccountIDPanel.add(firstNameLabel, "cell 0 0,alignx left,aligny center");
@@ -1291,7 +1297,7 @@ public class AccountManager {
 
 		JPanel directionPanel = new JPanel();
 		directionPanel.setBackground((java.awt.Color) null);
-		centerPanel.add(directionPanel, "cell 0 2,grow");
+		centerPanel.add(directionPanel, "cell 0 3,grow");
 		directionPanel.setLayout(new MigLayout("", "[81px][292.00px][][][212.00,grow]", "[28px]"));
 
 		JLabel usernameLabel = new JLabel("Username:");
@@ -1319,7 +1325,7 @@ public class AccountManager {
 
 		JPanel AccountPanel = new JPanel();
 		AccountPanel.setBackground((java.awt.Color) null);
-		centerPanel.add(AccountPanel, "cell 0 3,grow");
+		centerPanel.add(AccountPanel, "cell 0 4,grow");
 		AccountPanel.setLayout(new MigLayout("", "[59.00px][209.00px,grow][118.00][-79.00px][161px]", "[21px][29px]"));
 
 		JLabel AccountInfoLabel = new JLabel("Account Type:");
@@ -1760,16 +1766,20 @@ public class AccountManager {
 		editAccountLabelPanel.setFont(new Font("Lucida Grande", Font.BOLD, 16));
 		centerPanel.add(editAccountLabelPanel, "cell 0 0,alignx center,growy");
 
+		JLabel warningLabel = new JLabel("IMPORTANT: Characters ! @ # $ % ^ & * ( ) are not valid for any field!");
+		centerPanel.add(warningLabel, "cell 0 1,alignx center,aligny top");
+		warningLabel.setFont(new Font("Lucida Grande", Font.PLAIN , 12));
+		
 		JPanel AddCancelPanel = new JPanel();
 		AddCancelPanel.setBackground(new Color(250,250,250));
-		centerPanel.add(AddCancelPanel, "cell 0 4,grow");
+		centerPanel.add(AddCancelPanel, "cell 0 5,grow");
 		AddCancelPanel.setLayout(new MigLayout("", "[][][][][][][][][][][][][][][][][][][][][][][][][][][]", "[][]"));
 
 
 
 		JPanel AccountIDPanel = new JPanel();
 		AccountIDPanel.setBackground((java.awt.Color) null);
-		centerPanel.add(AccountIDPanel, "cell 0 1,growx,aligny top");
+		centerPanel.add(AccountIDPanel, "cell 0 2,growx,aligny top");
 		AccountIDPanel.setLayout(new MigLayout("", "[57.00px][371.00px]", "[28px]"));
 
 		/**
@@ -1830,7 +1840,7 @@ public class AccountManager {
 
 		JPanel directionPanel = new JPanel();
 		directionPanel.setBackground((java.awt.Color) null);
-		centerPanel.add(directionPanel, "cell 0 2,grow");
+		centerPanel.add(directionPanel, "cell 0 3,grow");
 		directionPanel.setLayout(new MigLayout("", "[81px][292.00px][][][212.00,grow]", "[28px]"));
 
 		/**
@@ -1864,7 +1874,7 @@ public class AccountManager {
 
 		JPanel AccountPanel = new JPanel();
 		AccountPanel.setBackground((java.awt.Color) null);
-		centerPanel.add(AccountPanel, "cell 0 3,grow");
+		centerPanel.add(AccountPanel, "cell 0 4,grow");
 		AccountPanel.setLayout(new MigLayout("", "[59.00px][209.00px,grow][118.00][-79.00px][161px]", "[21px][29px]"));
 
 		JLabel AccountInfoLabel = new JLabel("Account Type:");

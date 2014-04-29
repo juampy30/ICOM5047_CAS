@@ -1,3 +1,5 @@
+import hkj.sisca.auxiliary.BarrierGateManager.BarrierGateActionType;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -11,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -40,6 +43,7 @@ public class LiveSystemManager {
 	private static String currentCapacity;
 	private static String currentParking;
 	private static JList parkingList;
+	
 
 	
 	/**
@@ -54,8 +58,10 @@ public class LiveSystemManager {
 	/** Live System View
 	 *  Generates the Live System View JPanel 
 	 *  @return windowPanelLiveSystem JPanel 
+	 * @throws SQLException 
+	 * @throws ClassNotFoundException 
 	 */
-	static JPanel liveSystemView(){
+	static JPanel liveSystemView() throws ClassNotFoundException, SQLException{
 		JPanel windowPanelLiveSystem= new JPanel();
 		JPanel menuPanelLiveSystem = new JPanel();
 		JPanel mainPanelLiveSystem = new JPanel();
@@ -103,7 +109,15 @@ public class LiveSystemManager {
 		lblLiveSystem.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				HKJ_SisCA_MainPage.frame.setContentPane(liveSystemView());
+				try {
+					HKJ_SisCA_MainPage.frame.setContentPane(liveSystemView());
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				HKJ_SisCA_MainPage.frame.pack();
 				HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}
@@ -260,14 +274,17 @@ public class LiveSystemManager {
 		mainPanelLiveSystem.add(panelActions, "cell 3 1,alignx center");
 		panelActions.setLayout(new MigLayout("", "[624.00,grow][]", "[][][][][][][][][56.00][][][][][]"));
 		
+		final JLabel lblPName = new JLabel(currentParking+"\n\n");
+		lblPName.setFont(new Font("Lucida Grande", Font.BOLD, 20));
+		panelActions.add(lblPName, "cell 0 1,alignx center");
 
 		JLabel lblCapacity = new JLabel("Capacity\n");
 		lblCapacity.setFont(new Font("Lucida Grande", Font.BOLD, 16));
-		panelActions.add(lblCapacity, "cell 0 1,alignx center");
+		panelActions.add(lblCapacity, "cell 0 2,alignx center");
 
 		final JLabel labelCapacity = new JLabel("Quantity");
 		labelCapacity.setFont(new Font("Lucida Grande", Font.PLAIN, 16));
-		panelActions.add(labelCapacity, "cell 0 2,alignx center");
+		panelActions.add(labelCapacity, "cell 0 3,alignx center");
 
 		JLabel lblAbailableLots = new JLabel("Abailable Lots");
 		lblAbailableLots.setFont(new Font("Lucida Grande", Font.BOLD, 16));
@@ -285,14 +302,75 @@ public class LiveSystemManager {
 		entryGatePanel.setBackground(new Color(240,240,240));
 		panelActions.add(entryGatePanel, "cell 0 9,alignx center,growy");
 		entryGatePanel.setLayout(new MigLayout("", "[][]", "[]"));
+		
+		
+		
+		
+		
+		
+		
+		
+		String sadQuery= "Select sisca_sad_id, sisca_sad_name, sisca_sad_direction, sisca_parking_name from (sisca_sad_parking_list natural join sisca_parking) natural join sisca_sad where sisca_sad_parking_active= 'true' and sisca_sad_parking_list.sisca_parking_id= sisca_parking.sisca_parking_id and sisca_sad.sisca_sad_id = sisca_sad_parking_list.sisca_sad_id and sisca_parking_name~* 'palacio'";
+		
+		ArrayList sadResult= new ArrayList();
+		DBManager dbmanSAD= new DBManager();
+		try {
+			sadResult= dbmanSAD.getNotificationsInformation(sadQuery);
+		} catch (SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
+		final String entrySADName;
+		final String exitSADName;
+		
+		String direction1;
+		String direction2;
+		
+		Object num1 = ((List) sadResult.get(0)).get(2);
+		Object num2 = ((List)sadResult.get(1)).get(2);
+		
+		direction1= (String) num1;
+		direction2= (String) num2;
+		
+		System.out.println("Direction1: " +direction1+" Direction2: "+direction2);
+		
+		
+		if(direction1.equals("exit")){
+			Object sname1 = ((List) sadResult.get(0)).get(1);
+			Object sname2 = ((List) sadResult.get(1)).get(1);
+			exitSADName= (String)sname1;
+			entrySADName= (String) sname2;
+		}
+		else{
+			Object sname1 = ((List) sadResult.get(1)).get(1);
+			Object sname2 = ((List) sadResult.get(0)).get(1);
+			exitSADName= (String)sname1;
+			entrySADName= (String) sname2;
+		}
+		
+		System.out.println("Entry SAD: "+entrySADName+" Exit SAD: "+ exitSADName);
+		
+		
 
 		JButton openEntryGateButton = new JButton("Open");
 		openEntryGateButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int sure = JOptionPane.showConfirmDialog(HKJ_SisCA_MainPage.frame, "Are You Sure?");
-				if(sure==0){
-					// Open gate
-				}
+				
+					System.out.println("Can View"+HKJ_SisCA_MainPage.getCanView());
+					if(HKJ_SisCA_MainPage.getCanView()){
+						int sure = JOptionPane.showConfirmDialog(HKJ_SisCA_MainPage.frame, "Are You Sure?");
+						if(sure==0){
+							System.out.println("I'm Here!");
+							//HKJ_SisCA_MainPage.cmcas.sendBarrierGateAction(entrySADName, BarrierGateActionType.OpenBarrierGate);
+							JOptionPane.showMessageDialog(null, "Barrier gate opened succesfully!");
+						}
+						
+					}
+					else{
+						JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You don't have permission for this operation!", "", 1);
+					}
+				
 			}
 		});
 		entryGatePanel.add(openEntryGateButton, "cell 0 0");
@@ -302,7 +380,13 @@ public class LiveSystemManager {
 			public void actionPerformed(ActionEvent e) {
 				int sure = JOptionPane.showConfirmDialog(HKJ_SisCA_MainPage.frame, "Are You Sure?");
 				if(sure==0){
-					// Open gate
+					if(HKJ_SisCA_MainPage.getCanView()){
+						//HKJ_SisCA_MainPage.cmcas.sendBarrierGateAction(entrySADName, BarrierGateActionType.CloseBarrierGate);
+						JOptionPane.showMessageDialog(null, "Barrier gate closed succesfully!");
+					}
+					else{
+						JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You don't have permission for this operation!", "", 1);
+					}
 				}
 			}
 		});
@@ -322,8 +406,17 @@ public class LiveSystemManager {
 			public void actionPerformed(ActionEvent e) {
 				int sure = JOptionPane.showConfirmDialog(HKJ_SisCA_MainPage.frame, "Are You Sure?");
 				if(sure==0){
-					// TODO Open gate
+					if(HKJ_SisCA_MainPage.getCanView()){
+						//HKJ_SisCA_MainPage.cmcas.sendBarrierGateAction(exitSADName, BarrierGateActionType.OpenBarrierGate);
+						JOptionPane.showMessageDialog(null, "Barrier gate opened succesfully!.");
+					}
+					else{
+						JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You don't have permission for this operation!", "", 1);
+					}		
+					
 				}
+				
+				
 			}
 		});
 		exitGatePanel.add(openExitGateButton, "cell 0 0");
@@ -333,11 +426,21 @@ public class LiveSystemManager {
 			public void actionPerformed(ActionEvent e) {
 				int sure = JOptionPane.showConfirmDialog(HKJ_SisCA_MainPage.frame, "Are You Sure?");
 				if(sure==0){
-					// TODO Open gate
+					if(HKJ_SisCA_MainPage.getCanView()){
+						//HKJ_SisCA_MainPage.cmcas.sendBarrierGateAction(exitSADName, BarrierGateActionType.CloseBarrierGate);
+						JOptionPane.showMessageDialog(null, "Barrier gate closed succesfully!.");
+					}
+					else{
+						JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You don't have permission for this operation!", "", 1);
+					}
 				}
 			}
 		});
 		exitGatePanel.add(closeExitGateButton, "cell 1 0");
+		
+		JLabel lblEmergency = new JLabel("Emergency Button");
+		lblEmergency.setFont(new Font("Lucida Grande", Font.BOLD, 16));
+		panelActions.add(lblEmergency , "cell 0 12,alignx center");
 
 		JButton btnOpenAllGates = new JButton("Open All Gates");
 		btnOpenAllGates.addActionListener(new ActionListener() {
@@ -345,11 +448,97 @@ public class LiveSystemManager {
 				int sure = JOptionPane.showConfirmDialog(HKJ_SisCA_MainPage.frame, "Are You Sure?");
 				if(sure==0){
 					// TODO Open gate
+					
+					
+					if(HKJ_SisCA_MainPage.getCanView()){
+						
+						String query="Select sisca_sad_id, sisca_sad_name, sisca_sad_direction, sisca_parking_name from (sisca_sad_parking_list natural join sisca_parking) natural join sisca_sad where sisca_sad_parking_active= 'true' and sisca_sad_parking_list.sisca_parking_id= sisca_parking.sisca_parking_id and sisca_sad.sisca_sad_id = sisca_sad_parking_list.sisca_sad_id and sisca_sad_used='true'";
+						ArrayList result= new ArrayList();
+						
+						try {
+							DBManager dbman= new DBManager();
+							result= dbman.getNotificationsInformation(query);
+							
+							for( int i=0; i<result.size(); i++){
+								Object num = ((List) result.get(0)).get(1);
+								String sadName=(String) num;
+								//HKJ_SisCA_MainPage.cmcas.sendBarrierGateAction(sadName, BarrierGateActionType.OpenBarrierGate);
+							}
+							JOptionPane.showMessageDialog(null, "Barrier gates opened succesfully!.");
+							
+						} catch (ClassNotFoundException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						
+						
+						
+						
+					}
+					else{
+						JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You don't have permission for this operation!", "", 1);
+					}
+					
+					
+					
 				}
 			}
 		});
-		btnOpenAllGates.setBackground(Color.BLACK);
 		panelActions.add(btnOpenAllGates, "cell 0 16,alignx center");
+		
+		
+		
+		
+		
+		JButton btnCloseAllGates = new JButton("Close All Gates");
+		btnCloseAllGates.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int sure = JOptionPane.showConfirmDialog(HKJ_SisCA_MainPage.frame, "Are You Sure?");
+				if(sure==0){
+					// TODO Open gate
+					
+					
+					if(HKJ_SisCA_MainPage.getCanView()){
+						
+						String query="Select sisca_sad_id, sisca_sad_name, sisca_sad_direction, sisca_parking_name from (sisca_sad_parking_list natural join sisca_parking) natural join sisca_sad where sisca_sad_parking_active= 'true' and sisca_sad_parking_list.sisca_parking_id= sisca_parking.sisca_parking_id and sisca_sad.sisca_sad_id = sisca_sad_parking_list.sisca_sad_id and sisca_sad_used='true'";
+						ArrayList result= new ArrayList();
+						
+						try {
+							DBManager dbman= new DBManager();
+							result= dbman.getNotificationsInformation(query);
+							
+							for( int i=0; i<result.size(); i++){
+								Object num = ((List) result.get(0)).get(1);
+								String sadName=(String) num;
+								//HKJ_SisCA_MainPage.cmcas.sendBarrierGateAction(sadName, BarrierGateActionType.CloseBarrierGate);
+							}
+							JOptionPane.showMessageDialog(null, "Barrier gates closed succesfully!.");
+							
+						} catch (ClassNotFoundException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						
+						
+						
+						
+					}
+					else{
+						JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You don't have permission for this operation!", "", 1);
+					}
+					
+					
+					
+				}
+			}
+		});
+		panelActions.add(btnCloseAllGates, "cell 0 17,alignx center");
 		
 	
 
@@ -392,7 +581,8 @@ public class LiveSystemManager {
 		
 		
 		labelCapacity.setText(currentCapacity);
-		
+		lblPName.setText(currentParking);
+		// TODO set Available Cap.
 		
 		parkingList = new JList();
 		parkingList.addMouseListener(new MouseAdapter() {
@@ -413,6 +603,8 @@ public class LiveSystemManager {
 						availableParking= dbman2.getAvailableParkingCapacityFromDB(availableParking);
 						currentCapacity= (String) availableParking.get(0);
 						labelCapacity.setText(currentCapacity);
+						lblPName.setText(currentParking);
+						// TODO set Available Cap.
 						
 					} catch (ClassNotFoundException e1) {
 						// TODO Auto-generated catch block

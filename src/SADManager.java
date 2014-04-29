@@ -870,7 +870,7 @@ public class SADManager {
 		lblDirection.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		centerPanel.add(lblDirection, "cell 0 3,alignx left,aligny top");
 
-		JLabel lblActive = new JLabel("Active?: ");
+		JLabel lblActive = new JLabel("Used?: ");
 		lblActive.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
 		centerPanel.add(lblActive, "cell 0 5,alignx left,aligny top");
 
@@ -886,7 +886,7 @@ public class SADManager {
 			
 			savedDirection=(String) sadInformation.get(2);
 
-			savedActive=(String) sadInformation.get(4);
+			savedActive=(String) sadInformation.get(3);
 
 			if(savedDirection.equals("exit")){
 				lblDirection.setText("Direction: Exit");
@@ -898,10 +898,10 @@ public class SADManager {
 
 
 			if(savedActive.equals("t")){
-				lblActive.setText("Is Active?: Yes ");
+				lblActive.setText("Is Used?: Yes ");
 			}
 			else{
-				lblActive.setText("Is Active?: No ");
+				lblActive.setText("Is Used?: No ");
 			}
 
 		} catch (SQLException e1) {
@@ -1554,16 +1554,17 @@ public class SADManager {
 						try {
 							
 							dbman.insertDB(query);
+							HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(textFieldSADName.getText()));
+							HKJ_SisCA_MainPage.frame.pack(); 
+							HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 							
 						} catch (SQLException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-							JOptionPane.showMessageDialog(null,"Invalid or incomplete input data! Please, verify your informtion.");    
+							JOptionPane.showMessageDialog(null,"SAD name already exist!");    
 							//JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid or incomplete input data! Please, verify your informtion.", "", 1);
 						} 
-						HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(textFieldSADName.getText()));
-						HKJ_SisCA_MainPage.frame.pack(); 
-						HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());	
+							
 					}
 				
 
@@ -2147,18 +2148,19 @@ public class SADManager {
 							try {
 								dbman= new DBManager();
 								dbman.insertDB(query);
+								HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(textFieldSADName.getText()));
+								HKJ_SisCA_MainPage.frame.pack(); 
+								HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 							} catch (SQLException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
-								JOptionPane.showMessageDialog(null,"Invalid or incomplete input data! Please, verify your informtion.");
+								JOptionPane.showMessageDialog(null,"SAD name already exist!");
 							} catch (ClassNotFoundException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 
-							HKJ_SisCA_MainPage.frame.setContentPane(sadInformationView(textFieldSADName.getText()));
-							HKJ_SisCA_MainPage.frame.pack(); 
-							HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+							
 						}
 						
 					}	

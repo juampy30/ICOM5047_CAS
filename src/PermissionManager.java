@@ -281,7 +281,7 @@ public class PermissionManager {
 				//Update del JList
 				updateJList= false;
 				availablePermissionModelList.clear();
-				System.out.println("Hola");
+				//System.out.println("Hola");
 				String searchField="'"+textFieldSearch.getText()+"'";
 
 				System.out.println("text field"+textFieldSearch.getText());
@@ -1976,7 +1976,7 @@ public class PermissionManager {
 		JLabel lblNewLabelTagNumber = new JLabel("Tag Number:");
 		centerPanel.add(lblNewLabelTagNumber, "cell 0 2,alignx left");
 
-		JLabel lblNewLabelExpirationDate = new JLabel("Expiration Date:");
+		JLabel lblNewLabelExpirationDate = new JLabel("Expiration Date (YYYY-MM-DD):");
 		centerPanel.add(lblNewLabelExpirationDate, "flowx,cell 0 3");
 
 		JLabel lblNewLabelNotificationDate = new JLabel("Notifications?");
@@ -2142,7 +2142,7 @@ public class PermissionManager {
 				);
 		centerPanel.add(rdbtnNo, "cell 0 4");
 
-		JLabel lblDate = new JLabel("             If Yes, Notification Date:");
+		JLabel lblDate = new JLabel("             If Yes, Notification Date (YYYY-MM-DD):");
 		centerPanel.add(lblDate, "cell 0 4");
 
 
@@ -2264,34 +2264,45 @@ public class PermissionManager {
 
 
 					if (isSpecialPermission==true){
-						DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-						Calendar cal = Calendar.getInstance();
-						String tag_number= "'"+textFieldTagNumber.getText()+"'";
-						String expiration= "'"+textFieldExpirationDate.getText()+"'";
-						String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
-						String createdBy= ""+HKJ_SisCA_MainPage.loggedUsernaneWith+"";						String authorizationType= "'"+authirizationTypesComboBox.getSelectedItem()+"'";
 
-						String query1= " INSERT INTO sisca_special_permission (sisca_special_permission_tag_number, sisca_special_permission_expiration_date, sisca_special_permission_authorization_type, "
-								+ "sisca_special_permission_active, sisca_special_permission_creationdate, sisca_special_permission_createdby) "
-								+ "VALUES("+tag_number+" , "+expiration+" , " + authorizationType+" , 'true', "+ creationDate+ ", "+createdBy+")";
 
-						int special_permission_id=-1;
-						try {
-							dbman= new DBManager();
-							special_permission_id=dbman.insertDB(query1);
-						} catch (SQLException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-							JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid or incomplete input data! Please, verify your informtion.", "", 1);
-						} catch (ClassNotFoundException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-							JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid or incomplete input data! Please, verify your informtion.", "", 1);
+						if(textFieldTagNumber.getText().isEmpty()||textFieldExpirationDate.getText().isEmpty()){
+							JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You must fill all fields.", "", 1);
 						}
-						isSpecialPermission=false;
-						HKJ_SisCA_MainPage.frame.setContentPane(specialPermissionInformationView(textFieldTagNumber.getText(),special_permission_id));
-						HKJ_SisCA_MainPage.frame.pack(); 
-						HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+						else{
+
+							DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+							Calendar cal = Calendar.getInstance();
+							String tag_number= "'"+textFieldTagNumber.getText()+"'";
+							String expiration= "'"+textFieldExpirationDate.getText()+"'";
+							String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
+							String createdBy= ""+HKJ_SisCA_MainPage.loggedUsernaneWith+"";						
+							String authorizationType= "'"+authirizationTypesComboBox.getSelectedItem()+"'";
+
+							String query1= " INSERT INTO sisca_special_permission (sisca_special_permission_tag_number, sisca_special_permission_expiration_date, sisca_special_permission_authorization_type, "
+									+ "sisca_special_permission_active, sisca_special_permission_creationdate, sisca_special_permission_createdby) "
+									+ "VALUES("+tag_number+" , "+expiration+" , " + authorizationType+" , 'true', "+ creationDate+ ", "+createdBy+")";
+
+							int special_permission_id=-1;
+							try {
+								dbman= new DBManager();
+								special_permission_id=dbman.insertDB(query1);
+							} catch (SQLException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+								JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid Tag Number or Date Format!", "", 1);
+							} catch (ClassNotFoundException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+								JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "ERROR", "", 1);
+							}
+							isSpecialPermission=false;
+							HKJ_SisCA_MainPage.frame.setContentPane(specialPermissionInformationView(textFieldTagNumber.getText(),special_permission_id));
+							HKJ_SisCA_MainPage.frame.pack(); 
+							HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+						}	
+
 					}
 					else{
 
@@ -2302,67 +2313,70 @@ public class PermissionManager {
 								textFieldAFirstName.getText().isEmpty()||textFieldALastName.getText().isEmpty()||textFieldPhone.getText().isEmpty()||
 								textFieldEmail.getText().isEmpty()||textFieldLicenseNumber.getText().isEmpty()||textFieldTagNumber.getText().isEmpty()||
 								textFieldExpirationDate.getText().isEmpty()||textFieldNotificationDate.getText().isEmpty()){
-							
-							
+
+
 							JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid or incomplete input data! Please, verify your informtion.", "", 1);
 
 
 
 						}
 						else{
-							/////////////////////////////////////////////////
-							// Query for insert Parking Information
-							/////////////////////////////////////////////////
-
-							int vehicle_id=-1;
-							int applicant_id=-1;
-							int notification_id=-1;
-							int permission_id=-1;
-
-							/**
-							 * Get the current date YYYY/MMM/DD
-							 */
-							DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-							Calendar cal = Calendar.getInstance();
 
 
-							// Vehicle Information
-							String vin= "'"+textFieldVIN.getText()+"'";
-							String plate= "'"+textFieldPlate.getText()+"'";
-							String country= "'"+countryComboBox.getSelectedItem()+"'";
-							String brand= "'"+textFieldBrand.getText()+"'";
-							String model= "'"+textFieldModel.getText()+"'";
-							String year= "'"+textFieldYear.getText()+"'";
-							String color= "'"+textFieldColor.getText()+"'";
-							String o_first= "'"+textFieldOwnerFirstName.getText()+"'";
-							String o_last= "'"+textFieldOwnerLastName.getText()+"'";
 
-							// Applicant Information
-							String a_first= "'"+textFieldAFirstName.getText()+"'";
-							String a_last= "'"+textFieldALastName.getText()+"'";
-							String phone= "'"+textFieldPhone.getText()+"'";
-							String email= "'"+textFieldEmail.getText()+"'";
-							String license= "'"+textFieldLicenseNumber.getText()+"'";
-							String h_status="N/A";
-
-							if(handicapYes.isSelected()){
-								h_status= "'true'";
-							}
-							else{
-								h_status= "'false'";
-							}
-
-							// Permission Information
-							String tag_number= "'"+textFieldTagNumber.getText()+"'";
-							//String delivery= "'"+dateFormat.format(cal.getTime())+"'";
-							String expiration= "'"+textFieldExpirationDate.getText()+"'";
-							String notification= "'"+textFieldNotificationDate.getText()+"'";
-							String authorizationName= "'"+authirizationTypesComboBox.getSelectedItem()+"'";
-
-							// Other Information
-							String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
-							String createdBy= ""+HKJ_SisCA_MainPage.loggedUsernaneWith+"";
 							try {
+								/////////////////////////////////////////////////
+								// Query for insert Parking Information
+								/////////////////////////////////////////////////
+
+								int vehicle_id=-1;
+								int applicant_id=-1;
+								int notification_id=-1;
+								int permission_id=-1;
+
+								/**
+								 * Get the current date YYYY/MMM/DD
+								 */
+								DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+								Calendar cal = Calendar.getInstance();
+
+
+								// Vehicle Information
+								String vin= "'"+textFieldVIN.getText()+"'";
+								String plate= "'"+textFieldPlate.getText()+"'";
+								String country= "'"+countryComboBox.getSelectedItem()+"'";
+								String brand= "'"+textFieldBrand.getText()+"'";
+								String model= "'"+textFieldModel.getText()+"'";
+								String year= "'"+textFieldYear.getText()+"'";
+								String color= "'"+textFieldColor.getText()+"'";
+								String o_first= "'"+textFieldOwnerFirstName.getText()+"'";
+								String o_last= "'"+textFieldOwnerLastName.getText()+"'";
+
+								// Applicant Information
+								String a_first= "'"+textFieldAFirstName.getText()+"'";
+								String a_last= "'"+textFieldALastName.getText()+"'";
+								String phone= "'"+textFieldPhone.getText()+"'";
+								String email= "'"+textFieldEmail.getText()+"'";
+								String license= "'"+textFieldLicenseNumber.getText()+"'";
+								String h_status="N/A";
+
+								if(handicapYes.isSelected()){
+									h_status= "'true'";
+								}
+								else{
+									h_status= "'false'";
+								}
+								// Permission Information
+								String tag_number= "'"+textFieldTagNumber.getText()+"'";
+								//String delivery= "'"+dateFormat.format(cal.getTime())+"'";
+								String expiration= "'"+textFieldExpirationDate.getText()+"'";
+								String notification= "'"+textFieldNotificationDate.getText()+"'";
+								String authorizationName= "'"+authirizationTypesComboBox.getSelectedItem()+"'";
+
+								// Other Information
+								String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
+								String createdBy= ""+HKJ_SisCA_MainPage.loggedUsernaneWith+"";
+
 								String query1= " INSERT INTO sisca_vehicle (sisca_vehicle_vin, sisca_vehicle_plate, sisca_vehicle_country, sisca_vehicle_brand, sisca_vehicle_model, sisca_vehicle_year, "+
 										"sisca_vehicle_color, sisca_vehicle_owner_first_name, sisca_vehicle_owner_last_name, sisca_vehicle_creationdate, sisca_vehicle_createdby, sisca_vehicle_active) VALUES (" +vin + " , "+plate + " , "+country + " , "+brand + " , "+model + " , "+year + " , "+color + " , "+o_first + " , "+o_last + " , "+creationDate + " , "+createdBy +" , 'true' " + " )";
 
@@ -2374,91 +2388,90 @@ public class PermissionManager {
 
 								vehicle_id= dbman.insertVehicleDB(query1);
 								applicant_id= dbman.insertDB(query2);
-								
+
 								if(rdbtnYes.isSelected()){
 									notification_id= dbman.insertDB(query4);
 								}
-								
-								
+
+
 
 								String query3= " INSERT INTO sisca_permission (sisca_permission_notification_id, sisca_permission_tag_number, sisca_permission_expiration_date, sisca_permission_status, sisca_permission_vehicle_id, sisca_permission_applicant_id, sisca_permission_creationdate, sisca_permission_createdby, sisca_permission_active, sisca_permission_authorization_type) VALUES ("
 										+notification_id+", "+tag_number + " , "+expiration + " , 'true', "+vehicle_id + " , "+applicant_id + " , "+creationDate + " , "+createdBy +" , 'true' " + " , "+authorizationName +" )";
 
 								permission_id= dbman.insertDB(query3);
-								
+
 								//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 								// SEND TAG TO BE WRITTEN TO ALL SADS
 								//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-								
+
 								String query5= "Select sisca_authorization_id, sisca_authorization_uncondtional_entry from sisca_authorization where sisca_authorization_name ~* "+authorizationName;
-																		
-										
+
+
 								ArrayList result= new ArrayList();
 								result= dbman.getNotificationsInformation(query5);
-								
+
 								System.out.println("RESULT: "+result);
-								
+
 								Object num = ((List) result.get(0)).get(0);
 								Object num3 = ((List) result.get(0)).get(1);
-								
+
 								String unconditional= (String) num3;
 								int authorization_id= Integer.parseInt((String) num);
 
-								
+
 								Boolean uncoditionalEntry=false;
-								
+
 								if(unconditional.equals("t")){
 									uncoditionalEntry=true;
 								}
-								
+
 								SimpleDateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd"); //"mm.dd.yy"
 								String expDate = textFieldExpirationDate.getText();
 								//Date date = (java.sql.Date) dateFormat1.parse(expDate);
-							
-								
+
+
 								//	dateFormat1.format(date);
-							//	String expDate2 = dateFormat1.format(date);
-								
+								//	String expDate2 = dateFormat1.format(date);
+
 								//Date date = (Date) dateFormat1.parse(textFieldExpirationDate.getText());
-								
+
 								Authorization authorization= new Authorization(authorization_id, (String)authirizationTypesComboBox.getSelectedItem(),uncoditionalEntry);
 								Tag tagToBeSend= new Tag((String) textFieldTagNumber.getText(),authorization, textFieldExpirationDate.getText());
 								TagListUpdateContainer tluc = new TagListUpdateContainer(tagToBeSend, TagUpdateType.AddUpdate, TagUpdateListName.NewTagsList);
-								
-								
+
+
 								String query= "Select sisca_sad_name, sisca_sad_direction, sisca_parking_name from (((sisca_sad natural join sisca_sad_parking_list) natural join sisca_parking) natural join sisca_authorization_parking_list) natural join sisca_authorization where sisca_sad_active='true' and  sisca_sad.sisca_sad_id=sisca_sad_parking_list.sisca_sad_id and sisca_sad_parking_active='true' and sisca_parking.sisca_parking_id= sisca_sad_parking_list.sisca_parking_id and sisca_parking.sisca_parking_id= sisca_authorization_parking_list.sisca_parking_id and sisca_authorization_parking_active= 'true' and sisca_authorization.sisca_authorization_id= sisca_authorization_parking_list.sisca_authorization_id and sisca_authorization_id = '"+authorization_id+"'";
-								
+
 								//System.out.println(query);
-								
+
 								ArrayList sadList= new ArrayList();
-								
+
 								sadList= dbman.getNotificationsInformation(query);
 								//System.out.println("SAD LIST: "+ sadList+ " Size: "+sadList.size());
-								
+
 								System.out.println(" TAG INFORMATION \n");
 								System.out.println("TagListUpdateContainer: TAG-> Expiration Date["+tluc.getReceivedTag().getExpirationDate()+"] Tag Number["+tluc.getReceivedTag().getTagID()+"] Authorizatio Name: ["+tluc.getReceivedTag().getAuthorizationType().getAuthorizationName()
 										+"] \n Update List Name:"+tluc.getTagUpdateListName().toString()+" \n Tag Update Type:"+tluc.getTagUpdateType().toString());
-								
+
 								for(int i=0; i<sadList.size();i++){
 									String sadID= ""+((List<Object>) sadList.get(i)).get(0);
 									System.out.println("Adding TAG to sad: '"+sadID + "'");
-									HKJ_SisCA_MainPage.cmcas.sendTagListUpdate(sadID,tluc);
+									//HKJ_SisCA_MainPage.cmcas.sendTagListUpdate(sadID,tluc);
 								}
-								
+
 								JOptionPane.showMessageDialog(null, "Tag sent to SAD's successfully.");
-							
-						
+
+								HKJ_SisCA_MainPage.frame.setContentPane(permissionInformationView(textFieldTagNumber.getText(),permission_id));
+								HKJ_SisCA_MainPage.frame.pack(); 
+								HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+
 
 							} catch (SQLException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
-								JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid or incomplete input data! Please, verify your informtion.", "", 1);
+								JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid Tag Number or Date Format !", "", 1);
 							}	
-
-							HKJ_SisCA_MainPage.frame.setContentPane(permissionInformationView(textFieldTagNumber.getText(),permission_id));
-							HKJ_SisCA_MainPage.frame.pack(); 
-							HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-
 
 
 						}
@@ -2941,7 +2954,7 @@ public class PermissionManager {
 		JLabel lblNewLabelTagNumber = new JLabel("Tag Number:");
 		centerPanel.add(lblNewLabelTagNumber, "flowx,cell 0 3,alignx left");
 
-		JLabel lblNewLabelExpirationDate = new JLabel("Expiration Date:");
+		JLabel lblNewLabelExpirationDate = new JLabel("Expiration Date (YYYY-MM-DD):");
 		centerPanel.add(lblNewLabelExpirationDate, "flowx,cell 0 5");
 
 		JLabel lblNewLabelApplicantInformation = new JLabel("APLICANT INFORMATION");
@@ -3064,7 +3077,7 @@ public class PermissionManager {
 		centerPanel.add(textFieldExpirationDate, "cell 0 5");
 		textFieldExpirationDate.setColumns(10);
 
-		JLabel lblNewLabelNotificationDate = new JLabel("Notification Date:");
+		JLabel lblNewLabelNotificationDate = new JLabel("Notification Date (YYYY-MM-DD):");
 		centerPanel.add(lblNewLabelNotificationDate, "cell 0 5");
 
 		textFieldNotificationDate = new JTextField(currentPermissionInfo.get(47));
@@ -3153,76 +3166,168 @@ public class PermissionManager {
 		editButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 
-				int sure = JOptionPane.showConfirmDialog(HKJ_SisCA_MainPage.frame, "Are You Sure?");
-				if(sure==0){
-					String notificationDate= "'"+textFieldNotificationDate.getText()+"'";
-					String h_status= null;
-					if(handicapYes.isSelected()){
-						h_status= "true";
+
+				if(textFieldVIN.getText().isEmpty()||textFieldPlate.getText().isEmpty()||textFieldBrand.getText().isEmpty()||
+						textFieldModel.getText().isEmpty()|| textFieldYear.getText().isEmpty()||textFieldColor.getText().isEmpty()||
+						textFieldOwnerFirstName.getText().isEmpty()||textFieldOwnerLastName.getText().isEmpty()||
+						textFieldAFirstName.getText().isEmpty()||textFieldALastName.getText().isEmpty()||textFieldPhone.getText().isEmpty()||
+						textFieldEmail.getText().isEmpty()||textFieldLicenseNumber.getText().isEmpty()||textFieldTagNumber.getText().isEmpty()||
+						textFieldExpirationDate.getText().isEmpty()||textFieldNotificationDate.getText().isEmpty()){
+
+
+					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid or incomplete input data! Please, verify your informtion.", "", 1);
+
+
+
+				}
+				else{
+					int sure = JOptionPane.showConfirmDialog(HKJ_SisCA_MainPage.frame, "Are You Sure?");
+					if(sure==0){
+						String notificationDate= "'"+textFieldNotificationDate.getText()+"'";
+						String h_status= null;
+						if(handicapYes.isSelected()){
+							h_status= "true";
+						}
+						else{
+							h_status= "false";
+						}
+
+
+						DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+						Calendar cal = Calendar.getInstance();
+
+						String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
+						String createdBy= ""+HKJ_SisCA_MainPage.loggedUsernaneWith+"";
+
+						String query1= "UPDATE sisca_notification SET sisca_notification_date="+notificationDate + ", sisca_notification_editedby= "+createdBy+" , sisca_notification_editdate="+creationDate
+								+" where sisca_notification_id='"+currentPermissionInfo.get(46)+"'";
+
+						String query2= "UPDATE sisca_applicant SET sisca_applicant_first_name="+"'"+textFieldAFirstName.getText()+"' , "
+								+ "sisca_applicant_last_name="+"'"+textFieldALastName.getText()+"' , "
+								+ "sisca_applicant_phone_number="+"'"+textFieldPhone.getText()+"' , "
+								+ "sisca_applicant_email="+"'"+textFieldEmail.getText()+"' , "
+								+ "sisca_applicant_license_number="+"'"+textFieldLicenseNumber.getText()+"' , "
+								+ "sisca_applicant_handicap_status="+"'"+h_status+"'"+
+								", sisca_applicant_editedby= "+createdBy+" , sisca_applicant_editdate="+creationDate
+								+ "where sisca_applicant_id='"+currentPermissionInfo.get(32)+"'";
+
+						String query3= "UPDATE sisca_vehicle SET "
+								+ "sisca_vehicle_vin="+"'"+textFieldVIN.getText()+"' , "
+								+ "sisca_vehicle_plate="+"'"+textFieldPlate.getText()+"' , "
+								+ "sisca_vehicle_country="+"'"+(String) countryComboBox.getSelectedItem()+"' , "
+								+ "sisca_vehicle_brand="+"'"+textFieldBrand.getText()+"' , "
+								+ "sisca_vehicle_model="+"'"+textFieldModel.getText()+"' , "
+								+ "sisca_vehicle_year="+"'"+textFieldYear.getText()+"' , "
+								+ "sisca_vehicle_color="+"'"+textFieldColor.getText()+"' , "
+								+ "sisca_vehicle_owner_first_name="+"'"+textFieldOwnerFirstName.getText()+"' , "
+								+ "sisca_vehicle_owner_last_name="+"'"+textFieldOwnerLastName.getText()+"'"+
+								", sisca_vehicle_editedby= "+createdBy+" , sisca_vehicle_editdate="+creationDate
+								+ "where sisca_vehicle_id='"+currentPermissionInfo.get(15)+"'";
+
+						String query4= "UPDATE sisca_permission SET "
+								+ "sisca_permission_tag_number="+"'"+textFieldTagNumber.getText()+"' , "
+								+ "sisca_permission_expiration_date="+"'"+textFieldExpirationDate.getText()+"', "
+								+ "sisca_permission_authorization_type="+"'"+(String) authirizationTypesComboBox.getSelectedItem()+"' "+
+								", sisca_permission_editedby= "+createdBy+" , sisca_permission_editdate="+creationDate
+								+ "where sisca_permission_id='"+currentPermissionInfo.get(0)+"'";
+
+
+						System.out.println("Query:" +query1);
+						try {
+							dbman= new DBManager();
+							dbman.insertDB(query1);
+							dbman.insertDB(query2);
+							dbman.insertDB(query3);
+							dbman.insertDB(query4);
+
+
+							//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+							// SEND TAG TO BE WRITTEN TO ALL SADS
+							//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+							String query5= "Select sisca_authorization_id, sisca_authorization_uncondtional_entry from sisca_authorization where sisca_authorization_name ~* '"+(String) authirizationTypesComboBox.getSelectedItem()+"'";
+
+
+							ArrayList result= new ArrayList();
+							try {
+								result= dbman.getNotificationsInformation(query5);
+							} catch (SQLException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+
+							System.out.println("RESULT: "+result);
+
+							Object num = ((List) result.get(0)).get(0);
+							Object num3 = ((List) result.get(0)).get(1);
+
+							String unconditional= (String) num3;
+							int authorization_id= Integer.parseInt((String) num);
+
+
+							Boolean uncoditionalEntry=false;
+
+							if(unconditional.equals("t")){
+								uncoditionalEntry=true;
+							}
+
+							SimpleDateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd"); //"mm.dd.yy"
+							String expDate = textFieldExpirationDate.getText();
+							//Date date = (java.sql.Date) dateFormat1.parse(expDate);
+
+
+							//	dateFormat1.format(date);
+							//	String expDate2 = dateFormat1.format(date);
+
+							//Date date = (Date) dateFormat1.parse(textFieldExpirationDate.getText());
+
+							Authorization authorization= new Authorization(authorization_id, (String)authirizationTypesComboBox.getSelectedItem(),uncoditionalEntry);
+							Tag tagToBeSend= new Tag((String) textFieldTagNumber.getText(),authorization, textFieldExpirationDate.getText());
+							TagListUpdateContainer tluc = new TagListUpdateContainer(tagToBeSend, TagUpdateType.AddUpdate, TagUpdateListName.NewTagsList);
+
+
+							String query= "Select sisca_sad_name, sisca_sad_direction, sisca_parking_name from (((sisca_sad natural join sisca_sad_parking_list) natural join sisca_parking) natural join sisca_authorization_parking_list) natural join sisca_authorization where sisca_sad_active='true' and  sisca_sad.sisca_sad_id=sisca_sad_parking_list.sisca_sad_id and sisca_sad_parking_active='true' and sisca_parking.sisca_parking_id= sisca_sad_parking_list.sisca_parking_id and sisca_parking.sisca_parking_id= sisca_authorization_parking_list.sisca_parking_id and sisca_authorization_parking_active= 'true' and sisca_authorization.sisca_authorization_id= sisca_authorization_parking_list.sisca_authorization_id and sisca_authorization_id = '"+authorization_id+"'";
+
+							//System.out.println(query);
+
+							ArrayList sadList= new ArrayList();
+
+							try {
+								sadList= dbman.getNotificationsInformation(query);
+							} catch (SQLException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							//System.out.println("SAD LIST: "+ sadList+ " Size: "+sadList.size());
+
+							System.out.println(" TAG INFORMATION \n");
+							System.out.println("TagListUpdateContainer: TAG-> Expiration Date["+tluc.getReceivedTag().getExpirationDate()+"] Tag Number["+tluc.getReceivedTag().getTagID()+"] Authorizatio Name: ["+tluc.getReceivedTag().getAuthorizationType().getAuthorizationName()
+									+"] \n Update List Name:"+tluc.getTagUpdateListName().toString()+" \n Tag Update Type:"+tluc.getTagUpdateType().toString());
+
+							for(int i=0; i<sadList.size();i++){
+								String sadID= ""+((List<Object>) sadList.get(i)).get(0);
+								System.out.println("Adding TAG to sad: '"+sadID + "'");
+								//HKJ_SisCA_MainPage.cmcas.sendTagListUpdate(sadID,tluc);
+							}
+
+							JOptionPane.showMessageDialog(null, "Tag sent to SAD's successfully.");
+
+							HKJ_SisCA_MainPage.frame.setContentPane(permissionInformationView(textFieldTagNumber.getText(), currentTagID));
+							HKJ_SisCA_MainPage.frame.pack(); 
+							HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+
+						} catch (ClassNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid Tag Number or Date Format!", "", 1);
+						}
+
+
 					}
-					else{
-						h_status= "false";
-					}
-
-
-					DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-					Calendar cal = Calendar.getInstance();
-
-					String creationDate= "'"+dateFormat.format(cal.getTime())+"'";
-					String createdBy= ""+HKJ_SisCA_MainPage.loggedUsernaneWith+"";
-
-					String query1= "UPDATE sisca_notification SET sisca_notification_date="+notificationDate + ", sisca_notification_editedby= "+createdBy+" , sisca_notification_editdate="+creationDate
-							+" where sisca_notification_id='"+currentPermissionInfo.get(46)+"'";
-
-					String query2= "UPDATE sisca_applicant SET sisca_applicant_first_name="+"'"+textFieldAFirstName.getText()+"' , "
-							+ "sisca_applicant_last_name="+"'"+textFieldALastName.getText()+"' , "
-							+ "sisca_applicant_phone_number="+"'"+textFieldPhone.getText()+"' , "
-							+ "sisca_applicant_email="+"'"+textFieldEmail.getText()+"' , "
-							+ "sisca_applicant_license_number="+"'"+textFieldLicenseNumber.getText()+"' , "
-							+ "sisca_applicant_handicap_status="+"'"+h_status+"'"+
-							", sisca_applicant_editedby= "+createdBy+" , sisca_applicant_editdate="+creationDate
-							+ "where sisca_applicant_id='"+currentPermissionInfo.get(32)+"'";
-
-					String query3= "UPDATE sisca_vehicle SET "
-							+ "sisca_vehicle_vin="+"'"+textFieldVIN.getText()+"' , "
-							+ "sisca_vehicle_plate="+"'"+textFieldPlate.getText()+"' , "
-							+ "sisca_vehicle_country="+"'"+(String) countryComboBox.getSelectedItem()+"' , "
-							+ "sisca_vehicle_brand="+"'"+textFieldBrand.getText()+"' , "
-							+ "sisca_vehicle_model="+"'"+textFieldModel.getText()+"' , "
-							+ "sisca_vehicle_year="+"'"+textFieldYear.getText()+"' , "
-							+ "sisca_vehicle_color="+"'"+textFieldColor.getText()+"' , "
-							+ "sisca_vehicle_owner_first_name="+"'"+textFieldOwnerFirstName.getText()+"' , "
-							+ "sisca_vehicle_owner_last_name="+"'"+textFieldOwnerLastName.getText()+"'"+
-							", sisca_vehicle_editedby= "+createdBy+" , sisca_vehicle_editdate="+creationDate
-							+ "where sisca_vehicle_id='"+currentPermissionInfo.get(15)+"'";
-
-					String query4= "UPDATE sisca_permission SET "
-							+ "sisca_permission_tag_number="+"'"+textFieldTagNumber.getText()+"' , "
-							+ "sisca_permission_expiration_date="+"'"+textFieldExpirationDate.getText()+"', "
-							+ "sisca_permission_authorization_type="+"'"+(String) authirizationTypesComboBox.getSelectedItem()+"' "+
-							", sisca_permission_editedby= "+createdBy+" , sisca_permission_editdate="+creationDate
-							+ "where sisca_permission_id='"+currentPermissionInfo.get(0)+"'";
-
-
-					System.out.println("Query:" +query1);
-					try {
-						dbman= new DBManager();
-						dbman.insertDB(query1);
-						dbman.insertDB(query2);
-						dbman.insertDB(query3);
-						dbman.insertDB(query4);
-					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-					HKJ_SisCA_MainPage.frame.setContentPane(permissionInformationView(textFieldTagNumber.getText(), currentTagID));
-					HKJ_SisCA_MainPage.frame.pack(); 
-					HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-
 				}
 
 
@@ -3621,7 +3726,7 @@ public class PermissionManager {
 		JLabel lblAuthorizationType = new JLabel("Authorization Type: ");
 		centerPanel.add(lblAuthorizationType, "flowx,cell 1 5");
 
-		JLabel lblExpirationDate = new JLabel("Expiration Date: ");
+		JLabel lblExpirationDate = new JLabel("Expiration Date (YYYY-MM-DD): ");
 		centerPanel.add(lblExpirationDate, "flowx,cell 1 7");
 
 		JPanel editAndRemovePanel = new JPanel();

@@ -21,16 +21,24 @@ public class SADConfigurationManager {
 	Integer parkingCapacity;
 	Authorization[] authorizationType;
 	String[] accessControlTime;
+	String[] accessControlDays;
 	Direction direction;
 
 	// SADConfigurationManager Methods
-	public SADConfigurationManager(String sID, int pCapacity, Authorization[] aType, String[]aControlTime, Direction direction){
+	public SADConfigurationManager(String sID, int pCapacity, Authorization[] aType, String[]aControlTime, String[] accessControlDays, Direction direction){
 		this.sadConfigurationID=sID;
 		this.parkingCapacity=pCapacity;
 		this.authorizationType=aType;
 		this.accessControlTime=aControlTime;
+		this.accessControlDays=accessControlDays;
 		this.direction=direction;
 
+	}
+	public String[] getAccessControlDays() {
+		return accessControlDays;
+	}
+	public void setAccessControlDays(String[] accessControlDays) {
+		this.accessControlDays = accessControlDays;
 	}
 	public String getSadConfigurationID() {
 		return sadConfigurationID;

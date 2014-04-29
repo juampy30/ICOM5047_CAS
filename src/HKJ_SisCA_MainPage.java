@@ -786,7 +786,15 @@ public class HKJ_SisCA_MainPage {
 		liveSystemIcon.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				frame.setContentPane(LiveSystemManager.liveSystemView());
+				try {
+					frame.setContentPane(LiveSystemManager.liveSystemView());
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				frame.pack();
 				frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 			}

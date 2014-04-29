@@ -20,6 +20,7 @@ import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JList;
@@ -721,7 +722,7 @@ public class AuthorizationTypeManager {
 		authorizationTypeName.setForeground(java.awt.Color.BLACK);
 		authorizationTypeName.setFont(new Font("Lucida Grande", Font.BOLD, 22));
 		centerPanel.add(authorizationTypeName, "cell 0 0,alignx center,aligny top");
-
+		
 		JLabel otherInfo3 = new JLabel("    Created: " + createDate);
 		otherInfo3.setPreferredSize(new Dimension(100, 100));
 		otherInfo3.setHorizontalAlignment(SwingConstants.CENTER);
@@ -1116,6 +1117,15 @@ public class AuthorizationTypeManager {
 		JLabel nameLabel = new JLabel("New Authorization Name: ");
 		AuthorizationTypeIDPanel.add(nameLabel, "cell 0 0,alignx left,aligny center");
 		nameLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
+		
+		JLabel warningLabel = new JLabel("Characters ! @ # $ % ^ & * ( ) are not valid!");
+		AuthorizationTypeIDPanel.add(warningLabel, "cell 2 0,alignx left,aligny center");
+		warningLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 10));
+		
+		final JCheckBox unconditionalCheckBox = new JCheckBox("Unconditional Entry");
+		AuthorizationTypeIDPanel.add(unconditionalCheckBox, "cell 0 1,alignx left,aligny top");
+		unconditionalCheckBox.setBackground(new Color(250,250,250));
+		unconditionalCheckBox.setOpaque(true);
 
 		final JTextField addNameTextField = new JTextField();
 		addNameTextField.setPreferredSize(new Dimension(200, 100));
@@ -1133,9 +1143,14 @@ public class AuthorizationTypeManager {
 				/**
 				 * Verificar que el permiso no exista
 				 */
+			
 				ArrayList<Object> authorizationTypeExistDB;
 				boolean alreadyExist=false;
 				String authorizationName = null;
+				
+				
+				
+				
 				int authorizationID = -1;
 				try {
 					authorizationTypeExistDB = dbman.getFromDB("select * from sisca_authorization ");
@@ -1173,7 +1188,13 @@ public class AuthorizationTypeManager {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-
+				/**
+				 * UnconditionEntry
+				 */
+				boolean unconditional = false;
+				if(unconditionalCheckBox.isSelected()){
+					unconditional = true;
+				}
 				/**
 				 * 
 				 */
@@ -1185,8 +1206,8 @@ public class AuthorizationTypeManager {
 				}
 				else{
 					try {
-
-						dbman.updatetDB("insert into sisca_authorization(sisca_authorization_name, sisca_authorization_active, sisca_authorization_creationDate, sisca_authorization_createdBy) values('"+createAuthorizationType+"' , 'true', '"+currentDate+"',"+currentUser+")");
+						
+						dbman.updatetDB("insert into sisca_authorization(sisca_authorization_name, sisca_authorization_active, sisca_authorization_creationDate, sisca_authorization_createdBy, sisca_authorization_uncondtional_entry) values('"+createAuthorizationType+"' , 'true', '"+currentDate+"',"+currentUser+", '"+unconditional+"')");
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -1535,6 +1556,29 @@ public class AuthorizationTypeManager {
 		editNameTextField.setPreferredSize(new Dimension(200, 100));
 		AuthorizationTypeIDPanel.add(editNameTextField, "cell 1 0,grow");
 		editNameTextField.setColumns(10);
+		
+		JLabel warningLabel = new JLabel("Characters ! @ # $ % ^ & * ( ) are not valid!");
+		AuthorizationTypeIDPanel.add(warningLabel, "cell 1 0,alignx left,aligny center");
+		warningLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 10));
+		
+		final JCheckBox unconditionalCheckBox = new JCheckBox("Unconditional Entry");
+		AuthorizationTypeIDPanel.add(unconditionalCheckBox, "cell 0 1,alignx left,aligny top");
+		unconditionalCheckBox.setBackground(new Color(250,250,250));
+		unconditionalCheckBox.setOpaque(true);
+		
+		try {
+			ArrayList result = new ArrayList();
+			result = dbman.getNotificationsInformation("select * from sisca_authorization where sisca_authorization_name~*'"+authorizationNameEdit+"'");
+			String unconditional = null;
+			Object bool =  ((List) result.get(0)).get(9);
+			unconditional = (String) bool;
+			if(unconditional.equals("t")){
+				unconditionalCheckBox.doClick();
+			}
+		} catch (SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 
 		JPanel AddCancelPanel = new JPanel();
 		AddCancelPanel.setBackground(new Color(250,250,250));
@@ -1548,6 +1592,10 @@ public class AuthorizationTypeManager {
 				String newAuthorizationType = editNameTextField.getText();
 				boolean alreadyExist=false;
 				boolean dontChange = false;
+				
+				if(newAuthorizationType.toLowerCase().equals(authorizationNameEdit.toLowerCase())){
+					dontChange = true;
+				}
 
 				ArrayList<Object> unavailableAuthorizationNamesDB;
 				try {
@@ -1567,23 +1615,29 @@ public class AuthorizationTypeManager {
 							if(keyValue[0].equals("sisca_authorization_name")){
 								authorizationName = (String) keyValue[1];
 							}
+							
 						}
 						unavailableAuthorizationNames.add(authorizationName.toLowerCase());
-					}
-					if(newAuthorizationType.toLowerCase().equals(authorizationNameEdit)){
-						dontChange = true;
 					}
 					for(int i=0; i<unavailableAuthorizationNames.size();i++){
 						if(newAuthorizationType.toLowerCase().equals(((String) unavailableAuthorizationNames.get(i)).toLowerCase())){
 							alreadyExist = true;
 						}
 					}
+					
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				} catch (ParseException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
+				}
+				/**
+				 * Unconditional Entry
+				 */
+				boolean unconditional = false;
+				if(unconditionalCheckBox.isSelected()){
+					unconditional = true;
 				}
 
 				if(alreadyExist && !dontChange){
@@ -1596,7 +1650,7 @@ public class AuthorizationTypeManager {
 				else
 				{
 					try {
-						dbman.updatetDB("update sisca_authorization set sisca_authorization_name='"+newAuthorizationType.toUpperCase()+"', sisca_authorization_editDate='"+currentDate+"', sisca_authorization_editedBy="+ currentUser+" where sisca_authorization_name~*'"+authorizationNameEdit.toUpperCase()+"'");
+						dbman.updatetDB("update sisca_authorization set sisca_authorization_name='"+newAuthorizationType.toUpperCase()+"', sisca_authorization_editDate='"+currentDate+"', sisca_authorization_editedBy="+ currentUser+", sisca_authorization_uncondtional_entry='"+unconditional+"' where sisca_authorization_name~*'"+authorizationNameEdit.toUpperCase()+"'");
 						HKJ_SisCA_MainPage.frame.setContentPane(authorizationTypeInformationView(newAuthorizationType));
 						HKJ_SisCA_MainPage.frame.pack(); 
 						HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());

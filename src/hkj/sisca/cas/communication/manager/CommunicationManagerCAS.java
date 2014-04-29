@@ -131,7 +131,7 @@ public class CommunicationManagerCAS {
 	public boolean hasCommunicationArrived() {
 		String communicatingSAD = this.waitForServerResponse(new String[] {CommunicationManagerConstants.MESSAGE_BEGIN_COMMUNICATION});
 		String incomingSADID = communicatingSAD.split(":")[1];
-		
+
 		int tries = 0;
 		do {
 			if (performAuthentication(false, incomingSADID)) {
@@ -152,7 +152,7 @@ public class CommunicationManagerCAS {
 			}
 		}
 		while (tries < MAX_CONNECTION_RETRY);
-		
+
 		return false;
 	}
 
@@ -175,15 +175,15 @@ public class CommunicationManagerCAS {
 			else if (messageData[4].contains("renewed")) {
 				type = GivenAccessType.AsReWritten;
 			}
-			
+
 			this.endCommunication(this.getLastConnectedSADID(), true, false);
 			return new Tag(messageData[1], Authorization.getInstanceFromString(messageData[2]), messageData[3], type);
 		}
-		
+
 		this.endCommunication(this.getLastConnectedSADID(), true, true);
 		return null;
 	}
-	
+
 	/**
 	 * Sends display update data to an specific SAD
 	 * @param destID The ID of the SAD to which the message is to be sent
@@ -285,18 +285,27 @@ public class CommunicationManagerCAS {
 		// Get authorization type list concatenated on a String
 		String authTypesList = "";
 		for (int i = 0; i < manager.getAuthorizationType().length; i++) {
-			authTypesList = authTypesList + "," + manager.getAuthorizationType()[i];
+			authTypesList = authTypesList + ";" + manager.getAuthorizationType()[i];
 		}
+
 		authTypesList = authTypesList.substring(1);
 
 		// Get authorization type list concatenated on a String
 		String accessTimesList = "";
 		for (int i = 0; i < manager.getAccessControlTime().length; i++) {
-			accessTimesList = accessTimesList + "," + manager.getAccessControlTime()[i];
+			accessTimesList = accessTimesList + ";" + manager.getAccessControlTime()[i];
 		}
+
 		accessTimesList = accessTimesList.substring(1);
 
+		for (int i = 0; i < manager.getAccessControlDays().length; i++) {
+			accessTimesList = accessTimesList + ":" + (manager.getAccessControlDays()[i]);
+		}
+
 		if (this.performAuthentication(true, destID)) {
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {}
 			this.sendMessage(ClientType.SAD, destID, CommunicationManagerConstants.SEND_TO_SAD_MESSAGE, CommunicationManagerConstants.MESSAGE_BEGIN_SAD_CONFIGURATION
 					+ CommunicationManagerConstants.SEPARATOR
 					// Unique ID
@@ -335,15 +344,15 @@ public class CommunicationManagerCAS {
 	 * @return True if the message was received successfully by the SAD, false otherwise
 	 */
 	public boolean sendBarrierGateAction(String destID, BarrierGateActionType type) {
-		
+
 		if (this.performAuthentication(true, destID)) {
 			this.sendMessage(ClientType.SAD, destID, CommunicationManagerConstants.SEND_TO_SAD_MESSAGE, CommunicationManagerConstants.MESSAGE_BEGIN_BARRIER_GATE_ACTION
 					+ CommunicationManagerConstants.SEPARATOR
 					+ (type == BarrierGateActionType.OpenBarrierGate ? CommunicationManagerConstants.MESSAGE_OPEN_BARRIER_GATE : CommunicationManagerConstants.MESSAGE_CLOSE_BARRIER_GATE)
 					+ CommunicationManagerConstants.SEPARATOR
 					+ CommunicationManagerConstants.MESSAGE_END_BARRIER_GATE_ACTION);
-					
-					String answerFromSAD = this.waitForServerResponse(new String[] {CommunicationManagerConstants.MESSAGE_TAG_UPDATE_RECEIVED, CommunicationManagerConstants.MESSAGE_TAG_UPDATE_FAILED});
+
+			String answerFromSAD = this.waitForServerResponse(new String[] {CommunicationManagerConstants.MESSAGE_TAG_UPDATE_RECEIVED, CommunicationManagerConstants.MESSAGE_TAG_UPDATE_FAILED});
 			if (answerFromSAD.contains(CommunicationManagerConstants.MESSAGE_TAG_UPDATE_RECEIVED)) {
 				this.endCommunication(destID, false, false);
 				return true;
@@ -355,7 +364,7 @@ public class CommunicationManagerCAS {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns a list ordered from least recent to most recently connected SAD
 	 * @return A List of String that represents the ID of each connected SAD
@@ -363,7 +372,7 @@ public class CommunicationManagerCAS {
 	public List<String> getAllConnectedSAD() {
 		return this.connectedSADs;
 	}
-	
+
 	/**
 	 * Returns the ID of the last connected SAD
 	 * @return A String that contains the ID of the last connected SAD
