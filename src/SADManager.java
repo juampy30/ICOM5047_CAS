@@ -1492,6 +1492,7 @@ public class SADManager {
 		addSADLabelPanel.setForeground(java.awt.Color.BLACK);
 		addSADLabelPanel.setFont(new Font("Lucida Grande", Font.BOLD, 16));
 		centerPanel.add(addSADLabelPanel, "cell 0 0,alignx center,growy");
+		
 
 		JPanel AddCancelPanel = new JPanel();
 		AddCancelPanel.setBackground(new Color(250,250,250));

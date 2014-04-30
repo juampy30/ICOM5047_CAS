@@ -52,7 +52,7 @@ public class ParkingManager {
 	private DBManager dbman;
 	private String mouseSelectParkingViewList;
 	private String currentUser;
-	
+
 	/**
 	 * Get the current date YYYY/MMM/DD
 	 */
@@ -62,7 +62,7 @@ public class ParkingManager {
 	private int parkingToEditID;
 
 	public ParkingManager(){
-		
+
 	}
 
 	//////////////////////////////////////////////////////////////////
@@ -251,7 +251,7 @@ public class ParkingManager {
 		JButton addNewParkingBtn = new JButton("Add New Parking");
 		addNewParkingBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
+
 				if (HKJ_SisCA_MainPage.getCanView()==true){
 					HKJ_SisCA_MainPage.frame.setContentPane(addParkingView());
 					HKJ_SisCA_MainPage.frame.pack(); 
@@ -339,10 +339,10 @@ public class ParkingManager {
 					}
 
 				} catch (SQLException e1) {
-				//	JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid Argument");
+					//	JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid Argument");
 					e1.printStackTrace();
 				} catch (ParseException e1) {
-				//	JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid Argument");
+					//	JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid Argument");
 					e1.printStackTrace();
 				}
 			}
@@ -1010,12 +1010,12 @@ public class ParkingManager {
 						HKJ_SisCA_MainPage.frame.pack(); 
 						HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 					}
-					
+
 				}
 				else{
 					JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "You have no permission to Remove a parking");
 				}
-				
+
 			}
 
 		});
@@ -1345,7 +1345,7 @@ public class ParkingManager {
 		textFieldName.setPreferredSize(new Dimension(200, 100));
 		pNamePanel.add(textFieldName, "cell 1 0,grow");
 		textFieldName.setColumns(10);
-		
+
 		JLabel warningLabel = new JLabel("Characters ! @ # $ % ^ & * ( ) are not valid!");
 		pNamePanel.add(warningLabel, "cell 2 0,alignx left,aligny center");
 		warningLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 10));
@@ -1406,7 +1406,7 @@ public class ParkingManager {
 		daysPanel.add(sunRadioBtn, "cell 6 0,alignx left,aligny top");
 		sunRadioBtn.setBackground(new Color(250,250,250));
 		sunRadioBtn.setOpaque(true);
-		
+
 		JPanel hoursPanel = new JPanel();
 		hoursPanel.setBackground((java.awt.Color) null);
 		centerPanel.add(hoursPanel, "cell 0 4,grow");
@@ -1805,29 +1805,29 @@ public class ParkingManager {
 						String addNewSads=null;
 						String updateSAD = null;
 						String[] keyValue;
-						
+
 						// Juan A–adi—
 						ArrayList result;
 						int sadIndex = -1;
 						String sadDirection = null;
-						
+
 						for(int i=0; i<selectedSadModelList.size(); i++){
 							sadName = (String) selectedSadModelList.get(i);
 							keyValue = sadName.split(" >>");
 							sadName = keyValue[0];
 							try {
 								//sadIndex = dbman.getIndex("select sisca_sad_id, sisca_sad_direction from sisca_sad where sisca_sad_name~*'"+sadName+"'");
-								
+
 								// Juan A–adi—
 								result= new ArrayList();
 								result = dbman.getNotificationsInformation("select sisca_sad_id, sisca_sad_direction from sisca_sad where sisca_sad_name~*'"+sadName+"'");
-								
+
 								Object num1 = ((List) result.get(0)).get(0);
 								Object num2 = ((List) result.get(0)).get(1);
-								
+
 								sadIndex= Integer.parseInt((String) num1);
 								sadDirection= (String) num2;
-							
+
 							} catch (SQLException e1) {
 								// do nothing
 								e1.printStackTrace();
@@ -1848,55 +1848,61 @@ public class ParkingManager {
 								}
 
 								System.out.println("Sending to SAD["+sadName+"] configuration information: \n");
-								
+
 								System.out.println("SAD Name: "+sadName);
 								System.out.println("Parking Capacity: "+parkingCapacity);
 								System.out.println("Control Time: "+controlTime[0]+", "+controlTime[1]);
 								System.out.println("Direction: "+direction.toString());
-								
-								
+
+
 								String queryAuthorization= "select sisca_authorization_id, sisca_authorization_name, sisca_authorization_uncondtional_entry  from sisca_authorization_parking_list natural join sisca_authorization where sisca_authorization_parking_list.sisca_authorization_parking_active='true' and sisca_authorization_parking_list.sisca_parking_id="+ parkingIndex+" and sisca_authorization_parking_list.sisca_authorization_id = sisca_authorization.sisca_authorization_id";
 								ArrayList authorizationResults= new ArrayList();
 								authorizationResults= dbman.getNotificationsInformation( queryAuthorization);
-								
+
 								Authorization[] authorization= new Authorization[authorizationResults.size()];
-								
-								
+
+
 								for(int i1 =0; i1<authorizationResults.size(); i1++){
 									Object num1 = ((List) authorizationResults.get(i1)).get(0);
 									Object num2 = ((List) authorizationResults.get(i1)).get(1);
 									Object num3 = ((List) authorizationResults.get(i1)).get(2);
-									
+
 									int authorization_id= Integer.parseInt((String) num1);
 									String authorizationName= (String) num2;
 									String unconditional= (String) num3;
-									
+
 									Boolean unBoolean= false;
-									
+
 									if(unconditional.equals("t")){
 										unBoolean= true;
 									}
-									
+
 									authorization[i1]= new Authorization(authorization_id,authorizationName,unBoolean);
 									System.out.println("Authorization[" +i1+"]: "+authorization[i1].getAuthorizationID()+", "+authorization[i1].getAuthorizationName());
 								}
-								
+
 								SADConfigurationManager sadConfiguration= new SADConfigurationManager(sadName,Integer.parseInt(parkingCapacity),authorization,controlTime, operationDays,direction);
-			
-								//HKJ_SisCA_MainPage.cmcas.sendSADConfiguration(sadName,sadConfiguration );
-								
+								try {
+									HKJ_SisCA_MainPage.semaphore.acquire();
+									HKJ_SisCA_MainPage.cmcas.sendSADConfiguration(sadName,sadConfiguration );
+									HKJ_SisCA_MainPage.semaphore.release();
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+
+
 								JOptionPane.showMessageDialog(null, "SAD Configuration sent to SAD successfully.");
-								
-								
+
+
 							} catch (SQLException e) {
 								// do nothing
 								e.printStackTrace();
 							}
 						}
-						
-						
-						
-						
+
+
+
+
 						HKJ_SisCA_MainPage.frame.setContentPane(parkingInformationView(textFieldName.getText()));
 						HKJ_SisCA_MainPage.frame.pack(); 
 						HKJ_SisCA_MainPage.frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
@@ -2411,7 +2417,7 @@ public class ParkingManager {
 		JLabel warningLabel = new JLabel("Characters ! @ # $ % ^ & * ( ) are not valid!");
 		pNamePanel.add(warningLabel, "cell 2 0,alignx left,aligny center");
 		warningLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 10));
-		
+
 		// Parking Capacity
 		JPanel capacityPanel = new JPanel();
 		capacityPanel.setBackground((java.awt.Color) null);
@@ -2461,17 +2467,17 @@ public class ParkingManager {
 		daysPanel.add(friRadioBtn, "cell 4 0,growx,aligny top");
 		friRadioBtn.setBackground(new Color(250,250,250));
 		friRadioBtn.setOpaque(true);
-		
+
 		final JCheckBox satRadioBtn = new JCheckBox("Sat");
 		daysPanel.add(satRadioBtn, "cell 5 0,alignx left,aligny top");
 		satRadioBtn.setBackground(new Color(250,250,250));
 		satRadioBtn.setOpaque(true);
-		
+
 		final JCheckBox sunRadioBtn = new JCheckBox("Sun");
 		daysPanel.add(sunRadioBtn, "cell 6 0,alignx left,aligny top");
 		sunRadioBtn.setBackground(new Color(250,250,250));
 		sunRadioBtn.setOpaque(true);
-		
+
 		for(int i=0; i<infoOperationsDaysListToEdit.size(); i++){
 
 			String day = (String) infoOperationsDaysListToEdit.get(i);
@@ -2532,7 +2538,7 @@ public class ParkingManager {
 		final JTextField textFieldEnd = new JTextField(parkingEndhourToEdit);
 		textFieldEnd.setColumns(10);
 		hoursPanel.add(textFieldEnd, "cell 5 0");
-		
+
 		JLabel instructionsLabel = new JLabel("(24-Hour Clock)");
 		instructionsLabel.setFont(new Font("Lucida Grande", Font.BOLD, 10));
 		hoursPanel.add(instructionsLabel, "flowx,cell 10 0");
@@ -2776,11 +2782,11 @@ public class ParkingManager {
 								// do nothing
 								e2.printStackTrace();
 							}
-							
-							
-							
-							
-							
+
+
+
+
+
 							/**
 							 * Update Operation Days
 							 * Get selected Radio buttom
@@ -2807,8 +2813,8 @@ public class ParkingManager {
 							if(sunRadioBtn.isSelected()){
 								days.add("sunday");
 							}
-							
-							
+
+
 							String sadName = null;
 							String day = null;
 							String addNewDays = null;
@@ -2834,10 +2840,10 @@ public class ParkingManager {
 									e.printStackTrace();
 								}
 							}
-							
-							
-							
-							
+
+
+
+
 							/**
 							 * Update the new Authorization Types
 							 */
@@ -2861,9 +2867,9 @@ public class ParkingManager {
 									addNewSads = "insert into sisca_sad_parking_list(sisca_sad_id, sisca_parking_id, sisca_sad_parking_active) values("+sadID+","+parkingToEditID+", 'true' )";
 									dbman.updatetDB(newUnavailableSads+sadID);
 									dbman.insertDB(addNewSads);
-									
+
 									sadName=(String) infoParkingSADsListToEdit.get(i);
-									
+
 									// Buscar las direcciones del SAD
 									ArrayList myresult= new ArrayList();
 									try {
@@ -2872,17 +2878,17 @@ public class ParkingManager {
 										// TODO Auto-generated catch block
 										e1.printStackTrace();
 									}
-									
+
 									System.out.println("SAD Name: "+ infoParkingSADsListToEdit.get(i));
 									System.out.println("Result: "+ myresult);
-									
+
 									Object num1 = ((List) myresult.get(0)).get(0);
 									Object num2 = ((List) myresult.get(0)).get(1);
-									
+
 									Integer sadIndex= Integer.parseInt((String) num1);
 									String sadDirection= (String) num2;
-									
-											
+
+
 									String[] controlTime= { parkingStartHourEdit, parkingEndHourEdit };
 									Direction direction= Direction.valueOf(sadDirection);
 									String[] operationDays= new String[days.size()];
@@ -2891,13 +2897,13 @@ public class ParkingManager {
 									}
 
 									System.out.println("Sending to SAD["+sadName+"] configuration information: \n");
-									
+
 									System.out.println("SAD Name: "+sadName);
 									System.out.println("Parking Capacity: "+parkingCapacityEdit);
 									System.out.println("Control Time: "+controlTime[0]+", "+controlTime[1]);
 									System.out.println("Direction: "+direction.toString());
-									
-									
+
+
 									String queryAuthorization= "select sisca_authorization_id, sisca_authorization_name, sisca_authorization_uncondtional_entry  from sisca_authorization_parking_list natural join sisca_authorization where sisca_authorization_parking_list.sisca_authorization_parking_active='true' and sisca_authorization_parking_list.sisca_parking_id="+ parkingToEditID+" and sisca_authorization_parking_list.sisca_authorization_id = sisca_authorization.sisca_authorization_id";
 									ArrayList authorizationResults= new ArrayList();
 									try {
@@ -2906,34 +2912,40 @@ public class ParkingManager {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
-									
+
 									Authorization[] authorization= new Authorization[authorizationResults.size()];
-									
-									
+
+
 									for(int i1 =0; i1<authorizationResults.size(); i1++){
 										Object num11 = ((List) authorizationResults.get(i1)).get(0);
 										Object num21 = ((List) authorizationResults.get(i1)).get(1);
 										Object num3 = ((List) authorizationResults.get(i1)).get(2);
-										
+
 										int authorization_id= Integer.parseInt((String) num11);
 										String authorizationName= (String) num21;
 										String unconditional= (String) num3;
-										
+
 										Boolean unBoolean= false;
-										
+
 										if(unconditional.equals("t")){
 											unBoolean= true;
 										}
-										
+
 										authorization[i1]= new Authorization(authorization_id,authorizationName,unBoolean);
 										System.out.println("Authorization[" +i1+"]: "+authorization[i1].getAuthorizationID()+", "+authorization[i1].getAuthorizationName());
 									}	
 									SADConfigurationManager sadConfiguration= new SADConfigurationManager(sadName,Integer.parseInt(parkingCapacityEdit),authorization,controlTime, operationDays,direction);
-									//HKJ_SisCA_MainPage.cmcas.sendSADConfiguration(sadName,sadConfiguration );
+									try {
+										HKJ_SisCA_MainPage.semaphore.acquire();
+										HKJ_SisCA_MainPage.cmcas.sendSADConfiguration(sadName,sadConfiguration );
+										HKJ_SisCA_MainPage.semaphore.release();
+									} catch (InterruptedException e) {
+										e.printStackTrace();
+									}
 									JOptionPane.showMessageDialog(null, "SAD Configuration sent to SAD successfully.");	
-									
-									
-									
+
+
+
 								} catch (SQLException e) {
 									// do nothing
 									e.printStackTrace();
@@ -2949,26 +2961,26 @@ public class ParkingManager {
 								}
 							}
 
-							
 
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
-							
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 							HKJ_SisCA_MainPage.frame.setContentPane(parkingInformationView(parkingNameEdit));
 							HKJ_SisCA_MainPage.frame.pack(); 
@@ -3271,13 +3283,13 @@ public class ParkingManager {
 			}		
 
 		} catch (ClassNotFoundException e1) {
-		//	JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid Argument");
+			//	JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid Argument");
 			e1.printStackTrace();
 		} catch (SQLException e1) {
-		//	JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid Argument");
+			//	JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid Argument");
 			e1.printStackTrace();
 		} catch (ParseException e1) {
-		//	JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid Argument");
+			//	JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid Argument");
 			e1.printStackTrace();
 		}
 
@@ -3285,9 +3297,9 @@ public class ParkingManager {
 		goButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				
-				
-				
+
+
+
 				/**
 				 * searchTextField : element to search
 				 */
@@ -3315,10 +3327,10 @@ public class ParkingManager {
 					}
 
 				} catch (SQLException e1) {
-				//	JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid Argument");
+					//	JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid Argument");
 					e1.printStackTrace();
 				} catch (ParseException e1) {
-				//	JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid Argument");
+					//	JOptionPane.showMessageDialog(HKJ_SisCA_MainPage.frame, "Invalid Argument");
 					e1.printStackTrace();
 				}
 			}

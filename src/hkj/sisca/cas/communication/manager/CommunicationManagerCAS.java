@@ -7,8 +7,13 @@ import hkj.sisca.auxiliary.Tag.GivenAccessType;
 import hkj.sisca.cas.communication.manager.CommunicationManagerConstants.ClientType;
 import hkj.sisca.cas.communication.manager.CommunicationManagerConstants.RegistrationResult;
 import hkj.sisca.utilities.AuthenticationManager;
-import hkj.sisca.utilities.ClientSocket;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -68,7 +73,10 @@ public class CommunicationManagerCAS {
 	}
 
 
-	private ClientSocket socket;
+	private Socket socket;
+	private PrintWriter out;
+	private BufferedReader in;
+
 	private String deviceID;
 	private ClientType type;
 	private List<String> connectedSADs;
@@ -76,8 +84,10 @@ public class CommunicationManagerCAS {
 	public static final int MAX_CONNECTION_TIMEOUT = 100;
 	public static final int MAX_CONNECTION_RETRY = 5;
 
-	public CommunicationManagerCAS(ClientSocket socket, ClientType type, String deviceID) {
+	public CommunicationManagerCAS(Socket socket, ClientType type, String deviceID) throws IOException {
 		this.socket = socket;
+		this.out = new PrintWriter(socket.getOutputStream(), true);
+		this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		this.type = type;
 		this.deviceID = deviceID;
 		this.connectedSADs = new LinkedList<String>();
@@ -89,35 +99,48 @@ public class CommunicationManagerCAS {
 	 * @return A RegistrationResult that describes the result of a registration attempt
 	 */
 	public RegistrationResult performASRegistration() {
-		if (socket.isSocketOpen()) {
+		if (socket.isConnected()) {
 			int tries = 0;
 			do {
-				socket.sendData(CommunicationManagerConstants.REGISTRATION_INQUIRY_MESSAGE + ":" + this.type + ":" + this.deviceID);
+				System.out.println("performASRegistration(): About to send inquiry...");
+				out.println(CommunicationManagerConstants.REGISTRATION_INQUIRY_MESSAGE + ":" + this.type + ":" + this.deviceID);
+				System.out.println("performASRegistration(): Inquiry sent.");
 
-				while(!socket.isDataAvailable());
-				String response = socket.getReceivedData();
-				if (response != null && response.contains(CommunicationManagerConstants.REGISTRATION_SUCCESSFUL_MESSAGE)) {
-					System.out.println("Registration was successful.");
-					return RegistrationResult.REGISTER_SUCCESSFUL;
-				}
-				else if (response != null && response.contains(CommunicationManagerConstants.REGISTRATION_UNSUCCESSFUL_DUPLICATE_MESSAGE)) {
-					System.out.println("Registration not performed: This client already existed.");
-					return RegistrationResult.REGISTER_UNSUCCESSFUL_DUPLICATE;
-				}
-				else if (response != null && response.contains(CommunicationManagerConstants.REGISTRATION_UNSUCCESSFUL_INVALID_MESSAGE)) {
-					System.out.println("Registration unsuccessful: This client ID is invalid.");
-					return RegistrationResult.REGISTER_UNSUCCESSFUL_IDENTIFIER;
-				}
-				else {
-					try {
-						tries++;
-						Thread.sleep(MAX_CONNECTION_TIMEOUT);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+				System.out.println("performASRegistration(): Now waiting for response...");
+				String nextLine = "";
+				try {
+					while((nextLine = in.readLine()) == null);
+
+					System.out.println("performASRegistration(): Received response...");
+					String response = nextLine;
+					if (response != null && response.contains(CommunicationManagerConstants.REGISTRATION_SUCCESSFUL_MESSAGE)) {
+						System.out.println("Registration was successful.");
+						return RegistrationResult.REGISTER_SUCCESSFUL;
 					}
+					else if (response != null && response.contains(CommunicationManagerConstants.REGISTRATION_UNSUCCESSFUL_DUPLICATE_MESSAGE)) {
+						System.out.println("Registration not performed: This client already existed.");
+						return RegistrationResult.REGISTER_UNSUCCESSFUL_DUPLICATE;
+					}
+					else if (response != null && response.contains(CommunicationManagerConstants.REGISTRATION_UNSUCCESSFUL_INVALID_MESSAGE)) {
+						System.out.println("Registration unsuccessful: This client ID is invalid.");
+						return RegistrationResult.REGISTER_UNSUCCESSFUL_IDENTIFIER;
+					}
+					else {
+						try {
+							tries++;
+							Thread.sleep(MAX_CONNECTION_TIMEOUT);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				} catch (IOException e1) {
+					e1.printStackTrace();
 				}
 			}
 			while (tries < MAX_CONNECTION_RETRY);
+
+
+
 			return RegistrationResult.REGISTER_UNSUCCESSFUL_SERVER_NOT_FOUND;
 		}
 		return RegistrationResult.REGISTER_UNSUCCESSFUL_SERVER_NOT_FOUND;
@@ -129,30 +152,25 @@ public class CommunicationManagerCAS {
 	 * @return True if a communication has arrived, false otherwise.
 	 */
 	public boolean hasCommunicationArrived() {
-		String communicatingSAD = this.waitForServerResponse(new String[] {CommunicationManagerConstants.MESSAGE_BEGIN_COMMUNICATION});
-		String incomingSADID = communicatingSAD.split(":")[1];
+System.out.println("Entering hasCommunication method... -___-");
+		String result = null;
+		try {
+			if (in.ready())
+				result = in.readLine();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		if (result != null && result.contains(CommunicationManagerConstants.MESSAGE_BEGIN_COMMUNICATION)) {
+			System.out.println("result: " + result);
+			String incomingSADID = result.split(":")[1];
 
-		int tries = 0;
-		do {
 			if (performAuthentication(false, incomingSADID)) {
 				this.connectedSADs.add(incomingSADID);
 				this.arrivedMessage = this.waitForServerResponse(new String[] {CommunicationManagerConstants.MESSAGE_BEGIN_TAG_INFO_SEND});
 				System.out.println(this.arrivedMessage);
 				return true;
 			}
-			else {
-				tries++;
-				try {
-					Thread.sleep(MAX_CONNECTION_TIMEOUT);
-				}
-				catch (Exception e) {
-					System.out.println("Error on authentication or invalid communication received.");
-					e.printStackTrace();
-				}
-			}
 		}
-		while (tries < MAX_CONNECTION_RETRY);
-
 		return false;
 	}
 
@@ -177,7 +195,7 @@ public class CommunicationManagerCAS {
 			}
 
 			this.endCommunication(this.getLastConnectedSADID(), true, false);
-			return new Tag(messageData[1], Authorization.getInstanceFromString(messageData[2]), messageData[3], type);
+			return new Tag(messageData[1], Authorization.getInstanceFromString(messageData[2]),(messageData[3]), type);
 		}
 
 		this.endCommunication(this.getLastConnectedSADID(), true, true);
@@ -298,14 +316,16 @@ public class CommunicationManagerCAS {
 
 		accessTimesList = accessTimesList.substring(1);
 
-		for (int i = 0; i < manager.getAccessControlDays().length; i++) {
+		/*for (int i = 0; i < manager.getAccessControlDays().length; i++) {
 			accessTimesList = accessTimesList + ":" + (manager.getAccessControlDays()[i]);
-		}
+		}*/
+		boolean a= this.performAuthentication(true, destID);
+		System.out.println("Performed Authentication...");
+		if (a) {
 
-		if (this.performAuthentication(true, destID)) {
-			try {
+			/*try {
 				Thread.sleep(500);
-			} catch (InterruptedException e) {}
+			} catch (InterruptedException e) {}*/
 			this.sendMessage(ClientType.SAD, destID, CommunicationManagerConstants.SEND_TO_SAD_MESSAGE, CommunicationManagerConstants.MESSAGE_BEGIN_SAD_CONFIGURATION
 					+ CommunicationManagerConstants.SEPARATOR
 					// Unique ID
@@ -324,6 +344,8 @@ public class CommunicationManagerCAS {
 					+ CommunicationManagerConstants.MESSAGE_PREFIX_PARKING_CAPACITY + CommunicationManagerConstants.SEPARATOR + Integer.toString(manager.getParkingCapacity())					
 					+ CommunicationManagerConstants.SEPARATOR
 					+ CommunicationManagerConstants.MESSAGE_END_SAD_CONFIGURATION);
+
+			System.out.println("Message Sent...");
 			String answerFromSAD = this.waitForServerResponse(new String[] {CommunicationManagerConstants.MESSAGE_SAD_CONFIG_RECEIVED, CommunicationManagerConstants.MESSAGE_SAD_CONFIG_FAILED});
 			if (answerFromSAD.contains(CommunicationManagerConstants.MESSAGE_SAD_CONFIG_RECEIVED)) {
 				this.endCommunication(destID, false, false);
@@ -388,11 +410,11 @@ public class CommunicationManagerCAS {
 	 */
 	private boolean performAuthentication(boolean isOutgoing, String destID) {
 
-		if (socket.isSocketOpen()) {
+		if (socket.isConnected()) {
 
 			if (isOutgoing) {
 				// Send begin communication to SAD
-				//System.out.println("CAS: [method performAuthentication]: Sending 'beginCommunication'...");
+				System.out.println("CAS: Outgoing Authentication [method performAuthentication]: Sending 'beginCommunication'...");
 				this.sendMessage(ClientType.SAD, destID, CommunicationManagerConstants.SEND_TO_SAD_MESSAGE, CommunicationManagerConstants.MESSAGE_BEGIN_COMMUNICATION);
 				//System.out.println("CAS: [method performAuthentication]: Sent 'beginCommunication'");
 
@@ -412,20 +434,27 @@ public class CommunicationManagerCAS {
 							+ CommunicationManagerConstants.MESSAGE_END_IDENTIFICATION);
 
 					// Wait for response regarding this CAS ID acknowledge
+					System.out.println("CAS: Outgoing Auth: Waiting this CAS ID acknowldge");
 					String idAcknowledgeMessage = waitForServerResponse(new String[]{CommunicationManagerConstants.MESSAGE_IDENTIFICATION_ACKNOWLEDGED, CommunicationManagerConstants.MESSAGE_IDENTIFICATION_FAILED});
+					System.out.println("CAS: Outgoing Auth: Received ID ack: " + idAcknowledgeMessage);
 
 					// Manage authentication success
 					if (idAcknowledgeMessage.contains(CommunicationManagerConstants.MESSAGE_IDENTIFICATION_ACKNOWLEDGED)) {
 						// ID Acknowledge, now request the SAD ID
+						System.out.println("CAS: Outgoing Auth: Received Acknowldge. Now requiring SAD ID...");
 						this.sendMessage(ClientType.SAD, destID, CommunicationManagerConstants.SEND_TO_SAD_MESSAGE, CommunicationManagerConstants.MESSAGE_REQUIRE_SAD_ID);
 
 						// Wait for response regarding SAD ID
+						System.out.println("CAS: Outgoing Auth: Waiting for SAD answer");
 						String incomingSADID = waitForServerResponse(new String[]{CommunicationManagerConstants.MESSAGE_BEGIN_IDENTIFICATION});
+						System.out.println("CAS: Outgoing Auth: SAD ID received: " + incomingSADID);
 
 						// Verify SAD authenticity
 						if ( (new AuthenticationManager().checkAuthenticationIDValidity(Long.parseLong(incomingSADID.split(CommunicationManagerConstants.SEPARATOR)[1]))) ) {
 							// Authentication successful
+							System.out.println("Sending Last Message..");
 							this.sendMessage(ClientType.SAD, destID, CommunicationManagerConstants.SEND_TO_SAD_MESSAGE, CommunicationManagerConstants.MESSAGE_IDENTIFICATION_ACKNOWLEDGED);
+							System.out.println("Last Message sent..");
 							return true;
 						}
 						else {
@@ -451,6 +480,7 @@ public class CommunicationManagerCAS {
 			// Manage authentication when communication is incoming
 			else {
 				// Send communication acknowledge message to SAD
+				System.out.println("Began incoming authentication...");
 				this.sendMessage(ClientType.SAD, destID, CommunicationManagerConstants.SEND_TO_SAD_MESSAGE, CommunicationManagerConstants.MESSAGE_COMMUNICATION_ACKNOWLEDGE);
 
 				int tries = 0;
@@ -458,8 +488,10 @@ public class CommunicationManagerCAS {
 					// Wait for response regarding SAD ID
 					String sadID = this.waitForServerResponse(new String[] {CommunicationManagerConstants.MESSAGE_BEGIN_IDENTIFICATION});
 
+					System.out.println("Received ID: " + sadID);
+					System.out.println(Arrays.toString(sadID.split(":")));
 					// Verify SAD authenticity
-					if ( (new AuthenticationManager().checkAuthenticationIDValidity(Long.parseLong(sadID.split(CommunicationManagerConstants.SEPARATOR)[1]))) ) {
+					if ( (new AuthenticationManager().checkAuthenticationIDValidity(Long.parseLong(sadID.split(":")[1]))) ) {
 						this.sendMessage(ClientType.SAD, destID, CommunicationManagerConstants.SEND_TO_SAD_MESSAGE, CommunicationManagerConstants.MESSAGE_IDENTIFICATION_ACKNOWLEDGED);
 
 						// Wait for authentication request
@@ -538,7 +570,20 @@ public class CommunicationManagerCAS {
 	 * @return True if the message was successfully sent, false otherwise.
 	 */
 	private boolean sendMessage(ClientType dest, String destID, String messageType, String message) {
+
 		String toSend = "";
+		if (dest == ClientType.CAS) {
+			toSend = this.type + "::" + this.deviceID + "::" + dest + "::" + messageType + "::" + message;
+		}
+		else {
+			toSend = this.type + "::" + this.deviceID + "::" + dest + "::" + destID + "::" + messageType + "::" + message;	
+		}
+		System.out.println("Sending..."+toSend);
+		out.println(toSend);
+		System.out.println("Sent");
+		return true;
+
+		/*String toSend = "";
 		if (dest == ClientType.CAS) {
 			//client = CommunicationManagerConstants.CLIENT_TYPE_CAS;
 			toSend = this.type + "::" + this.deviceID + "::" + dest + "::" + messageType + "::" + message;
@@ -547,7 +592,22 @@ public class CommunicationManagerCAS {
 			toSend = this.type + "::" + this.deviceID + "::" + dest + "::" + destID + "::" + messageType + "::" + message;	
 		}
 
-		return socket.sendData(toSend);
+		System.out.println("Message to send: "  + toSend);
+		try {
+			Thread.sleep(200);
+		} catch (Exception e) {}
+
+		String response = "";
+		try {
+			do {
+				this.out.println(toSend);
+				System.out.println("loop...");
+			}
+			while ((response = in.readLine()) == null);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return true;*/
 	}
 
 	/**
@@ -557,18 +617,33 @@ public class CommunicationManagerCAS {
 	 * @return The actual response message received
 	 */
 	private String waitForServerResponse(String[] expectedResponseText) {
-		String response = "";
+		String result = "";
+		try {
+			while ((result = in.readLine()) == null);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println("Received: " + result);
+		return result;
+
+		/*String response = "";
 		boolean expectedResponseFound = false;
 
 		while (!expectedResponseFound) {
-			while(!socket.isDataAvailable());
-			response = socket.getReceivedData();
-			for (String s: expectedResponseText) {
-				if (response.contains(s))
-					expectedResponseFound = true;
+			try {
+				while(!in.ready());
+				System.out.println("Actual response: " + response);
+
+				response = in.readLine();
+
+				for (String s: expectedResponseText) {
+					if (response != null && response.contains(s))
+						expectedResponseFound = true;
+				}
 			}
+			catch (Exception e) {}
 		}
-		return response;
+		return response;*/
 	}
 
 }

@@ -2456,7 +2456,13 @@ public class PermissionManager {
 								for(int i=0; i<sadList.size();i++){
 									String sadID= ""+((List<Object>) sadList.get(i)).get(0);
 									System.out.println("Adding TAG to sad: '"+sadID + "'");
-									//HKJ_SisCA_MainPage.cmcas.sendTagListUpdate(sadID,tluc);
+									try {
+										HKJ_SisCA_MainPage.semaphore.acquire();
+										HKJ_SisCA_MainPage.cmcas.sendTagListUpdate(sadID,tluc);
+										HKJ_SisCA_MainPage.semaphore.release();
+									} catch (InterruptedException e) {
+										e.printStackTrace();
+									}
 								}
 
 								JOptionPane.showMessageDialog(null, "Tag sent to SAD's successfully.");
@@ -3307,7 +3313,13 @@ public class PermissionManager {
 							for(int i=0; i<sadList.size();i++){
 								String sadID= ""+((List<Object>) sadList.get(i)).get(0);
 								System.out.println("Adding TAG to sad: '"+sadID + "'");
-								//HKJ_SisCA_MainPage.cmcas.sendTagListUpdate(sadID,tluc);
+								try {
+									HKJ_SisCA_MainPage.semaphore.acquire();
+									HKJ_SisCA_MainPage.cmcas.sendTagListUpdate(sadID,tluc);
+									HKJ_SisCA_MainPage.semaphore.release();
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
 							}
 
 							JOptionPane.showMessageDialog(null, "Tag sent to SAD's successfully.");
